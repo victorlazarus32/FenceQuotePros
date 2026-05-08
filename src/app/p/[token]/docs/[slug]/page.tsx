@@ -1,0 +1,177 @@
+// Public per-document signing page. Reached after the customer signs the
+// estimate. Shows the form name + a brief description, lets them fill in
+// any human-prompted fields (Sunshine ticket #, requested height, etc.),
+// then sign with the canvas pad. Submits via signPermitDocumentByOwner.
+
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { db } from "@/lib/db";
+import { getTemplate } from "@/lib/permitDocs";
+import { pickLang } from "@/lib/i18n";
+import { PermitDocSignForm } from "@/components/PermitDocSignForm";
+
+export const dynamic = "force-dynamic";
+
+export default async function PermitDocSignPage(
+  props: PageProps<"/p/[token]/docs/[slug]">,
+) {
+  const { token, slug } = await props.params;
+  const sp = await props.searchParams;
+  const lang = pickLang(sp?.lang);
+
+  const estimate = await db.estimate.findUnique({
+    where: { shareToken: token },
+    select: {
+      id: true,
+      number: true,
+      client: { select: { name: true } },
+      user: { select: { companyName: true, name: true, email: true } },
+      documents: {
+        where: { templateSlug: slug },
+        take: 1,
+      },
+    },
+  });
+  if (!estimate) notFound();
+  const document = estimate.documents[0];
+  if (!document) notFound();
+
+  const template = getTemplate(slug);
+  if (!template) notFound();
+
+  const initialFieldValues: Record<string, string> = document.fieldValues
+    ? (JSON.parse(document.fieldValues) as Record<string, string>)
+    : {};
+  const promptedFields = template.fields.filter((f) => f.promptHuman);
+
+  const alreadySigned = Boolean(document.ownerSignedAt);
+
+  return (
+    <div className="min-h-screen bg-paper text-text-strong">
+      <style>{`header.no-print { display: none !important; }
+                main { padding: 0 !important; max-width: none !important; }`}</style>
+      <main className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+        <article className="bg-white rounded-lg border border-line overflow-hidden">
+          <header className="bg-ink text-paper px-6 py-5">
+            <div className="text-xs uppercase tracking-wider opacity-70">
+              {lang === "es"
+                ? "Documento del paquete de permiso"
+                : "Permit packet document"}
+            </div>
+            <h1
+              className="mt-1"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.005em",
+                fontSize: "var(--text-xl)",
+                lineHeight: 1.1,
+              }}
+            >
+              {template.name}
+            </h1>
+            <div className="text-sm opacity-80 mt-2">
+              {estimate.number} · {estimate.client.name}
+            </div>
+          </header>
+
+          <div className="p-6 space-y-6">
+            <p className="text-sm text-slate-700 leading-relaxed">
+              {template.description}
+            </p>
+
+            <div className="rounded border border-line bg-slate-50 p-4 text-sm">
+              <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">
+                {lang === "es" ? "Vista previa del formulario" : "Form preview"}
+              </div>
+              <a
+                href={`/forms/${template.sourcePdfFilename}`}
+                target="_blank"
+                rel="noopener"
+                className="text-brand font-semibold hover:underline"
+              >
+                {lang === "es"
+                  ? "Abrir el formulario en blanco (PDF)"
+                  : "Open the blank form (PDF)"}{" "}
+                ↗
+              </a>
+              <div className="text-xs text-slate-500 mt-1">
+                {lang === "es"
+                  ? "Después de firmar, recibirá una copia ejecutada de este formulario."
+                  : "Once signed, you'll receive an executed copy of this form."}
+              </div>
+            </div>
+
+            {alreadySigned ? (
+              <SignedReceipt
+                lang={lang}
+                signedByName={document.ownerSignedByName ?? "—"}
+                signedAt={document.ownerSignedAt!}
+                signatureDataUrl={document.ownerSignatureDataUrl}
+              />
+            ) : (
+              <PermitDocSignForm
+                token={token}
+                documentId={document.id}
+                promptedFields={promptedFields}
+                initialFieldValues={initialFieldValues}
+                lang={lang}
+              />
+            )}
+
+            <div className="pt-4 border-t border-line">
+              <Link
+                href={`/p/${token}`}
+                className="text-sm text-brand hover:text-ink font-semibold"
+              >
+                ←{" "}
+                {lang === "es"
+                  ? "Volver al estimado"
+                  : "Back to your estimate"}
+              </Link>
+            </div>
+          </div>
+        </article>
+      </main>
+    </div>
+  );
+}
+
+function SignedReceipt({
+  lang,
+  signedByName,
+  signedAt,
+  signatureDataUrl,
+}: {
+  lang: "en" | "es";
+  signedByName: string;
+  signedAt: Date;
+  signatureDataUrl: string | null;
+}) {
+  const when = new Date(signedAt).toLocaleString(
+    lang === "es" ? "es-US" : "en-US",
+    { dateStyle: "long", timeStyle: "short" },
+  );
+  return (
+    <div
+      className="rounded-md border-2 border-ink p-5"
+      style={{ background: "var(--brand-soft)" }}
+    >
+      <div className="h-card text-ink">
+        {lang === "es" ? "Firmado y enviado" : "Signed and submitted"}
+      </div>
+      {signatureDataUrl && (
+        <div className="bg-white rounded border border-line p-3 inline-block mt-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={signatureDataUrl} alt="" className="max-h-32 block" />
+        </div>
+      )}
+      <div className="text-xs text-slate-600 mt-3">
+        {lang === "es" ? "Firmado por" : "Signed by"}{" "}
+        <span className="font-semibold text-ink">{signedByName}</span>{" "}
+        {lang === "es" ? "el" : "on"} {when}.
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,378 @@
+// FenceQuote — Joist-style estimating/invoicing for fence contractors
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  companyName   String?
+  phone         String?
+  addressLine1  String?
+  city          String?
+  state         String?
+  zip           String?
+  logoUrl       String?
+  // FL contractor / business license info — printed on permit docs.
+  licenseNumber    String?
+  // Last four digits of the personal qualifier license number. Stamped
+  // onto MDC permit applications in the dedicated 4-digit field.
+  qualifierLast4   String?
+  // Saved contractor e-signature — auto-applied to permit documents the
+  // contractor has to sign (e.g. MDC fence addendum). Captured once on
+  // the profile page; per-doc override possible via re-sign UI.
+  signatureDataUrl String?
+  signatureName    String?
+  signatureSavedAt DateTime?
+  createdAt     DateTime       @default(now())
+  clients       Client[]
+  estimates     Estimate[]
+  invoices      Invoice[]
+  emailMessages EmailMessage[]
+  notifications Notification[]
+}
+
+model Client {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  email        String?
+  phone        String?
+  addressLine1 String?
+  city         String?
+  state        String?
+  zip          String?
+  // FL property folio / parcel ID — used on permit submissions to identify
+  // the property. Format varies by county (Miami-Dade: 13 digits with dashes).
+  folioNumber  String?
+  notes        String?
+  createdAt    DateTime   @default(now())
+  estimates    Estimate[]
+  invoices     Invoice[]
+
+  @@index([userId])
+}
+
+model Estimate {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId      String
+  client        Client         @relation(fields: [clientId], references: [id])
+  number        String
+  status        String         @default("draft")
+  issueDate     DateTime       @default(now())
+  expiryDate    DateTime?
+  notes         String?
+  terms         String?
+  subtotalCents Int            @default(0)
+  taxRate       Float          @default(0)
+  taxCents      Int            @default(0)
+  totalCents    Int            @default(0)
+  // Deposit due upon acceptance. Three modes:
+  //   "none"    — no deposit collected
+  //   "percent" — percentage of totalCents (depositPercent, e.g. 50 = 50%)
+  //   "fixed"   — flat dollar amount (depositFixedCents)
+  // Only the field for the active mode is consulted; the other is ignored.
+  depositMode       String         @default("percent")
+  depositPercent    Float          @default(50)
+  depositFixedCents Int            @default(0)
+  // Public share token — client receives a /p/<shareToken> link in the
+  // proposal email. Generated on first send. Null until then.
+  shareToken    String?        @unique
+  // E-signature (in-house, no DocuSign). When the customer signs on the
+  // public estimate page we capture a base64 PNG of the canvas drawing,
+  // their typed name, and request metadata as a basic audit trail.
+  signedAt           DateTime?
+  signatureDataUrl   String?    // data:image/png;base64,...
+  signedByName       String?
+  signedIp           String?
+  signedUserAgent    String?
+  // Permit-packet workflow toggle. When true (default), signing the
+  // estimate auto-enqueues the applicable permit documents for client
+  // signatures. When false, the contractor manually triggers it from
+  // the estimate detail page (gives them a chance to verify scope first).
+  permitDocsAutoTrigger Boolean    @default(true)
+  permitDocsTriggeredAt DateTime?
+  // Override for the "Value of Work" line on the MDC permit application.
+  // When NULL, render context falls back to totalCents. Contractors
+  // sometimes file a different amount than the customer-facing total
+  // (materials-only, roadway impact fee threshold, etc.).
+  permitValueOfWorkCents Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lineItems     LineItem[]
+  fenceJobs     FenceJob[]
+  invoice       Invoice?
+  emailMessages EmailMessage[]
+  views         EstimateView[]
+  photos        PropertyPhoto[]
+  documents     EstimateDocument[]
+
+  @@index([userId, status])
+}
+
+model Invoice {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId      String
+  client        Client     @relation(fields: [clientId], references: [id])
+  estimateId    String?    @unique
+  estimate      Estimate?  @relation(fields: [estimateId], references: [id])
+  number        String
+  status        String     @default("draft")
+  issueDate     DateTime   @default(now())
+  dueDate       DateTime?
+  notes         String?
+  terms         String?
+  subtotalCents Int        @default(0)
+  taxRate       Float      @default(0)
+  taxCents      Int        @default(0)
+  totalCents    Int        @default(0)
+  paidCents     Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  lineItems     LineItem[]
+  payments      Payment[]
+
+  @@index([userId, status])
+}
+
+model LineItem {
+  id             String    @id @default(cuid())
+  estimateId     String?
+  estimate       Estimate? @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  invoiceId      String?
+  invoice        Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description    String
+  quantity       Float     @default(1)
+  unit           String    @default("ea")
+  unitPriceCents Int       @default(0)
+  totalCents     Int       @default(0)
+  sortOrder      Int       @default(0)
+}
+
+model FenceJob {
+  id                     String   @id @default(cuid())
+  estimateId             String
+  estimate               Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  fenceType              String
+  heightFeet             Float
+  linearFeet             Float
+  postSpacingFeet        Float    @default(8)
+  // Layout (§3.3)
+  numGatesSingle         Int      @default(0)
+  numGatesDouble         Int      @default(0)
+  numCorners             Int      @default(0)
+  numEnds                Int      @default(2)
+  // Removal & prep (§3.6)
+  removeExisting         Boolean  @default(false)
+  removeLinearFeet       Float    @default(0)
+  haulAway               Boolean  @default(true)
+  // Site conditions (§3.5)
+  terrain                String   @default("flat")
+  soilType               String   @default("sand")
+  access                 String   @default("easy")
+  poolAdjacent           Boolean  @default(false)
+  hvhz                   Boolean  @default(false)
+  // Aesthetic
+  style                  String?
+  color                  String?
+  // Wood-fence orientation: which side of the fence shows the finished
+  // (smooth, picket-only) face — "in" = customer's yard, "out" = neighbor's
+  // side, "both" = two-sided construction (shadowbox / board-on-board).
+  finishedSide           String?
+  // Gates (§3.4)
+  gateStyle              String   @default("swing_walk")
+  gateMotor              String   @default("none")
+  // Permits & engineering (§3.9)
+  permitRequired         Boolean  @default(false)
+  permitCents            Int      @default(0)
+  engineeringRequired    Boolean  @default(false)
+  engineeringCents       Int      @default(0)
+  // Labor (§3.7)
+  laborMode              String   @default("per_foot")
+  laborRatePerFootCents  Int      @default(0)
+  laborRatePerHourCents  Int      @default(0)
+  crewSize               Int      @default(2)
+  estimatedHours         Float    @default(0)
+  // Pricing strategy (§3.10)
+  marginMode             String   @default("percent")
+  marginPercent          Float    @default(20)
+  marginFixedCents       Int      @default(0)
+  marginMinimumCents     Int      @default(0)
+  // Free-text
+  notes                  String?
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amountCents Int
+  method      String   @default("cash")
+  reference   String?
+  receivedAt  DateTime @default(now())
+  notes       String?
+}
+
+// Outbound email record. For now, records what *would have been sent* — no
+// real email service is hooked up yet. Status starts at "queued"; when a real
+// service (Resend, etc.) is configured, the sender flips it to "sent" and
+// later "opened" / "clicked" via webhook.
+model EmailMessage {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  estimateId String?
+  estimate   Estimate? @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  // What kind of email — "proposal" (initial send), "follow_up_*"
+  // (auto-triggered product info letter), "invoice", "reminder", etc.
+  kind       String
+  // Recipient + composed content snapshot
+  toAddress  String
+  fromAddress String?
+  subject    String
+  bodyText   String
+  bodyHtml   String?
+  // Lifecycle: queued → sent → opened → clicked. May also be bounced/failed.
+  status     String    @default("queued")
+  queuedAt   DateTime  @default(now())
+  sentAt     DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  // Free-form payload (e.g. provider message id when real sending lands)
+  providerId String?
+  errorMessage String?
+
+  @@index([userId, queuedAt])
+  @@index([estimateId])
+}
+
+// Public-link view of an estimate via /p/<shareToken>. Each render of the
+// public route logs one row. This is the "the customer actually opened the
+// document" signal — more reliable than email-pixel open tracking (which
+// false-positives on Apple Mail privacy / Gmail proxy).
+model EstimateView {
+  id         String   @id @default(cuid())
+  estimateId String
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  // Best-effort identifying signals (IP can be proxied, UA spoofed)
+  ipAddress  String?
+  userAgent  String?
+  referer    String?
+  viewedAt   DateTime @default(now())
+
+  @@index([estimateId, viewedAt])
+}
+
+// AI fence visualization. Customer (or rep) uploads property photos; we
+// generate composite images showing the proposed fence in place via an
+// inpainting model (FLUX-Fill on Replicate by default). Files live in
+// object storage (local FS in dev, S3/R2 in prod) keyed by storageKey.
+model PropertyPhoto {
+  id             String               @id @default(cuid())
+  estimateId     String
+  estimate       Estimate             @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  storageKey     String               // path/key in storage backend
+  width          Int
+  height         Int
+  // Free-text label so a quote can have multiple angles labeled e.g.
+  // "front-yard", "side-east", "back-fence-line".
+  angleLabel     String?
+  uploadedAt     DateTime             @default(now())
+  visualizations FenceVisualization[]
+
+  @@index([estimateId])
+}
+
+// One generated visualization per (photo + mask + style) combo. Async-generated:
+// row is created with status="pending", flipped to "ready" with resultKey set
+// when the inpaint provider returns. Keeps cost + provider info for billing.
+model FenceVisualization {
+  id           String        @id @default(cuid())
+  photoId      String
+  photo        PropertyPhoto @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  maskKey      String        // user-drawn mask PNG (white = generate, black = preserve)
+  prompt       String        // built from fence config; deterministic for caching
+  resultKey    String?       // generated composite, null while pending
+  status       String        @default("pending") // pending | ready | failed
+  provider     String        // "replicate-flux-fill" | "openai-gpt-image-1"
+  costCents    Int?
+  createdAt    DateTime      @default(now())
+  completedAt  DateTime?
+  errorMessage String?
+
+  @@index([photoId, status])
+}
+
+// Contractor-side activity feed. Every send / view / open generates a row
+// here for the user-facing notification surface. Multi-channel: in_app is
+// always written; email + sms are placeholder for when those services land.
+model Notification {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Type taxonomy: "estimate_sent", "estimate_viewed", "email_opened",
+  // "follow_up_queued", "invoice_sent", "invoice_viewed", "payment_received"
+  kind           String
+  title          String
+  body           String?
+  // Optional context — link to the estimate / message that triggered it
+  estimateId     String?
+  emailMessageId String?
+  // Channel(s) this notification was delivered through. CSV for simplicity:
+  // "in_app", "in_app,email", "in_app,email,sms"
+  channels       String    @default("in_app")
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+
+// Permit / compliance documents tied to an estimate. One row per (estimate,
+// templateSlug). Lifecycle:
+//   pending → owner_signed (client signed on /p/<token>/docs/<slug>)
+//   pending → contractor_signed (contractor signed first via saved sig)
+//   owner_signed + contractor_signed → completed (both sigs collected; PDF
+//   rendered and cached)
+// templateSlug references a code-defined template in lib/permitDocs.ts.
+// fieldValues holds JSON of the doc-specific text fields (e.g. Sunshine
+// ticket #, neighbor name, requested height) so the PDF overlay step can
+// stamp them at the right coordinates.
+model EstimateDocument {
+  id                       String    @id @default(cuid())
+  estimateId               String
+  estimate                 Estimate  @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  templateSlug             String
+  status                   String    @default("pending")
+  fieldValues              String?   // JSON-encoded { fieldKey: value }
+  // Owner signature (homeowner / property owner)
+  ownerSignedAt            DateTime?
+  ownerSignatureDataUrl    String?
+  ownerSignedByName        String?
+  ownerSignedIp            String?
+  ownerSignedUserAgent     String?
+  // Contractor signature (license-holder)
+  contractorSignedAt       DateTime?
+  contractorSignatureDataUrl String?
+  contractorSignedByName   String?
+  // Generated executed PDF — relative path under public/uploads/docs/
+  generatedPdfKey          String?
+  generatedAt              DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  @@unique([estimateId, templateSlug])
+  @@index([estimateId])
+}
