@@ -248,11 +248,6 @@ export default function LandingPage() {
           </div>
 
           <PermitIntelligenceMockup />
-
-          <div className="mt-10 text-center text-sm opacity-70 max-w-2xl mx-auto">
-            Coverage today: Miami-Dade County (unincorporated + Hialeah, Coral
-            Gables, Miami Beach, Doral). Statewide expansion underway.
-          </div>
         </div>
       </section>
 
