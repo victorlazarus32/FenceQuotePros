@@ -26,7 +26,7 @@ export function SignupForm() {
             type="text"
             autoComplete="name"
             required
-            placeholder="Victor Moreno"
+            placeholder="Your full name"
             className="w-full rounded-md border-2 border-line px-3 py-3 text-base focus:border-brand focus:ring-2 focus:ring-brand outline-none"
           />
           {state.fieldErrors?.name && (
@@ -47,7 +47,7 @@ export function SignupForm() {
             name="companyName"
             type="text"
             autoComplete="organization"
-            placeholder="Allday Fence Co."
+            placeholder="Your company"
             className="w-full rounded-md border-2 border-line px-3 py-3 text-base focus:border-brand focus:ring-2 focus:ring-brand outline-none"
           />
           {state.fieldErrors?.companyName && (

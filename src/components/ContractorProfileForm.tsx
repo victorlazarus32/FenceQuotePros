@@ -34,13 +34,13 @@ export function ContractorProfileForm({ initial }: Props) {
           name="companyName"
           label="Contractor Name (company)"
           defaultValue={initial.companyName ?? ""}
-          placeholder="Allday Fence Co."
+          placeholder="Your company name"
         />
         <Field
           name="name"
           label="Qualifier Name"
           defaultValue={initial.name ?? ""}
-          placeholder="Victor Moreno"
+          placeholder="Your full name"
         />
         <Field
           name="licenseNumber"
