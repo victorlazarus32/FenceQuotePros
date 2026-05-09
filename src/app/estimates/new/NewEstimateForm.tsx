@@ -7,6 +7,7 @@ import {
   Columns3,
   EyeOff,
   Grid3x3,
+  Image as ImageIcon,
   Lightbulb,
   Lock,
   PawPrint,
@@ -314,6 +315,10 @@ export function NewEstimateForm({
     | "commercial"
     | "noise";
   const [purpose, setPurpose] = useState<FencePurpose | "">("");
+  // After the form submits we either land on the estimate detail
+  // (default) or the visualization workflow. Set by the two Step 7
+  // submit buttons; read by the server action via formData.
+  const [afterSave, setAfterSave] = useState<"view" | "visualize">("view");
   const [taxRate, setTaxRate] = useState(0);
   const [customLines, setCustomLines] = useState<CustomLine[]>([]);
   const [depositMode, setDepositMode] = useState<"none" | "percent" | "fixed">(
@@ -1638,6 +1643,68 @@ export function NewEstimateForm({
 
       {/* ── Step 7 — Pricing & review ─────────────────────────── */}
       <StepPanel show={step === 6} title="Pricing & review">
+        <input type="hidden" name="afterSave" value={afterSave} />
+        {/* Visualization preview teaser. Shown when the contractor has
+            picked a fence type — the actual visualization happens on
+            /estimates/[id]/visualize after save (we need an estimate
+            ID to attach uploaded photos to). The "Save and visualize"
+            button on the bottom bar sets afterSave="visualize" so the
+            redirect after createEstimate lands here directly. */}
+        {fence.fenceType && (
+          <div className="mb-6 rounded-xl border-2 border-ink overflow-hidden bg-ink shadow-[6px_6px_0_var(--brand)]">
+            <div className="px-4 py-3 bg-ink/95 border-b border-paper/10 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 text-paper">
+                <Sparkles className="w-4 h-4 text-brand" />
+                <span
+                  className="uppercase tracking-wider"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontWeight: 800,
+                    fontSize: "var(--text-md)",
+                    letterSpacing: "0.005em",
+                  }}
+                >
+                  Fence Preview
+                </span>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-paper/60 font-semibold">
+                Available after save
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2">
+              <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center">
+                <ImageIcon className="w-10 h-10 text-paper/30" />
+                <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-ink/80 text-paper text-[10px] uppercase tracking-wider font-bold">
+                  Before
+                </div>
+                <div className="absolute bottom-3 left-3 right-3 text-center text-paper/60 text-[10px] uppercase tracking-wider font-semibold">
+                  Property photo · No fence
+                </div>
+              </div>
+              <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark flex items-center justify-center">
+                <ImageIcon className="w-10 h-10 text-brand/40" />
+                <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-brand text-ink text-[10px] uppercase tracking-wider font-bold">
+                  After
+                </div>
+                <div className="absolute bottom-3 left-3 right-3 text-center text-paper/70 text-[10px] uppercase tracking-wider font-semibold">
+                  {fence.heightFeet} ft{" "}
+                  {FENCE_TYPE_LABELS[fence.fenceType].toLowerCase()}{" "}
+                  rendered
+                </div>
+              </div>
+            </div>
+
+            <div className="px-4 py-3 bg-ink text-paper text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="text-paper/80">
+                Save the estimate, then upload property photos. Renders
+                drop into the customer's quote automatically.
+              </div>
+              <Sparkles className="w-4 h-4 text-brand shrink-0 hidden sm:block" />
+            </div>
+          </div>
+        )}
+
         {/* Labor mode */}
         <div className="mb-5">
           <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-2">
@@ -1995,13 +2062,33 @@ After installation, the owner is responsible for maintaining the fence in good r
               Next →
             </Button>
           ) : (
-            <Button type="submit" size="md" disabled={pending || blocker}>
-              {pending
-                ? "Saving…"
-                : blocker
-                  ? "Resolve blocker"
-                  : "Create estimate"}
-            </Button>
+            <>
+              {fence.fenceType && (
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="md"
+                  disabled={pending || blocker}
+                  onClick={() => setAfterSave("visualize")}
+                  title="Save and jump straight into the photo + render workflow"
+                >
+                  <Sparkles className="w-4 h-4 mr-1" />
+                  Save & visualize
+                </Button>
+              )}
+              <Button
+                type="submit"
+                size="md"
+                disabled={pending || blocker}
+                onClick={() => setAfterSave("view")}
+              >
+                {pending
+                  ? "Saving…"
+                  : blocker
+                    ? "Resolve blocker"
+                    : "Create estimate"}
+              </Button>
+            </>
           )}
         </div>
       </div>

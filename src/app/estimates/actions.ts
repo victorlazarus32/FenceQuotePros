@@ -491,6 +491,15 @@ export async function createEstimate(
 
   revalidatePath("/estimates");
   revalidatePath("/");
+  // After-save destination is controlled by the form's "afterSave"
+  // hidden input — defaults to the estimate detail, but the new
+  // "Save and visualize" button on Step 7 sets it to "visualize"
+  // so the contractor lands directly in the photo / fence-render
+  // workflow.
+  const afterSave = formData.get("afterSave");
+  if (afterSave === "visualize") {
+    redirect(`/estimates/${created.id}/visualize`);
+  }
   redirect(`/estimates/${created.id}`);
 }
 
