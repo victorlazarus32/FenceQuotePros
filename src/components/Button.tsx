@@ -16,9 +16,12 @@ const variants: Record<Variant, string> = {
     "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600",
 };
 
+// Heights tuned for touch — 44px is Apple's minimum tap target. The
+// "md" size is the default and sits right at that threshold; "sm" is
+// reserved for tight, secondary actions where 36px is acceptable.
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-3 text-sm",
-  md: "h-10 px-4 text-sm",
+  sm: "h-9 px-3 text-sm",
+  md: "h-11 px-4 text-sm",
 };
 
 const base =

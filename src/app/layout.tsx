@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Saira_Condensed, Inter, JetBrains_Mono, Caveat } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
 import { isLoggedIn } from "@/lib/session";
 import { logout } from "./login/actions";
+import { MobileNav } from "@/components/MobileNav";
 
 const display = Saira_Condensed({
   subsets: ["latin"],
@@ -36,6 +37,18 @@ export const metadata: Metadata = {
     "Build estimates and invoices fast. Linear-foot pricing, post and gate calculator, payments — designed for fence contractors.",
 };
 
+// Mobile viewport setup. width=device-width + initialScale=1 keeps the
+// page from pinch-zooming on phones; themeColor matches our brand
+// background so iOS Safari's status bar / Android chrome blend in.
+// userScalable=true (default) is preserved so users can still pinch
+// zoom for accessibility.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#fbfaf6",
+  viewportFit: "cover",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -49,7 +62,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-paper text-ink" suppressHydrationWarning>
         <header className="no-print bg-white border-b border-line">
-          <nav className="max-w-6xl mx-auto px-4 h-32 flex items-center justify-between gap-4">
+          <nav className="max-w-6xl mx-auto px-4 h-16 sm:h-20 lg:h-24 flex items-center justify-between gap-4">
             <Link
               href="/"
               className="flex items-center group shrink-0"
@@ -61,10 +74,11 @@ export default async function RootLayout({
                 width={112}
                 height={112}
                 priority
-                className="rounded-md"
+                className="rounded-md h-12 sm:h-16 lg:h-20 w-auto"
               />
             </Link>
-            <div className="flex gap-1 text-sm font-medium text-slate-600 grow justify-end items-center">
+            <MobileNav loggedIn={loggedIn} />
+            <div className="hidden md:flex gap-1 text-sm font-medium text-slate-600 grow justify-end items-center">
               {loggedIn && (
                 <>
                   <NavLink href="/">Dashboard</NavLink>

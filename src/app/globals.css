@@ -90,12 +90,20 @@ body {
 /* Form fields — orange brand outline + stronger focus ring so inputs are
    easy to spot on the cream background. Applies to text-style inputs,
    selects, and textareas. Excludes checkboxes/radios/file/range etc. so
-   they keep their native rendering. */
+   they keep their native rendering.
+   font-size: 16px stops iOS Safari from auto-zooming when an input
+   gains focus. min-height: 44px hits Apple's tap-target minimum so
+   thumbs land cleanly on phones. */
 input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
 select,
 textarea {
   border: 2px solid var(--brand) !important;
   box-shadow: 0 0 0 1px var(--brand-soft) !important;
+  font-size: 16px;
+  min-height: 44px;
+}
+textarea {
+  min-height: 88px;
 }
 input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):focus,
 select:focus,
