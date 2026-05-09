@@ -103,11 +103,27 @@ export default function LandingPage() {
 
       {/* DIFFERENTIATORS */}
       <section className="bg-paper border-y-2 border-ink">
-        <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <Diff title="Fence Preview" body="Render the fence on a photo of the property" />
-          <Diff title="Permit packets" body="Addendum + affidavits auto-filled" />
-          <Diff title="Bilingual" body="Quote in English or Spanish, one click" />
-          <Diff title="On-the-spot" body="Customer signs from your phone" />
+        <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-5">
+          <Diff
+            icon={<ImageIcon className="w-6 h-6" />}
+            title="Fence Preview"
+            body="Render the fence on a photo of the property"
+          />
+          <Diff
+            icon={<FileSignature className="w-6 h-6" />}
+            title="Permit packets"
+            body="Addendum + affidavits auto-filled"
+          />
+          <Diff
+            icon={<Languages className="w-6 h-6" />}
+            title="Bilingual"
+            body="Quote in English or Spanish, one click"
+          />
+          <Diff
+            icon={<PenLine className="w-6 h-6" />}
+            title="On-the-spot"
+            body="Customer signs from your phone"
+          />
         </div>
       </section>
 
@@ -629,22 +645,38 @@ export default function LandingPage() {
   );
 }
 
-function Diff({ title, body }: { title: string; body: string }) {
+function Diff({
+  title,
+  body,
+  icon,
+}: {
+  title: string;
+  body: string;
+  icon?: React.ReactNode;
+}) {
   return (
-    <div>
+    <div className="bg-white rounded-2xl border-2 border-line p-5 text-center flex flex-col items-center shadow-[3px_3px_0_var(--brand)] hover:shadow-[5px_5px_0_var(--brand)] hover:-translate-y-0.5 transition-all">
+      {icon && (
+        <div className="w-11 h-11 rounded-full bg-brand-soft text-brand flex items-center justify-center mb-3">
+          {icon}
+        </div>
+      )}
       <div
-        className="text-brand"
+        className="text-ink"
         style={{
           fontFamily: "var(--font-display)",
           fontWeight: 800,
           textTransform: "uppercase",
-          fontSize: "var(--text-xl)",
+          fontSize: "var(--text-lg)",
+          letterSpacing: "0.005em",
           lineHeight: 1,
         }}
       >
         {title}
       </div>
-      <div className="text-xs sm:text-sm text-slate-700 mt-1.5">{body}</div>
+      <div className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
+        {body}
+      </div>
     </div>
   );
 }
