@@ -113,12 +113,9 @@ export async function POST(req: NextRequest) {
   const maskKey = keys.mask(photo.estimate.id, photo.id, viz.id);
   await storage.put(maskKey, maskBuffer, { contentType: "image/png" });
 
-  // Read original photo back from storage for the model. For the local driver
-  // this is just a file read; for R2 it'll be an HTTP fetch.
-  const path = await import("node:path");
-  const fs = await import("node:fs/promises");
-  const localPath = path.join(process.cwd(), "public", "uploads", photo.storageKey);
-  const photoBuffer = await fs.readFile(localPath);
+  // Read original photo back from storage for the model. Works for both
+  // local-FS and Supabase via the storage abstraction.
+  const photoBuffer = await storage.read(photo.storageKey);
 
   try {
     const result = await provider.inpaint({
@@ -144,7 +141,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       id: updated.id,
       status: "ready",
-      publicUrl: storage.publicUrl(resultKey),
+      publicUrl: await storage.publicUrl(resultKey),
       costCents: updated.costCents,
     });
   } catch (err) {

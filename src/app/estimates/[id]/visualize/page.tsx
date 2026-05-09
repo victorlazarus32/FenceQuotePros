@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { getStorage } from "@/lib/storage";
 import { Visualizer } from "./Visualizer";
 
 export default async function VisualizePage(
@@ -70,19 +71,28 @@ export default async function VisualizePage(
           hasGate:
             fenceJob.numGatesSingle + fenceJob.numGatesDouble > 0,
         }}
-        existingPhotos={est.photos.map((p) => ({
-          id: p.id,
-          publicUrl: `/uploads/${p.storageKey}`,
-          width: p.width,
-          height: p.height,
-          angleLabel: p.angleLabel,
-          visualizations: p.visualizations.map((v) => ({
-            id: v.id,
-            status: v.status,
-            publicUrl: v.resultKey ? `/uploads/${v.resultKey}` : null,
-            createdAt: v.createdAt.toISOString(),
-          })),
-        }))}
+        existingPhotos={await Promise.all(
+          est.photos.map(async (p) => {
+            const storage = getStorage();
+            return {
+              id: p.id,
+              publicUrl: await storage.publicUrl(p.storageKey),
+              width: p.width,
+              height: p.height,
+              angleLabel: p.angleLabel,
+              visualizations: await Promise.all(
+                p.visualizations.map(async (v) => ({
+                  id: v.id,
+                  status: v.status,
+                  publicUrl: v.resultKey
+                    ? await storage.publicUrl(v.resultKey)
+                    : null,
+                  createdAt: v.createdAt.toISOString(),
+                })),
+              ),
+            };
+          }),
+        )}
       />
     </div>
   );

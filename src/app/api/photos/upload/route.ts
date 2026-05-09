@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Normalize: bake in EXIF orientation (so phones-shot-in-portrait stop being
-  // sideways), strip metadata, re-encode as JPEG. Without this the AI sees a
-  // rotated photo and can't reason about ground/sky/perspective.
+  // sideways), strip metadata, re-encode as JPEG. Without this the renderer
+  // sees a rotated photo and can't reason about ground/sky/perspective.
   const rawBuffer = Buffer.from(await file.arrayBuffer());
   let normalized: Buffer;
   let width: number;
@@ -72,12 +72,16 @@ export async function POST(req: NextRequest) {
     }
     normalized = await pipeline.jpeg({ quality: 88 }).toBuffer();
   } catch (err) {
+    console.error("[photos/upload] sharp image_processing_failed", err);
     return NextResponse.json(
       { error: "image_processing_failed", detail: String(err) },
       { status: 400 },
     );
   }
 
+  // Create the row first to get a stable id, then upload to storage with
+  // that id baked into the key. If the upload fails, we delete the row so
+  // there's no phantom record with an empty storageKey.
   const photo = await db.propertyPhoto.create({
     data: {
       estimateId,
@@ -93,7 +97,26 @@ export async function POST(req: NextRequest) {
 
   const storage = getStorage();
   const key = keys.photo(estimateId, photo.id, "jpg");
-  await storage.put(key, normalized, { contentType: "image/jpeg" });
+  let publicUrl: string;
+  try {
+    await storage.put(key, normalized, { contentType: "image/jpeg" });
+    // publicUrl is async on the supabase driver (signs the URL) and sync
+    // on the local driver — await covers both.
+    publicUrl = await storage.publicUrl(key);
+  } catch (err) {
+    console.error("[photos/upload] storage failure", err);
+    // Don't leak a half-created row.
+    await db.propertyPhoto.delete({ where: { id: photo.id } }).catch(() => {});
+    return NextResponse.json(
+      {
+        error: "storage_failed",
+        message:
+          "Couldn't save the photo to storage. Check Supabase bucket + service role key.",
+        detail: err instanceof Error ? err.message : String(err),
+      },
+      { status: 500 },
+    );
+  }
 
   await db.propertyPhoto.update({
     where: { id: photo.id },
@@ -102,7 +125,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     id: photo.id,
-    publicUrl: storage.publicUrl(key),
+    publicUrl,
     width,
     height,
     angleLabel: photo.angleLabel,

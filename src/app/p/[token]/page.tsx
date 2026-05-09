@@ -15,6 +15,7 @@ import type { FenceType } from "@/lib/fence";
 import { formatDate, formatMoney } from "@/lib/format";
 import { SignatureBlock } from "@/components/SignatureBlock";
 import { getTemplate } from "@/lib/permitDocs";
+import { getStorage } from "@/lib/storage";
 import {
   pickLang,
   t,
@@ -54,14 +55,19 @@ export default async function PublicEstimatePage(
   });
   if (!est) notFound();
 
-  const visualizations = est.photos.flatMap((p) =>
-    p.visualizations.map((v) => ({
-      photoId: p.id,
-      visualizationId: v.id,
-      angleLabel: p.angleLabel,
-      resultUrl: v.resultKey ? `/uploads/${v.resultKey}` : null,
-    })),
-  ).filter((v) => v.resultUrl);
+  // Resolve through the storage abstraction so URLs work for both
+  // local-FS dev (returns "/uploads/<key>") and Supabase prod (signed URL).
+  const storage = getStorage();
+  const visualizations = await Promise.all(
+    est.photos.flatMap((p) =>
+      p.visualizations.map(async (v) => ({
+        photoId: p.id,
+        visualizationId: v.id,
+        angleLabel: p.angleLabel,
+        resultUrl: v.resultKey ? await storage.publicUrl(v.resultKey) : null,
+      })),
+    ),
+  ).then((all) => all.filter((v) => v.resultUrl));
 
   // ── Record view + auto follow-up (best-effort; non-blocking on errors) ──
   // Wrapped in try so a logging failure can't take down the page render.
