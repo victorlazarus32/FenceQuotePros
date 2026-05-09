@@ -15,7 +15,6 @@ import {
   Hammer,
   Image as ImageIcon,
   Languages,
-  Lock,
   MapPin,
   Package,
   PenLine,
@@ -357,14 +356,14 @@ export default function LandingPage() {
             badge="Accountability lists"
             title="Eliminate"
             highlight="installer confusion."
-            body="When the crew rolls out, every detail is in their hand: scope, gate locations, slope notes, exact measurements, materials, photos, and step-by-step installation instructions. No call-backs to the office, no wrong gates, no rework."
+            body="When the crew rolls out, every detail is in their hand: scope, gate locations, exact measurements, materials, post counts, concrete quantities, site photos, and compliance gotchas. No call-backs to the office, no wrong gates, no rework."
             bullets={[
               "Scope details",
               "Gate locations + swing",
-              "Slope + grade notes",
               "Exact measurements",
-              "Materials breakdown",
-              "Site photos + instructions",
+              "Materials + post counts",
+              "Site photos",
+              "Compliance gotchas",
             ]}
             metric={{ value: "Fewer", label: "callbacks per job" }}
             visual={<AccountabilityVisual />}
@@ -376,14 +375,14 @@ export default function LandingPage() {
             badge="Production workflow"
             title="From signed quote"
             highlight="to completed install."
-            body="Once the contract is signed, production takes over. Crew assignment, scheduling, work orders, material tracking, status updates, and production progress — all visible to the office, the crew, and the customer in their own portal."
+            body="Once the contract is signed, production takes over. Crew assignment, scheduling, work orders, material tracking, and status updates — visible to the office and the crew in real time."
             bullets={[
               "Crew assignment",
               "Scheduling",
               "Work orders",
               "Material tracking",
               "Status updates",
-              "Customer portal",
+              "Real-time visibility",
             ]}
             metric={{ value: "Real-time", label: "production visibility" }}
             visual={<ProductionVisual />}
@@ -463,7 +462,6 @@ export default function LandingPage() {
                 "Permit packet generation",
                 "Advanced workflows",
                 "Crew operations",
-                "Customer portals",
               ]}
               cta="Book a demo"
               ctaHref="/book-demo"
@@ -1134,10 +1132,10 @@ function ProductionVisual() {
         ))}
       </div>
       <div className="bg-paper border-t border-line p-4 flex items-center gap-3">
-        <Lock className="w-4 h-4 text-brand" />
+        <Workflow className="w-4 h-4 text-brand" />
         <div className="text-xs text-slate-700">
-          <span className="font-bold text-ink">Customer portal</span> shows
-          install date, status, photos, warranty.
+          <span className="font-bold text-ink">Office + crew</span> see
+          schedule, status, materials in real time.
         </div>
       </div>
     </div>
