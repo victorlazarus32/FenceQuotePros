@@ -6,6 +6,7 @@ import {
   Bell,
   Calendar,
   Check,
+  ClipboardList,
   Clock,
   CreditCard,
   DollarSign,
@@ -14,11 +15,11 @@ import {
   Hammer,
   Image as ImageIcon,
   Languages,
-  Layers,
+  Lock,
   MapPin,
   Package,
   PenLine,
-  PhoneCall,
+  PlayCircle,
   Ruler,
   ShieldCheck,
   Sparkles,
@@ -26,13 +27,16 @@ import {
   Truck,
   Users,
   Wallet,
+  Workflow,
   Wrench,
+  Zap,
 } from "lucide-react";
 
 export const metadata = {
-  title: "Fence Quote Pros — The AI Operating System for Fence Contractors",
+  title:
+    "Fence Quote Pros — The Operating System for Modern Fence Contractors",
   description:
-    "Capture leads, generate smart quotes, visualize fences, automate permits, and manage every project from one platform. Built by fence contractors.",
+    "Quotes, permits, AI visualizations, work orders, scheduling, production tracking, and municipality automation — all in one platform built specifically for fence companies.",
 };
 
 export default function LandingPage() {
@@ -41,75 +45,73 @@ export default function LandingPage() {
       {/* ─── HERO ────────────────────────────────────────────────── */}
       <section
         id="product"
-        className="relative bg-paper border-b border-line overflow-hidden"
+        className="relative bg-ink text-paper overflow-hidden border-b border-paper/10"
       >
-        <div className="absolute inset-0 -z-0 opacity-[0.04] pointer-events-none">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-brand blur-3xl" />
-          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] rounded-full bg-ink blur-3xl" />
+        <div className="absolute inset-0 -z-0 opacity-[0.06] pointer-events-none">
+          <div className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full bg-brand blur-3xl" />
+          <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full bg-brand blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto px-6 py-20 sm:py-28 grid lg:grid-cols-[1.05fr_1.2fr] gap-12 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink/5 border border-ink/10 text-xs uppercase tracking-wider mb-6 font-semibold text-ink">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-paper/20 text-xs uppercase tracking-wider mb-6 font-semibold text-paper">
               <Sparkles className="w-3.5 h-3.5 text-brand" />
               Built by fence contractors · For fence contractors
             </div>
             <h1
-              className="text-ink"
+              className="text-paper"
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 900,
                 textTransform: "uppercase",
-                fontSize: "clamp(40px, 5.5vw, 76px)",
+                fontSize: "clamp(40px, 5.8vw, 80px)",
                 lineHeight: 0.95,
                 letterSpacing: "0.005em",
               }}
             >
-              The <span className="text-brand">AI operating system</span> for
-              fence contractors.
+              The{" "}
+              <span className="text-brand">operating system</span> for
+              modern fence contractors.
             </h1>
-            <p className="text-lg sm:text-xl mt-6 max-w-xl text-slate-700 leading-relaxed">
-              Capture leads, generate smart quotes, visualize fences, automate
-              permits, and manage every project from one platform.
+            <p className="text-lg sm:text-xl mt-6 max-w-xl text-paper/80 leading-relaxed">
+              Quotes, permits, fence visualizations, work orders,
+              scheduling, production tracking, and municipality automation
+              — all in one platform built specifically for fence companies.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/book-demo"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-ink text-paper font-bold uppercase tracking-wide hover:bg-brand hover:text-ink transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-md bg-brand text-ink font-bold uppercase tracking-wide hover:bg-paper transition-colors text-base"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 Book a demo
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-brand text-white font-bold uppercase tracking-wide hover:bg-ink transition-colors"
+                href="#platform"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-md border-2 border-paper/30 text-paper font-bold uppercase tracking-wide hover:bg-paper hover:text-ink transition-colors text-base"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Start free trial
+                <PlayCircle className="w-4 h-4" />
+                Watch platform demo
               </Link>
             </div>
-            <div className="mt-6 text-xs uppercase tracking-wider text-slate-500">
-              14-day free trial · No card required
-            </div>
-
-            <div className="mt-10 pt-6 border-t border-line grid grid-cols-3 gap-6 max-w-md">
-              <Stat label="Lead → quote" value="< 5 min" />
-              <Stat label="Permit packet" value="One click" />
+            <div className="mt-8 pt-6 border-t border-paper/10 grid grid-cols-3 gap-6 max-w-md">
+              <Stat label="Lifecycle coverage" value="Lead → install" />
+              <Stat label="Permit automation" value="Auto-fill" />
               <Stat label="Built for FL" value="305 / 786" />
             </div>
           </div>
 
-          {/* HERO DASHBOARD MOCKUP */}
           <HeroDashboard />
         </div>
       </section>
 
-      {/* ─── PROBLEM ────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-line">
+      {/* ─── INDUSTRY PROBLEMS ──────────────────────────────────── */}
+      <section className="bg-paper border-b border-line">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="text-center mb-12 max-w-3xl mx-auto">
             <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              The status quo
+              Industry problems
             </div>
             <h2
               className="text-ink"
@@ -121,227 +123,272 @@ export default function LandingPage() {
                 lineHeight: 1.05,
               }}
             >
-              Fence contractors are still losing time to manual estimates,
-              phone calls, and permit confusion.
+              The fence business is held together by phone calls, sticky notes, and tape measures.
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ProblemCard
-              icon={<Truck className="w-5 h-5" />}
-              title="Wasted site visits"
-              body="Driving to a property to confirm a measurement that should've been captured at lead intake."
-            />
-            <ProblemCard
               icon={<Clock className="w-5 h-5" />}
-              title="Slow follow-ups"
-              body="Estimates that take three days to produce. Customers go with whoever responded that night."
-            />
-            <ProblemCard
-              icon={<DollarSign className="w-5 h-5" />}
-              title="Inconsistent pricing"
-              body="Three different reps quoting the same fence at three different prices. Margin leaks every job."
-            />
-            <ProblemCard
-              icon={<Ruler className="w-5 h-5" />}
-              title="Manual measurements"
-              body="Tape measures, pencils on the back of an envelope, retyping numbers into a Word doc."
+              title="Slow estimates"
+              body="Three-day turnaround on a quote. The customer signs with the contractor who responded that night."
             />
             <ProblemCard
               icon={<FileText className="w-5 h-5" />}
-              title="Permit uncertainty"
-              body="Is this address Coral Gables or Unincorporated MDC? Which addendum is required? Nobody knows."
+              title="Permit confusion"
+              body="Is this Coral Gables or Unincorporated MDC? Which addendum is required? Nobody on the truck knows."
+            />
+            <ProblemCard
+              icon={<Hammer className="w-5 h-5" />}
+              title="Installer mistakes"
+              body="Crew shows up, gate is on the wrong side, height is wrong, post spacing won't pass inspection."
+            />
+            <ProblemCard
+              icon={<Package className="w-5 h-5" />}
+              title="Material errors"
+              body="Truck rolls without enough posts. Half-day lost driving back to the yard. Margin gone."
             />
             <ProblemCard
               icon={<Bell className="w-5 h-5" />}
               title="Missed leads"
-              body="Web form submissions that sat in a spam folder for a week. The job's already booked elsewhere."
+              body="Web inquiries sat in spam. Voicemails not returned for two days. The job's already booked elsewhere."
             />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── AI VISUALIZATION ───────────────────────────────────── */}
-      <section
-        id="visualization"
-        className="bg-paper border-b border-line"
-      >
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
-          <div className="text-center mb-12 max-w-3xl mx-auto">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              Visualization
-            </div>
-            <h2
-              className="text-ink"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.2vw, 52px)",
-                lineHeight: 1.05,
-              }}
-            >
-              Show homeowners their fence{" "}
-              <span className="text-brand">before installation.</span>
-            </h2>
-            <p className="text-lg text-slate-700 mt-5">
-              Upload a property photo. Pick a style. The system overlays the
-              fence onto the real backyard. Quote updates in real time.
-              Homeowners stop guessing and start signing.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-[1fr_1.4fr] gap-10 items-start">
-            {/* Workflow steps */}
-            <div className="space-y-3">
-              <WorkflowStep
-                step="1"
-                title="Homeowner uploads property photo"
-                body="Front yard, side yard, back fence line — any angle works."
-              />
-              <WorkflowStep
-                step="2"
-                title="Contractor selects fence style"
-                body="6 ft wood privacy, 4 ft aluminum picket, chain link, ranch rail, modern horizontal — full catalog."
-              />
-              <WorkflowStep
-                step="3"
-                title="System overlays fence concept"
-                body="The fence renders onto the actual property in seconds. Style, height, color all swappable."
-              />
-              <WorkflowStep
-                step="4"
-                title="Quote updates in real time"
-                body="Linear footage, materials, labor, permits — live. Hand the homeowner a finalized number on the spot."
-              />
-            </div>
-
-            {/* Before/After comparison card */}
-            <BeforeAfterCard />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PERMIT INTELLIGENCE ────────────────────────────────── */}
-      <section id="permits" className="bg-ink text-paper border-b border-ink">
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
-          <div className="text-center mb-12 max-w-3xl mx-auto">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              Permit intelligence
-            </div>
-            <h2
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.2vw, 52px)",
-                lineHeight: 1.05,
-              }}
-            >
-              Built by contractors who{" "}
-              <span className="text-brand">understand permits.</span>
-            </h2>
-            <p className="text-lg opacity-80 mt-5">
-              Drop in the address. The system identifies the jurisdiction,
-              tells you which permit is required, generates the documents, and
-              flags the gotchas before you submit.
-            </p>
-          </div>
-
-          <PermitIntelligenceMockup />
-        </div>
-      </section>
-
-      {/* ─── WORKFLOW AUTOMATION ────────────────────────────────── */}
-      <section className="bg-white border-b border-line">
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
-          <div className="text-center mb-14 max-w-3xl mx-auto">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              End-to-end workflow
-            </div>
-            <h2
-              className="text-ink"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.2vw, 52px)",
-                lineHeight: 1.05,
-              }}
-            >
-              From quote to permit to install —{" "}
-              <span className="text-brand">one connected workflow.</span>
-            </h2>
-          </div>
-
-          <WorkflowPipeline />
-        </div>
-      </section>
-
-      {/* ─── ROI METRICS ────────────────────────────────────────── */}
-      <section className="bg-paper border-b border-line">
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
-          <div className="text-center mb-14 max-w-3xl mx-auto">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              The business case
-            </div>
-            <h2
-              className="text-ink"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.2vw, 52px)",
-                lineHeight: 1.05,
-              }}
-            >
-              Turn more leads into{" "}
-              <span className="text-brand">profitable fence jobs.</span>
-            </h2>
-            <p className="text-lg text-slate-700 mt-5">
-              Every minute spent retyping, driving, or chasing paper is margin
-              the homeowner doesn't see and you don't get to keep.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <MetricCard
-              icon={<Clock className="w-5 h-5" />}
-              metric="< 5 min"
-              label="Quote response time"
-              body="From new lead to a finished, signed-ready estimate."
+            <ProblemCard
+              icon={<Workflow className="w-5 h-5" />}
+              title="Communication breakdowns"
+              body="Office tells one story, sales rep tells another, installer hears a third. Customer is confused."
             />
-            <MetricCard
-              icon={<TrendingUp className="w-5 h-5" />}
-              metric="2–3×"
-              label="Higher close rates"
-              body="Fence visualization on-site shortens the decision."
-              accent
-            />
-            <MetricCard
-              icon={<Truck className="w-5 h-5" />}
-              metric="Fewer"
-              label="Wasted site visits"
-              body="Quote and visualize before the truck rolls."
-            />
-            <MetricCard
+            <ProblemCard
               icon={<DollarSign className="w-5 h-5" />}
-              metric="Consistent"
-              label="Pricing across reps"
-              body="Same calculator, same margin, same answer every time."
+              title="Inconsistent pricing"
+              body="Three reps quoting the same fence three different ways. Margin leaks every job, and you don't know where."
             />
-            <MetricCard
-              icon={<FileText className="w-5 h-5" />}
-              metric="Hours"
-              label="Reduced admin time"
-              body="Permit packets, follow-ups, invoicing — automated."
+            <ProblemCard
+              icon={<Truck className="w-5 h-5" />}
+              title="Production bottlenecks"
+              body="Crews idle waiting for materials. Materials arrive after the crew left. Schedule slipping by the day."
             />
-            <MetricCard
-              icon={<Bell className="w-5 h-5" />}
-              metric="Zero"
-              label="Lost leads"
-              body="Auto follow-ups + read receipts on every estimate."
+            <ProblemCard
+              icon={<Ruler className="w-5 h-5" />}
+              title="Manual measurements"
+              body="Every estimate is a tape measure on a clipboard, retyped into a Word doc, emailed as a PDF."
             />
           </div>
+        </div>
+      </section>
+
+      {/* ─── BUILT BY FENCE CONTRACTORS ─────────────────────────── */}
+      <section className="bg-white border-b border-line">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12 items-center">
+            <div>
+              <div className="aspect-square rounded-2xl bg-ink overflow-hidden relative shadow-[8px_8px_0_var(--brand)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink-deep to-brand-dark opacity-90" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Hammer className="w-32 h-32 text-brand opacity-90" />
+                </div>
+                <div className="absolute bottom-6 left-6 right-6 text-paper text-center">
+                  <div className="text-xs uppercase tracking-wider opacity-70 mb-1">
+                    Founders
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontWeight: 900,
+                      textTransform: "uppercase",
+                      fontSize: "var(--text-lg)",
+                      letterSpacing: "0.005em",
+                    }}
+                  >
+                    Real fence contractors
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
+                Built by fence contractors
+              </div>
+              <h2
+                className="text-ink"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  fontSize: "clamp(30px, 4.4vw, 52px)",
+                  lineHeight: 1,
+                  letterSpacing: "0.005em",
+                }}
+              >
+                Not built by software developers guessing how contractors work.
+              </h2>
+              <p className="text-base text-slate-700 mt-5 leading-relaxed">
+                Fence Quote Pros was built by fence contractors who live the
+                business every day. Decades of permitting, installations,
+                callbacks, municipal AHJ paperwork, production scheduling,
+                and crew management are baked into every workflow.
+              </p>
+              <p className="text-base text-slate-700 mt-4 leading-relaxed">
+                The platform reflects how fence companies actually run — not
+                how a generic SaaS team imagined they should. That's the
+                difference between contractor software people use, and
+                contractor software people pay for.
+              </p>
+              <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
+                <ContractorPoint>Permitting expertise</ContractorPoint>
+                <ContractorPoint>Inspection experience</ContractorPoint>
+                <ContractorPoint>Production management</ContractorPoint>
+                <ContractorPoint>Field operations</ContractorPoint>
+                <ContractorPoint>Code compliance</ContractorPoint>
+                <ContractorPoint>AHJ workflows</ContractorPoint>
+              </div>
+              <div className="mt-6 text-xs text-slate-500 leading-relaxed">
+                Powered by the team behind{" "}
+                <strong className="text-ink">Permit Solutions</strong> and{" "}
+                <strong className="text-ink">PermitLens</strong> — operating
+                in Miami-Dade AHJ portals every day.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── THE PLATFORM ───────────────────────────────────────── */}
+      <section id="platform" className="bg-ink text-paper border-b border-paper/10">
+        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
+          <div className="text-center mb-14 max-w-3xl mx-auto">
+            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
+              The platform
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                fontSize: "clamp(30px, 4.4vw, 52px)",
+                lineHeight: 1.05,
+              }}
+            >
+              Every step of the fence company lifecycle.{" "}
+              <span className="text-brand">In one platform.</span>
+            </h2>
+            <p className="text-lg text-paper/70 mt-5">
+              From the first inquiry to warranty follow-up, Fence Quote Pros
+              is the operational layer your business runs on.
+            </p>
+          </div>
+
+          <LifecyclePipeline />
+
+          <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <PlatformModule icon={<Users className="w-5 h-5" />} label="CRM" />
+            <PlatformModule icon={<Ruler className="w-5 h-5" />} label="Quoting" />
+            <PlatformModule icon={<MapPin className="w-5 h-5" />} label="Permit Intel" />
+            <PlatformModule icon={<ImageIcon className="w-5 h-5" />} label="Visualization" />
+            <PlatformModule icon={<ClipboardList className="w-5 h-5" />} label="Accountability" />
+            <PlatformModule icon={<Calendar className="w-5 h-5" />} label="Scheduling" />
+            <PlatformModule icon={<Wrench className="w-5 h-5" />} label="Production" />
+            <PlatformModule icon={<CreditCard className="w-5 h-5" />} label="Payments" />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PREMIUM FEATURES ────────────────────────────────────── */}
+      <section className="bg-paper border-b border-line">
+        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24 space-y-24">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
+              Premium features
+            </div>
+            <h2
+              className="text-ink"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                fontSize: "clamp(30px, 4.4vw, 52px)",
+                lineHeight: 1.05,
+              }}
+            >
+              The four features that{" "}
+              <span className="text-brand">defend the moat.</span>
+            </h2>
+          </div>
+
+          {/* FEATURE 1 — Fence Visualization */}
+          <FeatureBlock
+            badge="Sales visualization"
+            title="Show customers their fence"
+            highlight="before it's built."
+            body="Upload a property photo. Pick a style. The system overlays the fence onto the real backyard. Quote updates in real time. Homeowners stop guessing — they start signing."
+            bullets={[
+              "Property photo overlays",
+              "Side-by-side upgrades",
+              "Style + color swaps",
+              "Higher close rates",
+              "Bigger ticket size",
+              "Premium presentation tools",
+            ]}
+            metric={{ value: "2–3×", label: "close-rate uplift" }}
+            visual={<BeforeAfterVisual />}
+            reverse={false}
+          />
+
+          {/* FEATURE 2 — Municipality Intelligence */}
+          <FeatureBlock
+            badge="Municipality intelligence"
+            title="Permit workflows"
+            highlight="automated by address."
+            body="Drop in the address. The system identifies the jurisdiction, tells you which permit is required, generates the documents, and flags the gotchas before you submit."
+            bullets={[
+              "Auto-detect jurisdiction",
+              "Permit requirements per address",
+              "Setback + height rules",
+              "Auto-fill applications",
+              "Generate full permit packets",
+              "Zoning awareness",
+            ]}
+            metric={{ value: "Days", label: "saved per packet" }}
+            visual={<PermitIntelVisual />}
+            reverse={true}
+          />
+
+          {/* FEATURE 3 — Accountability Lists */}
+          <FeatureBlock
+            badge="Accountability lists"
+            title="Eliminate"
+            highlight="installer confusion."
+            body="When the crew rolls out, every detail is in their hand: scope, gate locations, slope notes, exact measurements, materials, photos, and step-by-step installation instructions. No call-backs to the office, no wrong gates, no rework."
+            bullets={[
+              "Scope details",
+              "Gate locations + swing",
+              "Slope + grade notes",
+              "Exact measurements",
+              "Materials breakdown",
+              "Site photos + instructions",
+            ]}
+            metric={{ value: "Fewer", label: "callbacks per job" }}
+            visual={<AccountabilityVisual />}
+            reverse={false}
+          />
+
+          {/* FEATURE 4 — Production Workflow */}
+          <FeatureBlock
+            badge="Production workflow"
+            title="From signed quote"
+            highlight="to completed install."
+            body="Once the contract is signed, production takes over. Crew assignment, scheduling, work orders, material tracking, status updates, and production progress — all visible to the office, the crew, and the customer in their own portal."
+            bullets={[
+              "Crew assignment",
+              "Scheduling",
+              "Work orders",
+              "Material tracking",
+              "Status updates",
+              "Customer portal",
+            ]}
+            metric={{ value: "Real-time", label: "production visibility" }}
+            visual={<ProductionVisual />}
+            reverse={true}
+          />
         </div>
       </section>
 
@@ -362,137 +409,81 @@ export default function LandingPage() {
                 lineHeight: 1.05,
               }}
             >
-              Pick your tier. Scale when you're ready.
+              Operational infrastructure for serious contractors.
             </h2>
             <p className="text-base text-slate-600 mt-4">
-              Most contractors land on Pro.
+              Most teams land on Pro. Performance unlocks the full operating system.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <PricingTier
-              name="Free Trial"
-              price="$0"
-              priceUnit="/ 14 days"
-              tagline="Full Pro access. No card required."
-              features={[
-                "Every Pro feature unlocked",
-                "Unlimited estimates for 14 days",
-                "Compliance engine",
-                "Bilingual quotes",
-                "Open alerts (text + email)",
-                "Pick your plan when it ends",
-              ]}
-              cta="Start free trial"
-              ctaHref="/signup"
-            />
-            <PricingTier
-              name="Core"
-              price="$49"
+              name="Starter"
+              price="$99"
               priceUnit="/ month"
-              tagline="Professional fence estimating."
+              tagline="CRM, estimates, proposals."
               features={[
-                "Unlimited estimates & invoices",
-                "Bilingual quotes (EN / ES)",
-                "E-signatures",
-                "Open alerts (text + email)",
-                "Customer management",
-                "Estimate templates",
-                "Stripe payments",
+                "CRM + customer database",
+                "Estimates & digital proposals",
+                "Basic scheduling",
+                "Up to 2 users",
+                "Limited jobs / month",
               ]}
-              cta="Start Core"
-              ctaHref="/signup"
+              cta="Talk to sales"
+              ctaHref="/book-demo"
             />
             <PricingTier
               name="Pro"
-              price="$149"
+              price="$249"
               priceUnit="/ month"
-              tagline="Fence business operations."
+              tagline="Production-ready operations."
               features={[
-                "Everything in Core",
-                "Compliance engine",
-                "Permit intelligence",
-                "Permit autofill",
-                "Wind-load checks",
-                "Pool-code detection",
-                "Crew management",
-                "Profitability tracking",
+                "Everything in Starter",
+                "Work orders",
+                "Accountability lists",
+                "Measurements + production workflows",
+                "Material calculations",
+                "Automation",
+                "Team management",
               ]}
-              cta="Start Pro"
-              ctaHref="/signup"
+              cta="Book a demo"
+              ctaHref="/book-demo"
               featured
             />
             <PricingTier
-              name="Visualizer"
-              price="$299"
+              name="Performance"
+              price="$499"
               priceUnit="/ month"
-              tagline="Render fences onto real properties."
+              tagline="Full operating system. Moat unlocked."
               features={[
                 "Everything in Pro",
+                "Municipality intelligence",
+                "Permit autofill",
                 "Fence visualization",
-                "Property photo rendering",
-                "Style + color overlays",
-                "Upgrade comparisons",
-                "Premium presentation tools",
-                "Priority render queue",
+                "Permit packet generation",
+                "Advanced workflows",
+                "Crew operations",
+                "Customer portals",
               ]}
-              cta="Start Visualizer"
-              ctaHref="/signup"
+              cta="Book a demo"
+              ctaHref="/book-demo"
             />
-          </div>
-
-          <div className="mt-8 max-w-4xl mx-auto rounded-md bg-paper border-2 border-line p-5 text-center">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-1">
-              Add-ons
-            </div>
-            <div className="text-sm text-slate-700">
-              <span className="font-semibold text-ink">$19 permit-ready packet</span>{" "}
-              per job ·{" "}
-              <span className="font-semibold text-ink">$49/mo permit automation</span>{" "}
-              · additional Visualizer render credits
-            </div>
-          </div>
-          <div className="text-center text-xs text-slate-500 mt-6">
-            No setup fees · Cancel anytime · 14-day free trial — no card required
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PLATFORM / FUTURE MODULES ──────────────────────────── */}
-      <section className="bg-paper border-b border-line">
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
-          <div className="text-center mb-14 max-w-3xl mx-auto">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              The platform
-            </div>
-            <h2
-              className="text-ink"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.2vw, 52px)",
-                lineHeight: 1.05,
-              }}
-            >
-              Built for fencing today.{" "}
-              <span className="text-brand">Designed for contractor growth tomorrow.</span>
-            </h2>
-            <p className="text-lg text-slate-700 mt-5">
-              Eight modules on the roadmap. Estimating + visualization +
-              permits ship today. The rest of the operating system follows.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            <ModuleTile icon={<Users className="w-5 h-5" />} label="CRM" status="next" />
-            <ModuleTile icon={<Calendar className="w-5 h-5" />} label="Scheduling" status="next" />
-            <ModuleTile icon={<Wrench className="w-5 h-5" />} label="Crew management" status="next" />
-            <ModuleTile icon={<CreditCard className="w-5 h-5" />} label="Payments" status="now" />
-            <ModuleTile icon={<Wallet className="w-5 h-5" />} label="Financing" status="later" />
-            <ModuleTile icon={<Package className="w-5 h-5" />} label="Materials" status="later" />
-            <ModuleTile icon={<FileSignature className="w-5 h-5" />} label="Permits" status="now" />
-            <ModuleTile icon={<BarChart3 className="w-5 h-5" />} label="Analytics" status="later" />
+            <PricingTier
+              name="Enterprise"
+              price="Custom"
+              tagline="Multi-location, white-label, API."
+              features={[
+                "Everything in Performance",
+                "White label",
+                "API access",
+                "Multi-location support",
+                "Onboarding + training",
+                "Dedicated support",
+                "Custom integrations",
+              ]}
+              cta="Contact sales"
+              ctaHref="/book-demo"
+            />
           </div>
         </div>
       </section>
@@ -513,8 +504,7 @@ export default function LandingPage() {
             <span className="text-brand">the operating system it deserves.</span>
           </h2>
           <p className="text-lg sm:text-xl mt-6 opacity-80 max-w-2xl mx-auto leading-relaxed">
-            Stop quoting on napkins. Stop chasing permits. Start running the
-            fence business you always pictured.
+            Stop running on phone calls and clipboards. Start running on infrastructure.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
@@ -526,11 +516,12 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              href="/signup"
+              href="#platform"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md border-2 border-paper/30 text-paper font-bold uppercase tracking-wide hover:bg-paper hover:text-ink transition-colors text-lg"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Start free trial
+              <PlayCircle className="w-5 h-5" />
+              Watch platform demo
             </Link>
           </div>
         </div>
@@ -562,32 +553,33 @@ export default function LandingPage() {
               </span>
             </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">
-              The AI operating system for fence contractors. Built in Miami,
-              shipping to fence pros nationwide.
+              The operating system for modern fence contractors. Built in
+              Miami by real fence contractors, shipping nationwide.
             </div>
           </div>
           <FooterCol
-            title="Product"
+            title="Platform"
             links={[
-              ["Visualization", "/landing#visualization"],
-              ["Permit Intel", "/landing#permits"],
-              ["Pricing", "/landing#pricing"],
+              ["Visualization", "/landing#platform"],
+              ["Permit Intel", "/landing#platform"],
+              ["Accountability", "/landing#platform"],
+              ["Production", "/landing#platform"],
             ]}
           />
           <FooterCol
             title="Company"
             links={[
               ["Book a demo", "/book-demo"],
-              ["About", "#"],
+              ["Pricing", "/landing#pricing"],
               ["Contact", "mailto:victor@permitsolutions.us"],
             ]}
           />
           <FooterCol
-            title="Legal"
+            title="Account"
             links={[
+              ["Sign in", "/login"],
               ["Privacy", "#"],
               ["Terms", "#"],
-              ["Sign in", "/login"],
             ]}
           />
         </div>
@@ -601,35 +593,36 @@ export default function LandingPage() {
   );
 }
 
-// ── Components ────────────────────────────────────────────────────
+// ── Hero stats ────────────────────────────────────────────────────
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div
-        className="text-ink"
+        className="text-paper"
         style={{
           fontFamily: "var(--font-display)",
           fontWeight: 900,
-          fontSize: "var(--text-xl)",
+          fontSize: "var(--text-lg)",
           letterSpacing: "0.005em",
-          lineHeight: 1,
+          lineHeight: 1.05,
         }}
       >
         {value}
       </div>
-      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mt-1">
+      <div className="text-[10px] uppercase tracking-wider text-paper/50 font-semibold mt-1">
         {label}
       </div>
     </div>
   );
 }
 
+// ── Hero dashboard mockup ────────────────────────────────────────
+
 function HeroDashboard() {
   return (
     <div className="relative">
-      <div className="rounded-xl bg-white border border-line shadow-[0_24px_60px_-30px_rgba(15,23,42,0.4)] overflow-hidden">
-        {/* Browser-chrome top bar */}
+      <div className="rounded-xl bg-white border border-line shadow-[0_30px_70px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
         <div className="bg-paper border-b border-line px-4 py-2.5 flex items-center gap-2">
           <div className="flex gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
@@ -638,16 +631,15 @@ function HeroDashboard() {
           </div>
           <div className="flex-1 text-center">
             <div className="inline-block px-3 py-0.5 rounded-md bg-white border border-line text-[10px] text-slate-500 font-mono">
-              fencequotepros.com / estimates / EST-1042
+              fencequotepros.com / projects / EST-1042
             </div>
           </div>
         </div>
 
-        {/* Estimate header */}
         <div className="px-5 py-4 border-b border-line flex items-center justify-between">
           <div>
             <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
-              Estimate
+              Project
             </div>
             <div
               className="text-ink"
@@ -664,55 +656,48 @@ function HeroDashboard() {
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] uppercase tracking-wider font-bold text-emerald-700">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            New lead captured
+            Lead → Production
           </div>
         </div>
 
-        {/* Inner grid */}
         <div className="grid grid-cols-2 gap-3 p-3 bg-paper">
-          {/* Address detect */}
           <div className="bg-white rounded-lg border border-line p-3 col-span-2">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">
               <MapPin className="w-3 h-3 text-brand" />
-              Property address detected
+              Property + jurisdiction detected
             </div>
             <div className="text-sm font-medium text-ink">
               4502 SW 92nd Ave, Miami, FL 33165
             </div>
             <div className="text-[11px] text-slate-500 mt-1 font-mono">
-              Folio 30-4029-001-0010 · Unincorporated MDC · R-1
+              Folio 30-4029-001-0010 · Unincorporated MDC · R-1 · HVHZ
             </div>
           </div>
 
-          {/* Fence type */}
           <div className="bg-white rounded-lg border border-line p-3">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
               <Hammer className="w-3 h-3 text-brand" />
-              Fence type
+              Fence
             </div>
             <div className="text-sm font-bold text-ink">
               6 ft Wood Privacy
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
-              Shadow-box · cedar · facing out
+              Shadow-box · cedar · 184 LF
             </div>
           </div>
 
-          {/* Linear footage */}
           <div className="bg-white rounded-lg border border-line p-3">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
-              <Ruler className="w-3 h-3 text-brand" />
-              Linear footage
+              <ClipboardList className="w-3 h-3 text-brand" />
+              Accountability list
             </div>
-            <div className="text-sm font-bold text-ink font-mono">
-              184 LF
-            </div>
+            <div className="text-sm font-bold text-ink">Generated</div>
             <div className="text-[11px] text-slate-500 mt-0.5">
-              23 posts · 2 corners
+              23 posts · 2 corners · 1 gate
             </div>
           </div>
 
-          {/* Visualization preview */}
           <div className="bg-white rounded-lg border border-line p-3 col-span-2">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
               <ImageIcon className="w-3 h-3 text-brand" />
@@ -728,7 +713,6 @@ function HeroDashboard() {
                 <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full bg-brand text-ink text-[8px] uppercase tracking-wider font-bold">
                   After
                 </div>
-                {/* Suggestion of fence vertical bars */}
                 <div className="absolute inset-x-0 bottom-2 flex items-end justify-around opacity-40">
                   {Array.from({ length: 14 }).map((_, i) => (
                     <div
@@ -742,25 +726,23 @@ function HeroDashboard() {
             </div>
           </div>
 
-          {/* Permit status */}
           <div className="bg-white rounded-lg border border-line p-3">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
               <ShieldCheck className="w-3 h-3 text-brand" />
-              Permit
+              Permit packet
             </div>
-            <div className="text-xs font-semibold text-amber-700">
-              Required (4 docs)
+            <div className="text-xs font-semibold text-emerald-700">
+              Auto-filled · 4 docs
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
               MDC §33-11
             </div>
           </div>
 
-          {/* Quote total */}
           <div className="bg-ink rounded-lg p-3 text-paper">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-paper/60 font-semibold mb-2">
               <DollarSign className="w-3 h-3 text-brand" />
-              Quote total
+              Project total
             </div>
             <div
               className="text-paper"
@@ -774,7 +756,7 @@ function HeroDashboard() {
               $7,840
             </div>
             <div className="text-[11px] text-paper/60 mt-0.5">
-              50% deposit · $3,920 due
+              50% deposit · in production
             </div>
           </div>
         </div>
@@ -782,6 +764,8 @@ function HeroDashboard() {
     </div>
   );
 }
+
+// ── Industry problem card ───────────────────────────────────────
 
 function ProblemCard({
   icon,
@@ -793,8 +777,8 @@ function ProblemCard({
   body: string;
 }) {
   return (
-    <div className="rounded-xl bg-paper border border-line p-5 hover:border-ink transition-colors">
-      <div className="w-10 h-10 rounded-lg bg-white border border-line flex items-center justify-center text-slate-500 mb-3">
+    <div className="rounded-xl bg-white border border-line p-5 hover:border-ink transition-colors">
+      <div className="w-10 h-10 rounded-lg bg-paper border border-line flex items-center justify-center text-slate-500 mb-3">
         {icon}
       </div>
       <div
@@ -814,239 +798,49 @@ function ProblemCard({
   );
 }
 
-function WorkflowStep({
-  step,
-  title,
-  body,
-}: {
-  step: string;
-  title: string;
-  body: string;
-}) {
+// ── Built by Contractors checkmarks ─────────────────────────────
+
+function ContractorPoint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-white border border-line p-5 flex gap-4">
-      <div className="shrink-0 w-9 h-9 rounded-full bg-brand text-ink flex items-center justify-center font-bold text-sm">
-        {step}
-      </div>
-      <div>
-        <div className="font-semibold text-ink text-sm">{title}</div>
-        <div className="text-sm text-slate-600 mt-1 leading-relaxed">{body}</div>
-      </div>
-    </div>
+    <li className="flex items-center gap-2">
+      <Check className="w-4 h-4 text-brand shrink-0" strokeWidth={3} />
+      <span className="font-semibold text-ink">{children}</span>
+    </li>
   );
 }
 
-function BeforeAfterCard() {
-  return (
-    <div className="relative">
-      <div className="rounded-xl border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden bg-ink">
-        <div className="grid grid-cols-1">
-          {/* BEFORE */}
-          <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center">
-            <ImageIcon className="w-12 h-12 text-paper/30" />
-            <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold">
-              Before
-            </div>
-            <div className="absolute bottom-3 left-3 right-3 text-center">
-              <div className="text-paper/60 text-[10px] uppercase tracking-wider font-semibold">
-                Property photo · No fence
-              </div>
-            </div>
-          </div>
-          <div className="h-px bg-brand" />
-          {/* AFTER */}
-          <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark flex items-center justify-center">
-            <ImageIcon className="w-12 h-12 text-brand/40" />
-            <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold">
-              After
-            </div>
-            <div className="absolute bottom-3 left-3 right-3 text-center">
-              <div className="text-paper/60 text-[10px] uppercase tracking-wider font-semibold">
-                Same property · 6 ft wood privacy rendered
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between">
-          <div className="text-xs uppercase tracking-wider opacity-60">
-            Style
-          </div>
-          <div className="flex gap-1.5">
-            <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
-              Aluminum
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] uppercase tracking-wider font-bold">
-              Wood ✓
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
-              PVC
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ── Lifecycle pipeline (The Platform section) ───────────────────
 
-function PermitIntelligenceMockup() {
-  return (
-    <div className="rounded-xl bg-paper text-ink shadow-[0_24px_60px_-30px_rgba(0,0,0,0.5)] overflow-hidden border border-paper/20">
-      {/* Address bar */}
-      <div className="bg-white border-b border-line px-5 py-4 flex items-center gap-3">
-        <MapPin className="w-5 h-5 text-brand" />
-        <div className="flex-1 font-mono text-sm text-ink">
-          4502 SW 92nd Ave, Miami, FL 33165
-        </div>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] uppercase tracking-wider font-bold text-emerald-700">
-          <Check className="w-3 h-3" />
-          Detected
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-px bg-line">
-        {/* Left: jurisdiction details */}
-        <div className="bg-paper p-6 space-y-4">
-          <PermitRow
-            label="Jurisdiction"
-            value="Unincorporated Miami-Dade"
-            tone="ok"
-          />
-          <PermitRow label="Zoning district" value="R-1 (Single family)" tone="ok" />
-          <PermitRow
-            label="Permit required"
-            value="Yes — Building (Cat. 18)"
-            tone="warn"
-          />
-          <PermitRow label="Max fence height" value="6 ft side / rear · 4 ft front" tone="ok" />
-          <PermitRow label="Wind-load zone" value="HVHZ — V_ult 175 mph" tone="ok" />
-          <PermitRow label="HOA likelihood" value="Low (no association on file)" tone="ok" />
-        </div>
-
-        {/* Right: required documents */}
-        <div className="bg-paper p-6">
-          <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">
-            Required documents (4)
-          </div>
-          <div className="space-y-2">
-            <DocItem name="MDC Building Permit Application" status="autofilled" />
-            <DocItem name="Sec. 33-11 Fence Addendum" status="autofilled" />
-            <DocItem name="Affidavit to Extend Height" status="conditional" />
-            <DocItem name="Survey + property pin photos" status="upload" />
-          </div>
-
-          <div className="mt-5 pt-4 border-t border-line">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500 uppercase tracking-wider font-semibold">
-                Estimated approval
-              </span>
-              <span className="text-ink font-bold">5–7 business days</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PermitRow({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "ok" | "warn" | "block";
-}) {
-  const dot =
-    tone === "ok"
-      ? "bg-emerald-500"
-      : tone === "warn"
-        ? "bg-amber-500"
-        : "bg-red-500";
-  return (
-    <div className="flex items-start gap-3">
-      <span className={`w-1.5 h-1.5 rounded-full mt-2 ${dot} shrink-0`} />
-      <div className="flex-1">
-        <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-          {label}
-        </div>
-        <div className="text-sm text-ink font-medium mt-0.5">{value}</div>
-      </div>
-    </div>
-  );
-}
-
-function DocItem({
-  name,
-  status,
-}: {
-  name: string;
-  status: "autofilled" | "conditional" | "upload";
-}) {
-  const styles = {
-    autofilled: {
-      icon: <Check className="w-3 h-3" />,
-      label: "Autofilled",
-      bg: "bg-emerald-50 border-emerald-200 text-emerald-700",
-    },
-    conditional: {
-      icon: <Sparkles className="w-3 h-3" />,
-      label: "Conditional",
-      bg: "bg-amber-50 border-amber-200 text-amber-700",
-    },
-    upload: {
-      icon: <ArrowRight className="w-3 h-3" />,
-      label: "Upload",
-      bg: "bg-slate-100 border-slate-200 text-slate-700",
-    },
-  } as const;
-  const s = styles[status];
-  return (
-    <div className="flex items-center justify-between gap-3 py-2 px-3 rounded-md bg-white border border-line">
-      <span className="text-sm text-ink font-medium">{name}</span>
-      <span
-        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] uppercase tracking-wider font-bold ${s.bg}`}
-      >
-        {s.icon}
-        {s.label}
-      </span>
-    </div>
-  );
-}
-
-function WorkflowPipeline() {
+function LifecyclePipeline() {
   const steps = [
-    { icon: <Bell className="w-5 h-5" />, label: "Lead" },
-    { icon: <Ruler className="w-5 h-5" />, label: "Quote" },
-    { icon: <ImageIcon className="w-5 h-5" />, label: "Visualization" },
-    { icon: <FileSignature className="w-5 h-5" />, label: "Permit" },
-    { icon: <Calendar className="w-5 h-5" />, label: "Schedule" },
-    { icon: <Wrench className="w-5 h-5" />, label: "Install" },
-    { icon: <CreditCard className="w-5 h-5" />, label: "Payment" },
+    { icon: <Bell className="w-4 h-4" />, label: "Lead" },
+    { icon: <MapPin className="w-4 h-4" />, label: "Property" },
+    { icon: <ImageIcon className="w-4 h-4" />, label: "Visualize" },
+    { icon: <Ruler className="w-4 h-4" />, label: "Estimate" },
+    { icon: <FileSignature className="w-4 h-4" />, label: "Contract" },
+    { icon: <ShieldCheck className="w-4 h-4" />, label: "Permit" },
+    { icon: <Calendar className="w-4 h-4" />, label: "Schedule" },
+    { icon: <ClipboardList className="w-4 h-4" />, label: "Accountability" },
+    { icon: <Wrench className="w-4 h-4" />, label: "Install" },
+    { icon: <Check className="w-4 h-4" />, label: "Finalize" },
+    { icon: <TrendingUp className="w-4 h-4" />, label: "Follow-up" },
   ];
   return (
-    <div className="relative">
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div className="overflow-x-auto -mx-6 px-6 pb-2">
+      <div className="flex items-center gap-1 min-w-max sm:justify-center">
         {steps.map((s, i) => (
-          <div key={s.label} className="flex flex-col items-center text-center relative">
-            <div className="w-14 h-14 rounded-full bg-paper border-2 border-line flex items-center justify-center text-brand mb-3 relative z-10">
-              {s.icon}
+          <div key={s.label} className="flex items-center">
+            <div className="flex flex-col items-center text-center w-20">
+              <div className="w-12 h-12 rounded-full bg-paper/10 border-2 border-paper/20 flex items-center justify-center text-brand mb-2">
+                {s.icon}
+              </div>
+              <div className="text-[10px] uppercase tracking-wider text-paper/80 font-semibold">
+                {s.label}
+              </div>
             </div>
             {i < steps.length - 1 && (
-              <div className="hidden lg:block absolute top-7 left-[58%] w-full h-0.5 bg-line" />
+              <div className="w-3 h-0.5 bg-paper/15 mx-0.5" />
             )}
-            <div
-              className="text-ink"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 800,
-                textTransform: "uppercase",
-                fontSize: "var(--text-sm)",
-                letterSpacing: "0.005em",
-              }}
-            >
-              {s.label}
-            </div>
           </div>
         ))}
       </div>
@@ -1054,91 +848,24 @@ function WorkflowPipeline() {
   );
 }
 
-function MetricCard({
+function PlatformModule({
   icon,
-  metric,
   label,
-  body,
-  accent,
 }: {
   icon: React.ReactNode;
-  metric: string;
   label: string;
-  body: string;
-  accent?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-xl p-6 transition-colors ${
-        accent
-          ? "bg-ink text-paper border-2 border-ink shadow-[6px_6px_0_var(--brand)]"
-          : "bg-white border border-line hover:border-ink"
-      }`}
-    >
-      <div
-        className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${
-          accent ? "bg-brand text-ink" : "bg-brand-soft text-brand"
-        }`}
-      >
+    <div className="rounded-lg border-2 border-paper/15 bg-paper/5 p-4 flex items-center gap-3">
+      <div className="w-9 h-9 rounded-md bg-brand/15 text-brand flex items-center justify-center">
         {icon}
       </div>
       <div
         style={{
           fontFamily: "var(--font-display)",
-          fontWeight: 900,
-          fontSize: "var(--text-3xl)",
-          lineHeight: 1,
-          color: accent ? "var(--brand)" : "var(--ink)",
-        }}
-      >
-        {metric}
-      </div>
-      <div className="text-xs uppercase tracking-wider font-semibold mt-2">
-        {label}
-      </div>
-      <div
-        className={`text-sm mt-2 leading-relaxed ${accent ? "opacity-80" : "text-slate-600"}`}
-      >
-        {body}
-      </div>
-    </div>
-  );
-}
-
-function ModuleTile({
-  icon,
-  label,
-  status,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  status: "now" | "next" | "later";
-}) {
-  const meta = {
-    now: { ring: "border-brand bg-white", badge: "bg-brand text-ink", text: "Live" },
-    next: { ring: "border-line bg-white", badge: "bg-ink/10 text-ink", text: "Next" },
-    later: { ring: "border-line bg-paper", badge: "bg-slate-100 text-slate-500", text: "Later" },
-  } as const;
-  const s = meta[status];
-  return (
-    <div className={`rounded-xl border-2 p-5 ${s.ring}`}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="w-9 h-9 rounded-lg bg-brand-soft text-brand flex items-center justify-center">
-          {icon}
-        </div>
-        <span
-          className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ${s.badge}`}
-        >
-          {s.text}
-        </span>
-      </div>
-      <div
-        className="text-ink"
-        style={{
-          fontFamily: "var(--font-display)",
           fontWeight: 800,
           textTransform: "uppercase",
-          fontSize: "var(--text-md)",
+          fontSize: "var(--text-sm)",
           letterSpacing: "0.005em",
         }}
       >
@@ -1147,6 +874,277 @@ function ModuleTile({
     </div>
   );
 }
+
+// ── Premium feature block (cinematic per-feature presentation) ──
+
+function FeatureBlock({
+  badge,
+  title,
+  highlight,
+  body,
+  bullets,
+  metric,
+  visual,
+  reverse,
+}: {
+  badge: string;
+  title: string;
+  highlight: string;
+  body: string;
+  bullets: string[];
+  metric: { value: string; label: string };
+  visual: React.ReactNode;
+  reverse: boolean;
+}) {
+  return (
+    <div className="grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
+      <div className={reverse ? "order-1 lg:order-2" : ""}>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-paper text-xs uppercase tracking-wider mb-5 font-bold">
+          <Zap className="w-3 h-3 text-brand" />
+          {badge}
+        </div>
+        <h3
+          className="text-ink"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 900,
+            textTransform: "uppercase",
+            fontSize: "clamp(28px, 4vw, 48px)",
+            lineHeight: 1,
+            letterSpacing: "0.005em",
+          }}
+        >
+          {title}{" "}
+          <span className="text-brand">{highlight}</span>
+        </h3>
+        <p className="text-base sm:text-lg text-slate-700 mt-5 leading-relaxed">
+          {body}
+        </p>
+        <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          {bullets.map((b) => (
+            <li key={b} className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-brand shrink-0" strokeWidth={3} />
+              <span className="font-semibold text-ink">{b}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-6 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-ink text-paper">
+          <TrendingUp className="w-4 h-4 text-brand" />
+          <div>
+            <span
+              className="text-paper"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                fontSize: "var(--text-lg)",
+              }}
+            >
+              {metric.value}
+            </span>
+            <span className="text-paper/70 text-xs uppercase tracking-wider ml-2 font-semibold">
+              {metric.label}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className={reverse ? "order-2 lg:order-1" : ""}>{visual}</div>
+    </div>
+  );
+}
+
+function BeforeAfterVisual() {
+  return (
+    <div className="rounded-xl border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden bg-ink">
+      <div className="grid grid-cols-1">
+        <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center">
+          <ImageIcon className="w-12 h-12 text-paper/30" />
+          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold">
+            Before
+          </div>
+        </div>
+        <div className="h-px bg-brand" />
+        <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark flex items-center justify-center">
+          <ImageIcon className="w-12 h-12 text-brand/40" />
+          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold">
+            After
+          </div>
+        </div>
+      </div>
+      <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between">
+        <div className="text-xs uppercase tracking-wider opacity-60">Style</div>
+        <div className="flex gap-1.5">
+          <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
+            Aluminum
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] uppercase tracking-wider font-bold">
+            Wood ✓
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
+            PVC
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PermitIntelVisual() {
+  return (
+    <div className="rounded-xl bg-white border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden">
+      <div className="bg-ink text-paper px-4 py-3 flex items-center gap-2">
+        <MapPin className="w-4 h-4 text-brand" />
+        <div className="font-mono text-xs">
+          4502 SW 92nd Ave, Miami, FL 33165
+        </div>
+      </div>
+      <div className="p-4 space-y-2.5 text-sm">
+        <PermitVisualRow label="Jurisdiction" value="Unincorporated MDC" tone="ok" />
+        <PermitVisualRow label="Permit category" value="18 · Building" tone="warn" />
+        <PermitVisualRow label="Wind-load zone" value="HVHZ — V_ult 175 mph" tone="ok" />
+        <PermitVisualRow label="Max height — front" value="4 ft" tone="ok" />
+        <PermitVisualRow label="Max height — rear / side" value="6 ft" tone="ok" />
+        <PermitVisualRow label="HOA likelihood" value="Low" tone="ok" />
+      </div>
+      <div className="bg-paper border-t border-line p-4">
+        <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">
+          Required documents (4)
+        </div>
+        <div className="flex flex-wrap gap-1.5 text-[10px]">
+          <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold uppercase tracking-wider">
+            Auto-filled
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold uppercase tracking-wider">
+            Auto-filled
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold uppercase tracking-wider">
+            Auto-filled
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-bold uppercase tracking-wider">
+            Conditional
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PermitVisualRow({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "ok" | "warn";
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+        {label}
+      </div>
+      <div
+        className={`text-sm font-medium ${tone === "warn" ? "text-amber-700" : "text-ink"}`}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function AccountabilityVisual() {
+  return (
+    <div className="rounded-xl bg-white border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden">
+      <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ClipboardList className="w-4 h-4 text-brand" />
+          <span className="text-xs uppercase tracking-wider font-bold">
+            Crew accountability list
+          </span>
+        </div>
+        <span className="text-[10px] text-paper/70 font-mono">
+          EST-1042
+        </span>
+      </div>
+      <div className="p-4 text-sm">
+        <AccItem label="Gates" value="1× swing-walk · facing in" />
+        <AccItem label="Slope" value="2 ft drop NE corner" />
+        <AccItem label="Posts" value="23 × 4×4 cedar · 30in concrete" />
+        <AccItem label="Spacing" value="8 ft · 2 corners" />
+        <AccItem label="Materials" value="184 LF cedar · 1 single gate kit" />
+        <AccItem label="Site notes" value="Pool gate latch ≥ 54in" />
+      </div>
+      <div className="bg-paper border-t border-line p-4 flex items-center gap-2">
+        <Check className="w-4 h-4 text-brand" strokeWidth={3} />
+        <span className="text-xs text-slate-700 font-semibold">
+          Crew has the full scope before they leave the yard.
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function AccItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-3 py-2 border-b border-line last:border-b-0">
+      <div className="w-24 shrink-0 text-[10px] uppercase tracking-wider text-slate-500 font-semibold pt-0.5">
+        {label}
+      </div>
+      <div className="text-sm text-ink font-medium">{value}</div>
+    </div>
+  );
+}
+
+function ProductionVisual() {
+  return (
+    <div className="rounded-xl bg-white border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden">
+      <div className="bg-ink text-paper px-4 py-3 flex items-center gap-2">
+        <Workflow className="w-4 h-4 text-brand" />
+        <span className="text-xs uppercase tracking-wider font-bold">
+          Production board · This week
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-px bg-line text-xs">
+        {[
+          { day: "Mon", crew: "A", job: "Sanchez", status: "scheduled" },
+          { day: "Tue", crew: "A", job: "Sanchez", status: "in-progress" },
+          { day: "Wed", crew: "B", job: "Rivera", status: "in-progress" },
+          { day: "Thu", crew: "A", job: "Pinecrest", status: "scheduled" },
+          { day: "Fri", crew: "B", job: "Coral Way", status: "scheduled" },
+          { day: "Sat", crew: "A", job: "Open", status: "open" },
+        ].map((cell) => (
+          <div key={cell.day} className="bg-white p-3">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+              {cell.day} · Crew {cell.crew}
+            </div>
+            <div className="text-sm font-bold text-ink mt-1">
+              {cell.job}
+            </div>
+            <div
+              className={`mt-1 inline-block px-1.5 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-bold ${
+                cell.status === "in-progress"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : cell.status === "scheduled"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-slate-100 text-slate-500"
+              }`}
+            >
+              {cell.status}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="bg-paper border-t border-line p-4 flex items-center gap-3">
+        <Lock className="w-4 h-4 text-brand" />
+        <div className="text-xs text-slate-700">
+          <span className="font-bold text-ink">Customer portal</span> shows
+          install date, status, photos, warranty.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Pricing tier ─────────────────────────────────────────────────
 
 function PricingTier({
   name,

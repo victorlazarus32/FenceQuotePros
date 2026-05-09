@@ -52,17 +52,7 @@ export function MobileNav({ loggedIn }: { loggedIn: boolean }) {
               </>
             ) : (
               <>
-                <MobileItem href="/landing#product" label="Product" onNavigate={close} />
-                <MobileItem
-                  href="/landing#visualization"
-                  label="Visualization"
-                  onNavigate={close}
-                />
-                <MobileItem
-                  href="/landing#permits"
-                  label="Permit Intel"
-                  onNavigate={close}
-                />
+                <MobileItem href="/landing#platform" label="Platform" onNavigate={close} />
                 <MobileItem
                   href="/landing#pricing"
                   label="Pricing"

@@ -98,9 +98,7 @@ export default async function RootLayout({
               )}
               {!loggedIn && (
                 <>
-                  <NavLink href="/landing#product">Product</NavLink>
-                  <NavLink href="/landing#visualization">Visualization</NavLink>
-                  <NavLink href="/landing#permits">Permit Intel</NavLink>
+                  <NavLink href="/landing#platform">Platform</NavLink>
                   <NavLink href="/landing#pricing">Pricing</NavLink>
                   <NavLink href="/login">Sign in</NavLink>
                   <Link
