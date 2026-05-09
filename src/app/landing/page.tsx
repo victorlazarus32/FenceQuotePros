@@ -236,39 +236,23 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="relative">
-              {/* Before / After comparison. Drop real install photos at
-                  /public/landing-preview/before.jpg + /public/landing-preview/after.jpg
-                  to replace the styled placeholders below. */}
+              {/* Before / After comparison. To populate with real photos, drop
+                  before.jpg + after.jpg into /public/landing-preview/ and add
+                  <Image> tags inside each panel. */}
               <div className="rounded-lg border-4 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden bg-ink">
                 <div className="grid grid-cols-1">
                   {/* BEFORE */}
-                  <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/landing-preview/before.jpg"
-                      alt="Property without a fence"
-                      className="absolute inset-0 w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold backdrop-blur">
+                  <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center">
+                    <ImageIcon className="w-12 h-12 text-paper/30" />
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold">
                       Before
                     </div>
                   </div>
                   <div className="h-px bg-brand" />
                   {/* AFTER */}
-                  <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/landing-preview/after.jpg"
-                      alt="Same property with the fence rendered in"
-                      className="absolute inset-0 w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold backdrop-blur">
+                  <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark flex items-center justify-center">
+                    <ImageIcon className="w-12 h-12 text-brand/40" />
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold">
                       After
                     </div>
                   </div>
