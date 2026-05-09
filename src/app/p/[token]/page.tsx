@@ -300,8 +300,8 @@ export default async function PublicEstimatePage(
                 </div>
                 <p className="text-xs text-slate-500 italic">
                   {lang === "es"
-                    ? "Imágenes generadas por IA. Visualización aproximada — la instalación final puede variar."
-                    : "AI-generated previews. Approximate visualization — final installation may vary."}
+                    ? "Vista previa renderizada. Aproximación — la instalación final puede variar."
+                    : "Rendered preview. Approximate visualization — final installation may vary."}
                 </p>
               </section>
             )}

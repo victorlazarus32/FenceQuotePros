@@ -104,14 +104,14 @@ export default function LandingPage() {
       {/* DIFFERENTIATORS */}
       <section className="bg-paper border-y-2 border-ink">
         <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <Diff title="AI Preview" body="Render the fence on a photo of the property" />
+          <Diff title="Fence Preview" body="Render the fence on a photo of the property" />
           <Diff title="Permit packets" body="Addendum + affidavits auto-filled" />
           <Diff title="Bilingual" body="Quote in English or Spanish, one click" />
           <Diff title="On-the-spot" body="Customer signs from your phone" />
         </div>
       </section>
 
-      {/* WOW FEATURE — AI Compliance Engine */}
+      {/* WOW FEATURE — Compliance Engine */}
       <section className="relative bg-gradient-to-br from-ink via-ink-deep to-ink text-paper overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-brand blur-3xl" />
@@ -134,7 +134,7 @@ export default function LandingPage() {
                   letterSpacing: "0.005em",
                 }}
               >
-                AI Fence
+                Fence
                 <br />
                 <span className="text-brand">Compliance Engine.</span>
               </h2>
@@ -179,14 +179,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* WOW FEATURE — AI Fence Visualization */}
+      {/* WOW FEATURE — Fence Preview */}
       <section className="bg-paper border-y-2 border-ink">
         <div className="max-w-6xl mx-auto px-6 py-20 sm:py-24">
           <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-paper text-xs uppercase tracking-wider mb-5 font-bold">
                 <ImageIcon className="w-3.5 h-3.5" />
-                Premium Vision AI
+                Premium visualizer
               </div>
               <h2
                 style={{
@@ -232,7 +232,7 @@ export default function LandingPage() {
                       letterSpacing: "0.005em",
                     }}
                   >
-                    AI render preview
+                    Fence render preview
                   </div>
                   <div className="text-xs uppercase tracking-wider opacity-70 mt-2">
                     Property photo + selected style
@@ -280,8 +280,8 @@ export default function LandingPage() {
             <BigFeature
               icon={<FileSignature className="w-7 h-7" />}
               title="Permit packets"
-              outcome="From estimate to filed permit in one flow."
-              body="MDC fence addendum, building permit application, finished-side + height affidavits — auto-filled from the estimate, signed by both parties, ready for the courthouse."
+              outcome="Faster, more efficient permit paperwork."
+              body="MDC fence addendum, building permit application, finished-side + height affidavits — auto-filled from the estimate. Hand the owner a clean, ready-to-sign packet instead of a stack of blanks."
             />
           </div>
         </div>
@@ -340,12 +340,12 @@ export default function LandingPage() {
             <Feature
               icon={<FileSignature className="w-5 h-5" />}
               title="Permit autofill"
-              body="Permit-ready packets generated from the estimate. Folio, owner data, code references — pre-filled."
+              body="Pre-fill the addendum, building permit, and affidavits from the estimate. Owner reviews and signs — no retyping."
             />
             <Feature
               icon={<ImageIcon className="w-5 h-5" />}
-              title="AI fence visualization"
-              body="Render the fence onto a property photo before the homeowner commits. Vision AI tier."
+              title="Fence preview"
+              body="Render the fence onto a property photo before the homeowner commits. Visualizer tier."
             />
           </div>
         </div>
@@ -421,7 +421,7 @@ export default function LandingPage() {
             <Phase n="2" label="Operations" status="next" />
             <Phase n="3" label="Permit IQ" status="next" />
             <Phase n="4" label="Materials" status="later" />
-            <Phase n="5" label="AI compliance" status="later" />
+            <Phase n="5" label="Smart compliance" status="later" />
             <Phase n="6" label="Contractor network" status="later" />
           </div>
         </div>
@@ -452,7 +452,7 @@ export default function LandingPage() {
               features={[
                 "Every Pro feature unlocked",
                 "Unlimited estimates for 14 days",
-                "AI compliance engine",
+                "Compliance engine",
                 "Bilingual quotes",
                 "Open alerts (text + email)",
                 "Pick your plan when it ends",
@@ -484,7 +484,7 @@ export default function LandingPage() {
               tagline="Fence business operations."
               features={[
                 "Everything in Core",
-                "AI compliance engine",
+                "Compliance engine",
                 "Municipality intelligence",
                 "Permit packet auto-generation",
                 "Pool-code detection",
@@ -497,20 +497,20 @@ export default function LandingPage() {
               featured
             />
             <PricingTier
-              name="Vision AI"
+              name="Visualizer"
               price="$299"
               priceUnit="/ month"
               tagline="Render fences onto real properties."
               features={[
                 "Everything in Pro",
-                "AI fence visualization",
+                "Fence preview",
                 "Property photo rendering",
                 "Style + color overlays",
                 "Upgrade comparisons",
                 "Premium presentation tools",
                 "Priority render queue",
               ]}
-              cta="Start Vision AI"
+              cta="Start Visualizer"
               ctaHref="/signup"
             />
           </div>
@@ -522,7 +522,7 @@ export default function LandingPage() {
             <div className="text-sm text-slate-700">
               <span className="font-semibold text-ink">$19 permit-ready packet</span> per job ·{" "}
               <span className="font-semibold text-ink">$49/mo permit automation</span> ·
-              additional Vision AI render credits
+              additional Visualizer render credits
             </div>
           </div>
 
