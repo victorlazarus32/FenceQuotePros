@@ -236,28 +236,46 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-[4/5] rounded-lg bg-gradient-to-br from-ink via-ink-deep to-brand-dark border-4 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden flex items-center justify-center p-8">
-                <div className="text-center text-paper">
-                  <ImageIcon className="w-20 h-20 text-brand mx-auto mb-4 opacity-90" />
-                  <div
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontWeight: 900,
-                      textTransform: "uppercase",
-                      fontSize: "var(--text-xl)",
-                      letterSpacing: "0.005em",
-                    }}
-                  >
-                    Fence render preview
+              {/* Before / After comparison. Drop real install photos at
+                  /public/landing-preview/before.jpg + /public/landing-preview/after.jpg
+                  to replace the styled placeholders below. */}
+              <div className="rounded-lg border-4 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden bg-ink">
+                <div className="grid grid-cols-1">
+                  {/* BEFORE */}
+                  <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/landing-preview/before.jpg"
+                      alt="Property without a fence"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold backdrop-blur">
+                      Before
+                    </div>
                   </div>
-                  <div className="text-xs uppercase tracking-wider opacity-70 mt-2">
-                    Property photo + selected style
+                  <div className="h-px bg-brand" />
+                  {/* AFTER */}
+                  <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/landing-preview/after.jpg"
+                      alt="Same property with the fence rendered in"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold backdrop-blur">
+                      After
+                    </div>
                   </div>
-                  <div className="mt-6 grid grid-cols-2 gap-2 text-[10px] uppercase tracking-wider">
-                    <div className="bg-paper/10 border border-paper/20 rounded py-2">Black Aluminum</div>
-                    <div className="bg-brand text-ink rounded py-2 font-bold">White PVC ✓</div>
-                    <div className="bg-paper/10 border border-paper/20 rounded py-2">Horizontal Wood</div>
-                    <div className="bg-paper/10 border border-paper/20 rounded py-2">Ranch Rail</div>
+                </div>
+                <div className="bg-ink text-paper px-4 py-3 text-center">
+                  <div className="text-xs uppercase tracking-wider opacity-70">
+                    Same property · Fence rendered onto the photo
                   </div>
                 </div>
               </div>
