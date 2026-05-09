@@ -1610,9 +1610,10 @@ After installation, the owner is responsible for maintaining the fence in good r
         </p>
       )}
 
-      {/* Sticky bottom bar — navigation only (running total removed). */}
-      <div className="fixed sm:sticky sm:bottom-2 bottom-0 left-0 right-0 mt-6 border-t-2 border-ink bg-paper px-4 py-3 z-10 sm:rounded-md sm:border-2">
-        <div className="max-w-6xl mx-auto flex items-center justify-end gap-2">
+      {/* Bottom navigation bar. On mobile it's fixed to the bottom edge for
+          thumb access; on desktop it's just a right-aligned button row. */}
+      <div className="fixed sm:static bottom-0 left-0 right-0 mt-6 sm:mt-8 border-t-2 sm:border-0 border-ink bg-paper sm:bg-transparent px-4 sm:px-0 py-3 sm:py-0 z-10">
+        <div className="flex items-center justify-end gap-2">
           {step > 0 && (
             <Button
               type="button"
