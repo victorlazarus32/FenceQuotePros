@@ -1,15 +1,18 @@
 import "server-only";
+import { redirect } from "next/navigation";
 import { db } from "./db";
 import { getSession } from "./session";
 
-// Reads the authenticated user from the session cookie. Throws if no
-// session is present — callers in protected routes should check
-// isLoggedIn() first (or rely on the layout / page-level redirect).
+// Reads the authenticated user from the session cookie. If there's no
+// session, this redirects to /login (rather than throwing) so pages
+// don't have to guard with isLoggedIn() before calling — any protected
+// page can call getCurrentUserId() at the top and the framework handles
+// the redirect via its internal exception signal.
 
 export async function getCurrentUserId(): Promise<string> {
   const session = await getSession();
   if (!session.userId) {
-    throw new Error("Not authenticated");
+    redirect("/login");
   }
   return session.userId;
 }
