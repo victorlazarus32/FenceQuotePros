@@ -15,7 +15,6 @@ import {
   PlayCircle,
   ShieldCheck,
   Sparkles,
-  Wind,
 } from "lucide-react";
 import { PhoneMockup } from "@/components/PhoneMockup";
 
@@ -106,7 +105,7 @@ export default function LandingPage() {
       <section className="bg-paper border-y-2 border-ink">
         <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <Diff title="Pool-code" body="Miami-Dade FBC R4501 checks built-in" />
-          <Diff title="HVHZ" body="Hurricane wind-load on 6'+ panels" />
+          <Diff title="Permit packets" body="Addendum + affidavits auto-filled" />
           <Diff title="Bilingual" body="Quote in English or Spanish, one click" />
           <Diff title="On-the-spot" body="Customer signs from your phone" />
         </div>
@@ -141,8 +140,8 @@ export default function LandingPage() {
               </h2>
               <p className="text-lg mt-5 opacity-90 leading-relaxed">
                 Catch the violation before the inspector does. Every estimate is
-                scanned against pool code, wind load, gate hardware, post
-                spacing, and municipal permit rules — automatically.
+                scanned against pool code, gate hardware, post spacing,
+                setbacks, and municipal permit rules — automatically.
               </p>
               <p className="text-sm mt-4 opacity-70 leading-relaxed">
                 No other estimating tool does this. Because no other tool was
@@ -156,8 +155,8 @@ export default function LandingPage() {
                 body="Height under 4', missing self-closing latch, climbable rails."
               />
               <ComplianceCheck
-                label="Wind-load conflicts"
-                body="6'+ solid panel at 8' post spacing fails HVHZ — flagged before send."
+                label="Setback conflicts"
+                body="Front-yard 4' max, side / rear setbacks per municipality — flagged before send."
               />
               <ComplianceCheck
                 label="Gate & latch issues"
@@ -259,7 +258,7 @@ export default function LandingPage() {
               The core three
             </div>
             <h2 className="h-page" style={{ fontSize: "clamp(32px, 4vw, 48px)" }}>
-              The math, the code, the wind.
+              The math, the code, the paperwork.
               <br />
               <span className="text-slate-500">Solved.</span>
             </h2>
@@ -279,10 +278,10 @@ export default function LandingPage() {
               accent
             />
             <BigFeature
-              icon={<Wind className="w-7 h-7" />}
-              title="HVHZ wind-load"
-              outcome="Quote that survives the hurricane."
-              body="Solid 6'+ panels, post spacing, footing depth — checked against ASCE 7-22 / FBC 2023. Know before the inspector does."
+              icon={<FileSignature className="w-7 h-7" />}
+              title="Permit packets"
+              outcome="From estimate to filed permit in one flow."
+              body="MDC fence addendum, building permit application, finished-side + height affidavits — auto-filled from the estimate, signed by both parties, ready for the courthouse."
             />
           </div>
         </div>
@@ -336,7 +335,7 @@ export default function LandingPage() {
             <Feature
               icon={<MapPin className="w-5 h-5" />}
               title="Municipality intelligence"
-              body="Drop the address. Get max height, setbacks, zoning, HOA likelihood, and wind-load zone instantly."
+              body="Drop the address. Get max height, setbacks, zoning, and HOA likelihood instantly."
             />
             <Feature
               icon={<FileSignature className="w-5 h-5" />}
@@ -487,9 +486,9 @@ export default function LandingPage() {
                 "Everything in Core",
                 "AI compliance engine",
                 "Municipality intelligence",
-                "Permit autofill",
-                "HVHZ wind-load checks",
+                "Permit packet auto-generation",
                 "Pool-code detection",
+                "Setback + zoning checks",
                 "Crew management",
                 "Profitability tracking",
               ]}
