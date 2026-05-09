@@ -104,7 +104,7 @@ export default function LandingPage() {
       {/* DIFFERENTIATORS */}
       <section className="bg-paper border-y-2 border-ink">
         <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <Diff title="Pool-code" body="Miami-Dade FBC R4501 checks built-in" />
+          <Diff title="AI Preview" body="Render the fence on a photo of the property" />
           <Diff title="Permit packets" body="Addendum + affidavits auto-filled" />
           <Diff title="Bilingual" body="Quote in English or Spanish, one click" />
           <Diff title="On-the-spot" body="Customer signs from your phone" />
