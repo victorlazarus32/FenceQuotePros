@@ -11,7 +11,14 @@ export default async function NewEstimatePage(props: PageProps<"/estimates/new">
   const clients = await db.client.findMany({
     where: { userId },
     orderBy: { name: "asc" },
-    select: { id: true, name: true },
+    select: {
+      id: true,
+      name: true,
+      addressLine1: true,
+      city: true,
+      state: true,
+      zip: true,
+    },
   });
 
   return (

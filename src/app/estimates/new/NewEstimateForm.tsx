@@ -7,6 +7,7 @@ import {
   Columns3,
   EyeOff,
   Grid3x3,
+  Lightbulb,
   Lock,
   PawPrint,
   Shield,
@@ -46,9 +47,18 @@ import {
   type MarginConfig,
   type SoilType,
 } from "@/lib/fence";
+import { detectJurisdiction } from "@/lib/jurisdictions";
+import { PropertyIntelligence } from "@/components/PropertyIntelligence";
 import { createEstimate, type EstimateFormState } from "../actions";
 
-type ClientOpt = { id: string; name: string };
+type ClientOpt = {
+  id: string;
+  name: string;
+  addressLine1?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+};
 
 type CustomLine = {
   id: string;
@@ -144,6 +154,85 @@ const PURPOSE_LABELS: Record<(typeof PURPOSE_OPTIONS)[number]["value"], string> 
     (typeof PURPOSE_OPTIONS)[number]["value"],
     string
   >;
+
+// Lightweight recommendation engine. Reads purpose + material + height
+// and surfaces a contextual hint that helps the contractor make a
+// stronger pitch. Returns null when no specific advice applies — the
+// UI hides the card in that case.
+function buildRecommendation(input: {
+  purpose: string;
+  fenceType: FenceType | "";
+  heightFeet: number;
+}): { title: string; body: string } | null {
+  const { purpose, fenceType, heightFeet } = input;
+  if (!fenceType && !purpose) return null;
+
+  if (purpose === "pool_safety") {
+    if (heightFeet < 4) {
+      return {
+        title: "Pool barrier code requires ≥ 4 ft",
+        body: "FBC R4501 sets a 4 ft minimum for residential pool barriers. Bump the height before printing.",
+      };
+    }
+    if (fenceType === "wood_privacy") {
+      return {
+        title: "Wood privacy isn't pool-rated by default",
+        body: "Solid wood panels don't meet R4501 climbability requirements. Aluminum picket is the standard pool-barrier choice.",
+      };
+    }
+    return {
+      title: "Pool-rated build",
+      body: "Confirm self-closing latch ≥ 54\" + outward-swinging gate. Aluminum picket at 4–6 ft is the most common spec.",
+    };
+  }
+
+  if (purpose === "privacy") {
+    if (heightFeet < 6 && (fenceType === "wood_privacy" || fenceType === "vinyl")) {
+      return {
+        title: "Most privacy fences are 6 ft",
+        body: "4–5 ft solid panels still leave eye-line visible. Side / rear yards in MDC allow up to 6 ft — worth offering.",
+      };
+    }
+    if (fenceType === "chain_link" || fenceType === "aluminum") {
+      return {
+        title: "Material gap for privacy",
+        body: "Chain link / aluminum picket are see-through. Wood, vinyl, or composite are the typical privacy specs.",
+      };
+    }
+  }
+
+  if (purpose === "pets") {
+    if (heightFeet < 4) {
+      return {
+        title: "Pets typically need ≥ 4 ft",
+        body: "Most dogs clear 3 ft easily. 4–5 ft chain link or aluminum picket is the common pet-containment spec.",
+      };
+    }
+  }
+
+  if (purpose === "security" && fenceType === "wood_privacy") {
+    return {
+      title: "Security + wood is uncommon",
+      body: "Wood is climbable and rots. Aluminum picket or DuraFence steel is the typical security spec.",
+    };
+  }
+
+  if (purpose === "commercial" && (fenceType === "wood_privacy" || fenceType === "wood_picket")) {
+    return {
+      title: "Commercial typically uses metal",
+      body: "Chain link or DuraFence steel is more common for commercial sites — stronger, lower maintenance.",
+    };
+  }
+
+  if (purpose === "noise" && fenceType !== "concrete_wall") {
+    return {
+      title: "Noise reduction needs mass",
+      body: "Concrete wall is the only option that meaningfully attenuates traffic noise. Wood / vinyl give visual privacy but minimal sound dampening.",
+    };
+  }
+
+  return null;
+}
 
 const SOIL_TYPES: SoilType[] = ["sand", "clay", "rock"];
 const ACCESS_TYPES: AccessType[] = ["easy", "limited", "restricted"];
@@ -618,6 +707,40 @@ export function NewEstimateForm({
 
       {/* ── Step 2 — Fence type, style, color ─────────────────── */}
       <StepPanel show={step === 1} title="Fence type, style, color">
+        {/* Property Intelligence — detected from the selected client's
+            address. Surfaces here so the contractor sees jurisdiction,
+            permit category, max heights, and HOA likelihood right
+            before they spec the fence. */}
+        {selectedClient &&
+          (selectedClient.addressLine1 ||
+            selectedClient.city ||
+            selectedClient.zip) && (
+            <div className="mb-5">
+              {(() => {
+                const detection = detectJurisdiction({
+                  city: selectedClient.city,
+                  state: selectedClient.state,
+                  zip: selectedClient.zip,
+                });
+                const addressLine = [
+                  selectedClient.addressLine1,
+                  [selectedClient.city, selectedClient.state, selectedClient.zip]
+                    .filter(Boolean)
+                    .join(", "),
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
+                return (
+                  <PropertyIntelligence
+                    rules={detection.rules}
+                    confidence={detection.confidence}
+                    addressLine={addressLine}
+                  />
+                );
+              })()}
+            </div>
+          )}
+
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm flex items-center gap-2 text-slate-700">
             <input
@@ -798,17 +921,84 @@ export function NewEstimateForm({
                       })}
                     </div>
                   </div>
+
+                  {/* Smart recommendation — surfaces when purpose +
+                      material + height combo has a known advisory. */}
+                  {(() => {
+                    const rec = buildRecommendation({
+                      purpose,
+                      fenceType: fence.fenceType,
+                      heightFeet: fence.heightFeet,
+                    });
+                    if (!rec) return null;
+                    return (
+                      <div className="mt-5 rounded-lg border-2 border-brand bg-brand-soft p-4 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-brand text-white flex items-center justify-center shrink-0">
+                          <Lightbulb className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="text-xs uppercase tracking-wider font-bold text-brand mb-1">
+                            Recommendation
+                          </div>
+                          <div className="text-sm font-semibold text-ink">
+                            {rec.title}
+                          </div>
+                          <div className="text-sm text-slate-700 mt-1 leading-relaxed">
+                            {rec.body}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </EstimateSection>
 
                 <EstimateSection title="Style" summary={styleLabel}>
                   {fence.fenceType ? (
-                    <SelectField
-                      label={`Style options for ${FENCE_TYPE_LABELS[fence.fenceType].toLowerCase()}`}
-                      name="style"
-                      value={fence.style ?? ""}
-                      onChange={(v) => setFence({ ...fence, style: v })}
-                      options={styleOpts}
-                    />
+                    <>
+                      <input
+                        type="hidden"
+                        name="style"
+                        value={fence.style ?? ""}
+                      />
+                      <div
+                        role="radiogroup"
+                        aria-label={`Style options for ${FENCE_TYPE_LABELS[fence.fenceType].toLowerCase()}`}
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"
+                      >
+                        {styleOpts.map((opt) => {
+                          const selected = fence.style === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() =>
+                                setFence({ ...fence, style: opt.value })
+                              }
+                              aria-pressed={selected}
+                              className={cn(
+                                "rounded-lg border-2 p-3 text-left transition-colors min-h-[60px]",
+                                selected
+                                  ? "border-brand bg-brand-soft"
+                                  : "border-line bg-white hover:border-ink",
+                              )}
+                            >
+                              <div
+                                className="text-ink"
+                                style={{
+                                  fontFamily: "var(--font-display)",
+                                  fontWeight: 800,
+                                  textTransform: "uppercase",
+                                  fontSize: "var(--text-sm)",
+                                  letterSpacing: "0.005em",
+                                }}
+                              >
+                                {opt.label}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
                   ) : (
                     <p className="text-sm text-slate-500">
                       Pick a fence type first to see available styles.
