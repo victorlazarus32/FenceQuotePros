@@ -2,13 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
-import { LoginForm } from "./LoginForm";
+import { SignupForm } from "./SignupForm";
 
 export const metadata = {
-  title: "Sign in — Fence Quote Pros",
+  title: "Sign up — Fence Quote Pros",
 };
 
-export default async function LoginPage() {
+export default async function SignupPage() {
   if (await isLoggedIn()) redirect("/");
 
   return (
@@ -50,18 +50,18 @@ export default async function LoginPage() {
               letterSpacing: "0.005em",
             }}
           >
-            Sign in
+            Create account
           </h1>
           <p className="text-sm text-slate-600 mb-6">
-            Welcome back. Enter your credentials.
+            14-day free trial. No card required.
           </p>
 
-          <LoginForm />
+          <SignupForm />
 
           <div className="mt-5 text-xs text-slate-500 text-center">
-            Don't have an account?{" "}
-            <Link href="/signup" className="text-brand font-semibold">
-              Sign up →
+            Already have an account?{" "}
+            <Link href="/login" className="text-brand font-semibold">
+              Sign in →
             </Link>
           </div>
         </div>

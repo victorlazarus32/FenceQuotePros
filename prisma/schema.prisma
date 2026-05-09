@@ -12,6 +12,10 @@ datasource db {
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
+  // bcrypt hash of the user's password. Null only on the legacy demo
+  // account or any user that was provisioned outside the signup flow;
+  // signup sets this on every new account.
+  passwordHash  String?
   name          String?
   companyName   String?
   phone         String?

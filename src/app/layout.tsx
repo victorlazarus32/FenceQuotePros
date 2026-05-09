@@ -85,12 +85,13 @@ export default async function RootLayout({
               {!loggedIn && (
                 <>
                   <NavLink href="/landing">Pricing</NavLink>
+                  <NavLink href="/login">Sign in</NavLink>
                   <Link
-                    href="/login"
+                    href="/signup"
                     className="ml-2 inline-flex items-center px-4 py-2 rounded-md bg-brand text-white text-sm font-bold uppercase tracking-wide hover:bg-ink transition-colors"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    Sign in
+                    Sign up
                   </Link>
                 </>
               )}

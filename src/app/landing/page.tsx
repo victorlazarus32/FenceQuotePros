@@ -60,7 +60,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href="/login"
+                href="/signup"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-brand text-white font-bold uppercase tracking-wide hover:bg-white hover:text-ink transition-colors"
                 style={{ fontFamily: "var(--font-display)" }}
               >
@@ -458,7 +458,7 @@ export default function LandingPage() {
                 "Pick your plan when it ends",
               ]}
               cta="Start free trial"
-              ctaHref="/login"
+              ctaHref="/signup"
             />
             <PricingTier
               name="Core"
@@ -475,7 +475,7 @@ export default function LandingPage() {
                 "Stripe payments",
               ]}
               cta="Start Core"
-              ctaHref="/login"
+              ctaHref="/signup"
             />
             <PricingTier
               name="Pro"
@@ -493,7 +493,7 @@ export default function LandingPage() {
                 "Profitability tracking",
               ]}
               cta="Start Pro"
-              ctaHref="/login"
+              ctaHref="/signup"
               featured
             />
             <PricingTier
@@ -511,7 +511,7 @@ export default function LandingPage() {
                 "Priority render queue",
               ]}
               cta="Start Vision AI"
-              ctaHref="/login"
+              ctaHref="/signup"
             />
           </div>
 
@@ -552,7 +552,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              href="/login"
+              href="/signup"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md bg-ink text-paper font-bold uppercase tracking-wide hover:bg-white hover:text-ink transition-colors text-lg"
               style={{ fontFamily: "var(--font-display)" }}
             >
