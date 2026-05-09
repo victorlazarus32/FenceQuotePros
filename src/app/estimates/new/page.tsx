@@ -16,7 +16,17 @@ export default async function NewEstimatePage(props: PageProps<"/estimates/new">
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">New estimate</h1>
+      <div>
+        <div className="text-xs uppercase tracking-wider text-brand font-bold mb-1">
+          Fence Project Builder
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          Design the fence
+        </h1>
+        <p className="text-sm text-slate-600 mt-1">
+          Material → purpose → height → style → color → pricing.
+        </p>
+      </div>
       <NewEstimateForm clients={clients} defaultClientId={defaultClientId} />
     </div>
   );

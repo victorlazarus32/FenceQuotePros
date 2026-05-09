@@ -191,6 +191,10 @@ model FenceJob {
   // Aesthetic
   style                  String?
   color                  String?
+  // Why the customer wants this fence — drives recommendations and
+  // future upsells. Values: privacy, security, pool_safety, pets,
+  // decorative, hoa, commercial, noise. Null on legacy rows.
+  purpose                String?
   // Wood-fence orientation: which side of the fence shows the finished
   // (smooth, picket-only) face — "in" = customer's yard, "out" = neighbor's
   // side, "both" = two-sided construction (shadowbox / board-on-board).

@@ -101,6 +101,18 @@ const FenceJobSchema = z.object({
   marginFixedDollars: z.coerce.number().min(0).max(1000000).optional().default(0),
   marginMinimumDollars: z.coerce.number().min(0).max(1000000).optional().default(0),
   finishedSide: z.enum(FINISHED_SIDES).optional(),
+  purpose: z
+    .enum([
+      "privacy",
+      "security",
+      "pool_safety",
+      "pets",
+      "decorative",
+      "hoa",
+      "commercial",
+      "noise",
+    ])
+    .optional(),
 });
 
 const LineItemSchema = z.object({
@@ -200,6 +212,7 @@ function parseFenceJob(formData: FormData) {
     marginFixedDollars: formData.get("marginFixedDollars") ?? 0,
     marginMinimumDollars: formData.get("marginMinimumDollars") ?? 0,
     finishedSide: formData.get("finishedSide") || undefined,
+    purpose: formData.get("purpose") || undefined,
   });
   if (!parsed.success) return null;
   return parsed.data;
@@ -435,6 +448,7 @@ export async function createEstimate(
                 // Aesthetic
                 style: fenceJob.style || null,
                 color: fenceJob.color || null,
+                purpose: fenceJob.purpose ?? null,
                 // Gates
                 gateStyle: fenceJob.gateStyle,
                 gateMotor: fenceJob.gateMotor,

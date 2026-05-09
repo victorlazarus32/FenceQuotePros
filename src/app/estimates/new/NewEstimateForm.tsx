@@ -1,6 +1,20 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import {
+  Briefcase,
+  BrickWall,
+  ChevronDown,
+  Columns3,
+  EyeOff,
+  Grid3x3,
+  Lock,
+  PawPrint,
+  Shield,
+  Sparkles,
+  Trees,
+  VolumeX,
+  Waves,
+} from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { Button, LinkButton } from "@/components/Button";
 import {
@@ -95,6 +109,42 @@ const fenceTypes: FenceType[] = [
   "concrete_column",
 ];
 
+// Visual metadata for the material card grid — icon + tagline per type.
+// Keep in sync with fenceTypes; if a new fence type is added there, add
+// an entry here too or the card grid will fall back to no icon.
+const FENCE_TYPE_VISUAL: Record<
+  FenceType,
+  { icon: typeof Trees; tagline: string }
+> = {
+  wood_privacy: { icon: Trees, tagline: "Cedar / pressure-treated panels" },
+  wood_picket: { icon: Trees, tagline: "Classic picket fencing" },
+  chain_link: { icon: Grid3x3, tagline: "Galvanized · pet & boundary" },
+  vinyl: { icon: Columns3, tagline: "Maintenance-free PVC" },
+  aluminum: { icon: Shield, tagline: "Ornamental · pool-rated" },
+  wrought_iron: { icon: Shield, tagline: "Heavy-duty ornamental" },
+  composite: { icon: Columns3, tagline: "Premium composite panels" },
+  dura_fence: { icon: BrickWall, tagline: "Engineer-sealed steel" },
+  concrete_wall: { icon: BrickWall, tagline: "Solid masonry wall" },
+  concrete_column: { icon: BrickWall, tagline: "Pier + column system" },
+};
+
+// Purpose options — drives recommendations + conditional UI later.
+const PURPOSE_OPTIONS = [
+  { value: "privacy", label: "Privacy", icon: EyeOff },
+  { value: "security", label: "Security", icon: Lock },
+  { value: "pool_safety", label: "Pool safety", icon: Waves },
+  { value: "pets", label: "Pets", icon: PawPrint },
+  { value: "decorative", label: "Decorative", icon: Sparkles },
+  { value: "hoa", label: "HOA compliance", icon: Shield },
+  { value: "commercial", label: "Commercial", icon: Briefcase },
+  { value: "noise", label: "Noise reduction", icon: VolumeX },
+] as const;
+const PURPOSE_LABELS: Record<(typeof PURPOSE_OPTIONS)[number]["value"], string> =
+  Object.fromEntries(PURPOSE_OPTIONS.map((p) => [p.value, p.label])) as Record<
+    (typeof PURPOSE_OPTIONS)[number]["value"],
+    string
+  >;
+
 const SOIL_TYPES: SoilType[] = ["sand", "clay", "rock"];
 const ACCESS_TYPES: AccessType[] = ["easy", "limited", "restricted"];
 
@@ -162,6 +212,19 @@ export function NewEstimateForm({
       engineeringRequired: false,
     };
   });
+  // Goal of the fence — drives recommendations + future upsell paths.
+  // Stored separately from FenceCalcInput since the calc engine doesn't
+  // use it (yet); posted to the server via a hidden input.
+  type FencePurpose =
+    | "privacy"
+    | "security"
+    | "pool_safety"
+    | "pets"
+    | "decorative"
+    | "hoa"
+    | "commercial"
+    | "noise";
+  const [purpose, setPurpose] = useState<FencePurpose | "">("");
   const [taxRate, setTaxRate] = useState(0);
   const [customLines, setCustomLines] = useState<CustomLine[]>([]);
   const [depositMode, setDepositMode] = useState<"none" | "percent" | "fixed">(
@@ -564,7 +627,7 @@ export function NewEstimateForm({
               onChange={(e) => setFenceEnabled(e.target.checked)}
               className="rounded border-line"
             />
-            Include fence calculator
+            Include fence design
           </label>
         </div>
 
@@ -592,45 +655,148 @@ export function NewEstimateForm({
             return (
               <div className="space-y-3">
                 <EstimateSection
+                  title="What's the goal?"
+                  summary={
+                    purpose
+                      ? PURPOSE_LABELS[purpose]
+                      : "Pick the primary reason for the fence"
+                  }
+                  defaultOpen
+                >
+                  <input type="hidden" name="purpose" value={purpose} />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {PURPOSE_OPTIONS.map((p) => {
+                      const selected = purpose === p.value;
+                      const Icon = p.icon;
+                      return (
+                        <button
+                          key={p.value}
+                          type="button"
+                          onClick={() =>
+                            setPurpose(selected ? "" : p.value)
+                          }
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-lg border-2 text-center transition-colors min-h-[88px]",
+                            selected
+                              ? "border-brand bg-brand-soft text-ink"
+                              : "border-line bg-white text-slate-700 hover:border-ink",
+                          )}
+                          aria-pressed={selected}
+                        >
+                          <Icon
+                            className={cn(
+                              "w-5 h-5",
+                              selected ? "text-brand" : "text-slate-500",
+                            )}
+                          />
+                          <span className="text-xs font-semibold uppercase tracking-wide leading-tight">
+                            {p.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </EstimateSection>
+
+                <EstimateSection
                   title="Type of fence"
                   summary={fenceTypeSummary}
                   defaultOpen
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-                    <SelectField
-                      label="Fence type"
-                      hideLabel
-                      name="fenceType"
-                      value={fence.fenceType}
-                      onChange={(v) => setFenceType(v as FenceType | "")}
-                      options={[
-                        { value: "", label: "Select a fence type…" },
-                        ...fenceTypes.map((t) => ({
-                          value: t,
-                          label: FENCE_TYPE_LABELS[t],
-                        })),
-                      ]}
-                    />
-                    <SelectField
-                      label="Height"
-                      name="heightFeet"
-                      value={String(fence.heightFeet)}
-                      onChange={(v) =>
-                        setFence({
-                          ...fence,
-                          heightFeet: parseFloat(v) || 0,
-                        })
-                      }
-                      options={[
-                        { value: "3", label: "3 ft" },
-                        { value: "4", label: "4 ft" },
-                        { value: "5", label: "5 ft" },
-                        { value: "6", label: "6 ft" },
-                        { value: "8", label: "8 ft" },
-                        { value: "10", label: "10 ft" },
-                        { value: "12", label: "12 ft" },
-                      ]}
-                    />
+                  <input
+                    type="hidden"
+                    name="fenceType"
+                    value={fence.fenceType}
+                  />
+                  <input
+                    type="hidden"
+                    name="heightFeet"
+                    value={fence.heightFeet}
+                  />
+                  <div
+                    role="radiogroup"
+                    aria-label="Fence material"
+                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+                  >
+                    {fenceTypes.map((t) => {
+                      const selected = fence.fenceType === t;
+                      const meta = FENCE_TYPE_VISUAL[t];
+                      const Icon = meta.icon;
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setFenceType(t)}
+                          className={cn(
+                            "rounded-xl border-2 p-4 text-left transition-all flex flex-col gap-2 min-h-[120px]",
+                            selected
+                              ? "border-brand bg-brand-soft shadow-[3px_3px_0_var(--brand)]"
+                              : "border-line bg-white hover:border-ink",
+                          )}
+                          aria-pressed={selected}
+                        >
+                          <div
+                            className={cn(
+                              "w-10 h-10 rounded-lg flex items-center justify-center",
+                              selected
+                                ? "bg-brand text-ink"
+                                : "bg-paper text-brand",
+                            )}
+                          >
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div
+                            className="text-ink mt-auto"
+                            style={{
+                              fontFamily: "var(--font-display)",
+                              fontWeight: 800,
+                              textTransform: "uppercase",
+                              fontSize: "var(--text-md)",
+                              letterSpacing: "0.005em",
+                              lineHeight: 1.05,
+                            }}
+                          >
+                            {FENCE_TYPE_LABELS[t]}
+                          </div>
+                          <div className="text-[11px] text-slate-500 leading-snug">
+                            {meta.tagline}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-5">
+                    <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">
+                      Height
+                    </div>
+                    <div
+                      role="radiogroup"
+                      aria-label="Fence height"
+                      className="flex flex-wrap gap-2"
+                    >
+                      {[3, 4, 5, 6, 8, 10, 12].map((h) => {
+                        const selected = fence.heightFeet === h;
+                        return (
+                          <button
+                            key={h}
+                            type="button"
+                            onClick={() =>
+                              setFence({ ...fence, heightFeet: h })
+                            }
+                            className={cn(
+                              "px-5 h-12 min-w-[64px] rounded-lg border-2 font-semibold transition-colors",
+                              selected
+                                ? "border-brand bg-brand text-white"
+                                : "border-line bg-white text-slate-700 hover:border-ink",
+                            )}
+                            aria-pressed={selected}
+                          >
+                            {h} ft
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </EstimateSection>
 
