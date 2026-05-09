@@ -99,6 +99,13 @@ export default async function EstimateDetailPage(
           >
             Visualize fence
           </LinkButton>
+          <LinkButton
+            href={`/estimates/${est.id}/accountability`}
+            variant="secondary"
+            size="sm"
+          >
+            Crew accountability
+          </LinkButton>
           {est.status === "draft" && (
             <form action={markSent}>
               <Button variant="secondary" size="sm" type="submit">
