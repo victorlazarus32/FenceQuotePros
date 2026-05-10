@@ -218,7 +218,7 @@ export default function LandingPage() {
       {/* ─── SECTION 4 — SMART ESTIMATING ────────────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="grid lg:grid-cols-[1fr_1.05fr] gap-12 items-start">
+          <div className="grid lg:grid-cols-[1.25fr_0.75fr] gap-12 items-start">
             <div>
               {/* Inline brand-mark lockup: animated fence icon + section
                   label on the same horizontal line. The AnimatedFenceMark
