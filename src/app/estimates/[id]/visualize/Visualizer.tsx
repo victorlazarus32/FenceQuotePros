@@ -62,9 +62,12 @@ export function Visualizer({ estimateId, fenceJob, existingPhotos }: Props) {
     setUploading(true);
     setUploadError(null);
     try {
-      const dims = await loadImageDimensions(file);
+      // Compress / re-encode before sending. Phone photos are routinely
+      // 6-12 MB; Vercel's Hobby plan caps request bodies at 4.5 MB.
+      const prepared = await compressForUpload(file);
+      const dims = await loadImageDimensions(prepared);
       const fd = new FormData();
-      fd.append("photo", file);
+      fd.append("photo", prepared);
       fd.append("estimateId", estimateId);
       fd.append("width", String(dims.width));
       fd.append("height", String(dims.height));
@@ -76,7 +79,11 @@ export function Visualizer({ estimateId, fenceJob, existingPhotos }: Props) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `upload_failed_${res.status}`);
+        const detail = body.detail ? ` — ${body.detail}` : "";
+        throw new Error(
+          (body.message ?? body.error ?? `upload_failed_${res.status}`) +
+            detail,
+        );
       }
       const data = (await res.json()) as {
         id: string;
@@ -547,4 +554,75 @@ async function loadImageDimensions(
     };
     img.src = url;
   });
+}
+
+// Client-side image compression. Phone cameras routinely produce
+// 6–12 MB photos; Vercel's request-body cap on the Hobby plan is
+// 4.5 MB, so we have to shrink before uploading. We also re-encode
+// to JPEG which strips EXIF and HEIC quirks that can trip up the
+// server-side image pipeline.
+//
+// Algorithm: load the file via createObjectURL, paint into a
+// canvas at max(MAX_DIMENSION) on the longer edge (preserving
+// aspect), and export as JPEG at QUALITY. If the original is
+// already small enough and is a JPEG/PNG, we pass it through
+// untouched.
+const MAX_UPLOAD_BYTES = 4_000_000; // ~4 MB — under Vercel's 4.5 MB cap
+const MAX_DIMENSION = 2400; // plenty of pixels for fence rendering
+const QUALITY = 0.85;
+
+async function compressForUpload(file: File): Promise<File> {
+  const isJpegOrPng =
+    file.type === "image/jpeg" || file.type === "image/png";
+  if (isJpegOrPng && file.size <= MAX_UPLOAD_BYTES) {
+    return file;
+  }
+
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new window.Image();
+      i.onload = () => resolve(i);
+      i.onerror = (e) => reject(e);
+      i.src = url;
+    });
+
+    const longest = Math.max(img.naturalWidth, img.naturalHeight);
+    const scale = longest > MAX_DIMENSION ? MAX_DIMENSION / longest : 1;
+    const targetW = Math.round(img.naturalWidth * scale);
+    const targetH = Math.round(img.naturalHeight * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("canvas_2d_unavailable");
+    ctx.drawImage(img, 0, 0, targetW, targetH);
+
+    const blob: Blob | null = await new Promise((res) =>
+      canvas.toBlob((b) => res(b), "image/jpeg", QUALITY),
+    );
+    if (!blob) throw new Error("compress_failed");
+
+    // If somehow the compressed result is still over the cap (very
+    // tall panoramas at 2400px wide can be), drop quality and retry.
+    if (blob.size > MAX_UPLOAD_BYTES) {
+      const fallback: Blob | null = await new Promise((res) =>
+        canvas.toBlob((b) => res(b), "image/jpeg", 0.7),
+      );
+      if (fallback && fallback.size <= MAX_UPLOAD_BYTES) {
+        return new File([fallback], renameToJpg(file.name), {
+          type: "image/jpeg",
+        });
+      }
+    }
+
+    return new File([blob], renameToJpg(file.name), { type: "image/jpeg" });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function renameToJpg(name: string): string {
+  return name.replace(/\.(heic|heif|png|webp|tiff?|bmp)$/iu, ".jpg");
 }
