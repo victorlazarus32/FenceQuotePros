@@ -461,7 +461,7 @@ export default function LandingPage() {
               <span className="text-brand">for serious contractors.</span>
             </h2>
           </div>
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:items-start">
             <PricingTier
               name="Starter"
               price="$99"
@@ -1052,7 +1052,7 @@ function PricingTier({
     <div
       className={`flex flex-col p-6 border-2 ${
         featured
-          ? "border-brand bg-paper text-ink"
+          ? "border-brand bg-paper text-ink lg:py-10 lg:-my-4 relative z-10 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.55)]"
           : "border-paper/15 bg-ink text-paper"
       }`}
     >
