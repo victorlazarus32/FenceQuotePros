@@ -557,9 +557,9 @@ export default function LandingPage() {
               <Image
                 src="/logo.png"
                 alt="Fence Quote Pros"
-                width={400}
-                height={112}
-                className="h-10 w-auto"
+                width={1536}
+                height={1024}
+                className="h-12 w-auto"
               />
             </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">

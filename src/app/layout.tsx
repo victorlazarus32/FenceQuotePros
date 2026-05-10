@@ -75,10 +75,10 @@ export default async function RootLayout({
               <Image
                 src="/logo.png"
                 alt="Fence Quote Pros"
-                width={500}
-                height={140}
+                width={1536}
+                height={1024}
                 priority
-                className="h-14 sm:h-16 lg:h-20 w-auto"
+                className="h-16 sm:h-20 lg:h-24 w-auto"
               />
             </Link>
             <MobileNav loggedIn={loggedIn} />

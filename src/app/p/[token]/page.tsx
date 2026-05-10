@@ -168,9 +168,9 @@ export default async function PublicEstimatePage(
               <Image
                 src="/logo.png"
                 alt=""
-                width={400}
-                height={112}
-                className="h-12 w-auto shrink-0"
+                width={1536}
+                height={1024}
+                className="h-16 w-auto shrink-0"
               />
               <div className="min-w-0">
                 <div

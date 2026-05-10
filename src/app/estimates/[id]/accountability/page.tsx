@@ -127,9 +127,9 @@ export default async function AccountabilityListPage(
             <Image
               src="/logo.png"
               alt=""
-              width={400}
-              height={112}
-              className="h-12 w-auto shrink-0 print:hidden"
+              width={1536}
+              height={1024}
+              className="h-16 w-auto shrink-0 print:hidden"
             />
             <div>
               <div className="text-xs uppercase tracking-wider opacity-70">
