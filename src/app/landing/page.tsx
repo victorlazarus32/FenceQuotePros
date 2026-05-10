@@ -9,6 +9,7 @@ import {
   Ruler,
 } from "lucide-react";
 import AnimatedFenceMark from "@/components/AnimatedFenceMark";
+import AnimatedScheduleMockup from "@/components/AnimatedScheduleMockup";
 import BeforeAfterVisual from "@/components/BeforeAfterVisual";
 import BrandWordmark from "@/components/BrandWordmark";
 import PermitAutofillSpot from "@/components/PermitAutofillSpot";
@@ -21,7 +22,7 @@ export const metadata = {
   title:
     "Fence Quote Pros — The modern operating platform for fence contractors",
   description:
-    "Quote, visualize, and close fence projects faster. Built for fence contractors — material calculations, property visualizations, permit-ready workflows, and installer work orders, in one platform.",
+    "Quote, visualize, and close fence projects faster. Built for fence contractors — material calculations, property visualizations, permit-ready workflows, and worker's accountability lists, in one platform.",
 };
 
 export default function LandingPage() {
@@ -32,7 +33,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
           <div>
             <BlueprintTag>
-              <BrandWordmark tm /> · Field-tested workflows
+              <BrandWordmark tm />
+              {" "}· Field-tested workflows
             </BlueprintTag>
             <h1
               className="mt-5 text-paper"
@@ -65,19 +67,6 @@ export default function LandingPage() {
           </div>
 
           <HeroVisual />
-        </div>
-      </section>
-
-      {/* ─── FEATURED DEMO — Permit Autofill animated spot ─────────── */}
-      <section className="bg-ink border-b border-paper/10">
-        <div className="max-w-[1200px] mx-auto px-0 sm:px-6 py-10 sm:py-14">
-          <div className="px-6 sm:px-0 mb-5 flex items-center justify-between">
-            <BlueprintTag>Featured demo · 36 s</BlueprintTag>
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
-              Permit Autofill
-            </span>
-          </div>
-          <PermitAutofillSpot />
         </div>
       </section>
 
@@ -135,11 +124,12 @@ export default function LandingPage() {
 
           <div className="mt-10 max-w-3xl space-y-2 text-base leading-relaxed">
             <p className="font-semibold">
-              <BrandWordmark /> simplifies the entire workflow.
+              <BrandWordmark />
+              {" "}simplifies the entire workflow.
             </p>
             <p className="text-paper/75">
               Professional quoting, realistic fence visualization, permits, and
-              installer work orders — connected in one platform.
+              worker&apos;s accountability lists — connected in one platform.
             </p>
           </div>
         </div>
@@ -254,8 +244,8 @@ export default function LandingPage() {
 
       {/* ─── SECTION 5 — PERMIT-READY WORKFLOWS ──────────────────── */}
       <section className="bg-paper border-b border-line">
-        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1.1fr_1fr] gap-14 items-center">
-          <div>
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="max-w-3xl">
             <BlueprintTag dark>Permitting</BlueprintTag>
             <h2
               className="mt-5 text-ink"
@@ -271,12 +261,12 @@ export default function LandingPage() {
               Permit-ready{" "}
               <span className="text-brand">project workflows.</span>
             </h2>
-            <p className="mt-5 text-lg text-text-soft leading-relaxed max-w-xl">
+            <p className="mt-5 text-lg text-text-soft leading-relaxed">
               Generate organized project documentation faster and reduce
               administrative delays. Your packets are ready when the customer
               signs — not three days later.
             </p>
-            <ul className="mt-8 space-y-3 max-w-md">
+            <ul className="mt-8 grid sm:grid-cols-2 gap-x-8 gap-y-3 max-w-3xl">
               <CheckRow>Faster turnarounds</CheckRow>
               <CheckRow>Cleaner submissions</CheckRow>
               <CheckRow>Fewer corrections from the building department</CheckRow>
@@ -284,7 +274,15 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          <PermitMockup />
+          <div className="mt-12 sm:mt-16">
+            <div className="mb-4 flex items-center justify-between">
+              <BlueprintTag dark>Live demo · 36 s</BlueprintTag>
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-text-soft">
+                Permit Autofill
+              </span>
+            </div>
+            <PermitAutofillSpot />
+          </div>
         </div>
       </section>
 
@@ -320,7 +318,7 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          <ScheduleMockup />
+          <AnimatedScheduleMockup />
         </div>
       </section>
 
@@ -345,8 +343,8 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Installer{" "}
-              <span className="text-brand">work orders.</span>
+              Worker&apos;s{" "}
+              <span className="text-brand">accountability list.</span>
             </h2>
             <p className="mt-5 text-lg text-paper/80 leading-relaxed max-w-xl">
               Reduce installer confusion and keep crews aligned in the field.
@@ -386,9 +384,9 @@ export default function LandingPage() {
           </h2>
           <p className="mt-6 text-lg text-text-soft leading-relaxed max-w-3xl mx-auto">
             Permitting. Estimating. Installation. Inspections. Field operations.{" "}
-            <BrandWordmark /> was built by people who&apos;ve done all of it —
-            and got tired of running fence companies on phone calls and
-            spreadsheets.
+            <BrandWordmark />
+            {" "}was built by people who&apos;ve done all of it — and got tired
+            of running fence companies on phone calls and spreadsheets.
           </p>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 border border-line bg-white">
             <CredentialTile>Permitting expertise</CredentialTile>
@@ -438,7 +436,7 @@ export default function LandingPage() {
               tagline="Production-ready operations."
               features={[
                 "Everything in Starter",
-                "Installer work orders",
+                "Worker's accountability list",
                 "Material calculations",
                 "Crew scheduling + production board",
                 "Team management",
@@ -513,13 +511,17 @@ export default function LandingPage() {
       <footer className="bg-ink text-paper">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm">
           <div className="col-span-2">
-            <div className="mb-3">
+            {/* Source PNG (1536x1024) has gradient atmosphere + glow padding
+                baked in around the actual mark. Render large and clip the
+                middle band so the visible logo dominates without ballooning
+                the footer height. Mirrors the nav lockup pattern. */}
+            <div className="relative h-20 sm:h-24 w-[360px] sm:w-[440px] overflow-hidden flex items-center -ml-4 sm:-ml-6 mb-1">
               <Image
                 src="/logo-v2.png"
                 alt="Fence Quote Pros"
                 width={1536}
                 height={1024}
-                className="h-12 w-auto"
+                className="w-full h-auto"
               />
             </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">
@@ -534,7 +536,7 @@ export default function LandingPage() {
               ["Estimating", "/landing#"],
               ["Permits", "/landing#"],
               ["Scheduling", "/landing#"],
-              ["Work Orders", "/landing#"],
+              ["Accountability List", "/landing#"],
             ]}
           />
           <FooterCol
@@ -665,9 +667,20 @@ function CheckRow({
   dark?: boolean;
 }) {
   return (
-    <li className={`flex items-start gap-3 ${dark ? "text-paper/85" : "text-text-strong"}`}>
-      <span className="mt-1.5 w-3 h-px bg-brand flex-shrink-0" />
-      <span className="text-sm sm:text-base">{children}</span>
+    <li
+      className={`flex items-start gap-3 text-sm sm:text-base ${
+        dark ? "text-paper/85" : "text-text-strong"
+      }`}
+    >
+      {/* The orange tick aligns to the visual midline of the first text
+          line. mt is set in em units so it scales with text-sm/text-base
+          and stays centered on the first line for multi-line items. */}
+      <span
+        className="w-3 h-px bg-brand flex-shrink-0"
+        style={{ marginTop: "0.65em" }}
+        aria-hidden="true"
+      />
+      <span>{children}</span>
     </li>
   );
 }
@@ -885,225 +898,7 @@ function SpecLine({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Permit packet mockup ──────────────────────────────────────
-
-function PermitMockup() {
-  return (
-    <div className="relative">
-      <CornerTicks />
-      <div className="bg-white border border-line">
-        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
-            <MapPin className="w-3 h-3 text-brand" />
-            Permit packet
-          </div>
-          <span className="px-2 py-0.5 bg-brand text-ink font-mono text-[10px] uppercase tracking-[0.18em] font-bold">
-            Ready
-          </span>
-        </div>
-        <ul className="divide-y divide-line">
-          <DocRow name="Building permit application" status="Filled" />
-          <DocRow name="Fence addendum" status="Filled" />
-          <DocRow name="HOA application" status="Filled" />
-          <DocRow name="Survey markup" status="Attached" />
-          <DocRow name="Owner affidavit" status="Awaiting signature" muted />
-        </ul>
-        <div className="px-5 py-3 border-t border-line bg-paper grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.18em]">
-          <div>
-            <div className="text-text-soft">Address</div>
-            <div className="text-ink mt-0.5">4502 SW 92nd</div>
-          </div>
-          <div>
-            <div className="text-text-soft">Folio</div>
-            <div className="text-ink mt-0.5">30-4029-001</div>
-          </div>
-          <div>
-            <div className="text-text-soft">Submitted</div>
-            <div className="text-brand mt-0.5">Today</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DocRow({
-  name,
-  status,
-  muted = false,
-}: {
-  name: string;
-  status: string;
-  muted?: boolean;
-}) {
-  return (
-    <li className="px-5 py-3 flex items-center justify-between">
-      <span className="text-sm text-ink">{name}</span>
-      <span
-        className={`font-mono text-[10px] uppercase tracking-[0.18em] ${
-          muted ? "text-text-soft" : "text-brand"
-        }`}
-      >
-        {status}
-      </span>
-    </li>
-  );
-}
-
-// ─── Production-board mockup ──────────────────────────────────────
-// Day × Crew week grid. Mirrors the real /scheduling page in spirit:
-// crews on the left, weekdays across the top, a few jobs scattered in.
-
-function ScheduleMockup() {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-  return (
-    <div className="relative">
-      <CornerTicks />
-      <div className="bg-white text-ink border border-line">
-        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-text-soft">
-            <Calendar className="w-3 h-3 text-brand" />
-            Production board · Wk of Jun 03
-          </div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-            6 jobs · 3 crews
-          </div>
-        </div>
-
-        {/* Day header row */}
-        <div className="grid grid-cols-[88px_repeat(5,_1fr)] border-b border-line bg-paper">
-          <div className="px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-text-soft border-r border-line">
-            Crew
-          </div>
-          {days.map((d, i) => (
-            <div
-              key={d}
-              className={`px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-text-soft ${
-                i < days.length - 1 ? "border-r border-line" : ""
-              }`}
-            >
-              {d}
-            </div>
-          ))}
-        </div>
-
-        {/* Crew rows */}
-        <CrewRow
-          name="A-1"
-          cells={[
-            { kind: "job", title: "Sanchez", meta: "64 LF" },
-            { kind: "job", title: "Reyes", meta: "92 LF" },
-            { kind: "empty" },
-            { kind: "job", title: "Lopez", meta: "146 LF · gate" },
-            { kind: "empty" },
-          ]}
-        />
-        <CrewRow
-          name="B-2"
-          cells={[
-            { kind: "empty" },
-            { kind: "job", title: "Cohen", meta: "60 LF · pool" },
-            { kind: "job", title: "Cohen", meta: "cont." },
-            { kind: "empty" },
-            { kind: "job", title: "Diaz", meta: "210 LF" },
-          ]}
-        />
-        <CrewRow
-          name="C-3"
-          cells={[
-            { kind: "job", title: "Park", meta: "44 LF" },
-            { kind: "empty" },
-            { kind: "empty" },
-            { kind: "empty" },
-            { kind: "empty" },
-          ]}
-          last
-        />
-
-        <div className="px-5 py-3 border-t border-line bg-paper grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.22em]">
-          <div>
-            <div className="text-text-soft">Scheduled</div>
-            <div className="text-ink mt-0.5">5</div>
-          </div>
-          <div>
-            <div className="text-text-soft">In progress</div>
-            <div className="text-brand mt-0.5">1</div>
-          </div>
-          <div>
-            <div className="text-text-soft">Unscheduled</div>
-            <div className="text-ink mt-0.5">3 awaiting</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-type CrewCell =
-  | { kind: "job"; title: string; meta: string }
-  | { kind: "empty" };
-
-function CrewRow({
-  name,
-  cells,
-  last = false,
-}: {
-  name: string;
-  cells: CrewCell[];
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`grid grid-cols-[88px_repeat(5,_1fr)] ${
-        last ? "" : "border-b border-line"
-      }`}
-    >
-      <div className="px-3 py-3 border-r border-line flex items-center">
-        <span
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 800,
-            fontSize: "var(--text-md)",
-            textTransform: "uppercase",
-            letterSpacing: "0.005em",
-          }}
-        >
-          {name}
-        </span>
-      </div>
-      {cells.map((cell, i) => (
-        <div
-          key={i}
-          className={`p-2 min-h-[64px] ${
-            i < cells.length - 1 ? "border-r border-line" : ""
-          }`}
-        >
-          {cell.kind === "job" ? (
-            <div className="bg-brand-soft border-l-2 border-brand p-2">
-              <div
-                className="text-ink leading-tight"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 700,
-                  fontSize: "12px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.005em",
-                }}
-              >
-                {cell.title}
-              </div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-text-soft mt-0.5">
-                {cell.meta}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Installer work-order mockup ───────────────────────────────
+// ─── Worker's Accountability List mockup ──────────────────────
 
 function WorkOrderMockup() {
   return (
@@ -1113,7 +908,7 @@ function WorkOrderMockup() {
         <div className="px-5 py-3 bg-ink text-paper border-b border-paper/10 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/70">
             <ClipboardList className="w-3 h-3 text-brand" />
-            Installer work order
+            Worker&apos;s accountability list
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
             Crew · A-1

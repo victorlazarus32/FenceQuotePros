@@ -7,6 +7,11 @@
 // text "Fence Quote Pros" for page titles, alt text, aria labels, and
 // fallback strings (places where the styled wordmark would be wrong or
 // invisible).
+//
+// Internal markup is intentionally written on a single line — JSX
+// collapses indentation/newlines around tag boundaries which can eat
+// whitespace adjacent to this component in prose ("...PROSwas" instead
+// of "...PROS was"). One-liner avoids that class of bug.
 
 type Props = {
   /** Append a ™ superscript. Use on first prominent appearance per page. */
@@ -17,6 +22,7 @@ type Props = {
 
 export default function BrandWordmark({ tm = false, className = "" }: Props) {
   return (
+    // prettier-ignore
     <span
       className={className}
       style={{
@@ -26,22 +32,6 @@ export default function BrandWordmark({ tm = false, className = "" }: Props) {
         letterSpacing: "0.005em",
         whiteSpace: "nowrap",
       }}
-    >
-      FENCE<span className="text-brand">QUOTE</span>PROS
-      {tm ? (
-        <sup
-          aria-hidden="true"
-          style={{
-            fontSize: "0.5em",
-            fontWeight: 700,
-            marginLeft: "0.1em",
-            verticalAlign: "super",
-            lineHeight: 0,
-          }}
-        >
-          ™
-        </sup>
-      ) : null}
-    </span>
+    >FENCE<span className="text-brand">QUOTE</span>PROS{tm ? <sup aria-hidden="true" style={{ fontSize: "0.5em", fontWeight: 700, marginLeft: "0.1em", verticalAlign: "super", lineHeight: 0 }}>™</sup> : null}</span>
   );
 }

@@ -117,6 +117,29 @@ textarea:focus {
   box-shadow: 0 0 0 3px var(--brand-soft) !important;
 }
 
+/* Reusable cell fade-in for the animated production board on /landing.
+   Used by AnimatedScheduleMockup to softly settle each cell on scene
+   change. Honors prefers-reduced-motion (animation collapses to no-op
+   when the user has reduce set). */
+@keyframes fqp-cell-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fqp-cell-in {
+  animation: fqp-cell-in 480ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fqp-cell-in {
+    animation: none;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
