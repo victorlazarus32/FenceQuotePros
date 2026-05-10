@@ -979,10 +979,15 @@ function BeforeAfterVisual() {
           </div>
         </div>
         <div className="h-px bg-brand" />
-        {/* AFTER — placeholder until the rendered photo is dropped in
-            at /public/landing-preview/after.jpg */}
-        <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark flex items-center justify-center">
-          <ImageIcon className="w-12 h-12 text-brand/40" />
+        {/* AFTER — rendered preview at /public/landing-preview/after.png */}
+        <div className="relative aspect-[16/10] bg-ink overflow-hidden">
+          <Image
+            src="/landing-preview/after.png"
+            alt="Property after fence install — aluminum louvered"
+            fill
+            sizes="(max-width: 1024px) 100vw, 600px"
+            className="object-cover"
+          />
           <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold">
             After
           </div>
@@ -991,11 +996,11 @@ function BeforeAfterVisual() {
       <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between">
         <div className="text-xs uppercase tracking-wider opacity-60">Style</div>
         <div className="flex gap-1.5">
-          <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
-            Aluminum
-          </span>
           <span className="px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] uppercase tracking-wider font-bold">
-            Wood ✓
+            Aluminum ✓
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
+            Wood
           </span>
           <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
             PVC
