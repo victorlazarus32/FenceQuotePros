@@ -32,10 +32,7 @@ export default function LandingPage() {
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
           <div>
-            <BlueprintTag>
-              <BrandWordmark tm />
-              {" "}· Field-tested workflows
-            </BlueprintTag>
+            <BlueprintTag>Field-tested workflows</BlueprintTag>
             <h1
               className="mt-5 text-paper"
               style={{
@@ -511,6 +508,19 @@ export default function LandingPage() {
       <footer className="bg-ink text-paper">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm">
           <div className="col-span-2">
+            {/* Logo lockup (icon + wordmark). Source PNG (1536x1024) has
+                gradient atmosphere baked in around the actual mark; render
+                it large and clip the middle band so the visible logo
+                dominates without ballooning footer height. */}
+            <div className="relative h-24 sm:h-28 w-[420px] sm:w-[480px] overflow-hidden flex items-center -ml-4 sm:-ml-6 mb-3">
+              <Image
+                src="/logo-v2.png"
+                alt="Fence Quote Pros"
+                width={1536}
+                height={1024}
+                className="w-full h-auto"
+              />
+            </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">
               The modern operating platform for fence contractors. Built in
               Miami. Shipping nationwide.
