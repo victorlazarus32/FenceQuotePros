@@ -29,9 +29,23 @@ export default function LandingPage() {
   return (
     <div className="-mx-4 -my-8 bg-paper">
       {/* ─── HERO ────────────────────────────────────────────────── */}
-      <section className="bg-ink text-paper border-b border-paper/10">
-        <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
+      <section className="relative bg-ink text-paper border-b border-paper/10 overflow-hidden">
+        {/* Architectural anchor in the upper-left so the dark column
+            doesn't read as empty space behind the headline. Pinned to
+            the section corner, low-opacity, decorative only. */}
+        <SitePlanCorner
+          className="absolute top-6 left-6 w-14 h-14 text-brand/40 pointer-events-none hidden sm:block"
+        />
+
+        <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-start">
           <div>
+            {/* Geographic / vintage stamp — quiet gravitas above the
+                primary BlueprintTag. Matches the footer 'Built in Miami'
+                framing without repeating the brand name. */}
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/45 mb-3">
+              <span className="w-1.5 h-1.5 bg-brand rounded-full" />
+              Miami, FL · 2026
+            </div>
             <BlueprintTag>Field-tested workflows</BlueprintTag>
             <h1
               className="mt-5 text-paper"
