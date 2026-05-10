@@ -8,7 +8,7 @@ type Style = "aluminum" | "wood" | "pvc";
 const styles: { id: Style; label: string; src: string | null }[] = [
   { id: "aluminum", label: "Aluminum", src: "/landing-preview/after-aluminum.png" },
   { id: "pvc", label: "PVC", src: "/landing-preview/after-pvc.png" },
-  { id: "wood", label: "Wood", src: null },
+  { id: "wood", label: "Wood", src: "/landing-preview/after-wood.jpeg" },
 ];
 
 export default function BeforeAfterVisual() {
