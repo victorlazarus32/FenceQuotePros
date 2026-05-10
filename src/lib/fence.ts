@@ -531,9 +531,16 @@ export const MATERIAL_PROPERTIES: Record<FenceType, MaterialProperties> = {
     costPerFootMaxCents: 1800,
     laborDifficultyMultiplier: 1.0,
     wasteFactor: 0.1,
-    railsPerSection: 2,
-    picketsPerFoot: 2.5,
-    concreteCuFtPerPost: 0.7,
+    // 3 rails per section (top / middle / bottom) — South Florida
+    // wood-privacy convention; the middle rail is what keeps 6'+ pickets
+    // from cupping/twisting once the cap rail and bottom rail bear load.
+    railsPerSection: 3,
+    // 3 pickets per linear foot — standard tight-fit board-on-board /
+    // shadowbox layout for privacy.
+    picketsPerFoot: 3.0,
+    // 1.5 bags of 80lb concrete per hole. CONCRETE_CUFT_PER_BAG is 0.6,
+    // so 1.5 * 0.6 = 0.9 cu ft per post.
+    concreteCuFtPerPost: 0.9,
   },
   wood_picket: {
     costPerFootMinCents: 900,
@@ -864,7 +871,7 @@ export function analyzeCompliance(input: FenceCalcInput): ComplianceWarning[] {
         severity: "warning",
         code: "HVHZ_FOOTING",
         message:
-          "HVHZ: 6'+ wood privacy needs concrete footings ≥ 30\" deep, 10\" diameter. Verify against local AHJ.",
+          "HVHZ: 6'+ wood privacy needs concrete footings ≥ 24\" deep, 10\" diameter. Verify against local AHJ.",
       });
     }
   }
@@ -1059,14 +1066,21 @@ export function calculateFenceJob(input: FenceCalcInput): FenceCalcResult {
     2,
     Math.ceil(input.linearFeet / input.postSpacingFeet) + 1,
   );
+  // Wood fences use uniform 4x4 posts regardless of position — the
+  // corner/end/line premium pricing on heavier-gauge metal fences
+  // doesn't apply, and material-list displays should just show a
+  // single post total. Collapse all wood posts into linePostCount.
+  const isWood =
+    input.fenceType === "wood_privacy" || input.fenceType === "wood_picket";
   const requestedCorners = Math.max(0, input.numCorners ?? 0);
   const requestedEnds = Math.max(0, input.numEnds ?? 2);
-  const cornerPostCount = Math.min(requestedCorners, totalPosts);
-  const endPostCount = Math.min(requestedEnds, totalPosts - cornerPostCount);
-  const linePostCount = Math.max(
-    0,
-    totalPosts - cornerPostCount - endPostCount,
-  );
+  const cornerPostCount = isWood ? 0 : Math.min(requestedCorners, totalPosts);
+  const endPostCount = isWood
+    ? 0
+    : Math.min(requestedEnds, totalPosts - cornerPostCount);
+  const linePostCount = isWood
+    ? totalPosts
+    : Math.max(0, totalPosts - cornerPostCount - endPostCount);
 
   // ── 2. Site multipliers (apply to labor) ─────────────────────────
   const terrainMult = TERRAIN_MULTIPLIER[input.terrain] ?? 1.0;
