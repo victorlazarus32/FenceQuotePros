@@ -8,11 +8,11 @@ import {
   MapPin,
   Ruler,
 } from "lucide-react";
+import AnimatedFenceMark from "@/components/AnimatedFenceMark";
 import BeforeAfterVisual from "@/components/BeforeAfterVisual";
 import BrandWordmark from "@/components/BrandWordmark";
 import PermitAutofillSpot from "@/components/PermitAutofillSpot";
 import {
-  PostSpacingMark,
   GateSwingMark,
   SitePlanCorner,
 } from "@/components/FenceBlueprintMark";
@@ -205,7 +205,7 @@ export default function LandingPage() {
       {/* ─── SECTION 4 — SMART ESTIMATING ────────────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
-          <PostSpacingMark className="text-brand/60 w-48 h-12 mb-8" />
+          <AnimatedFenceMark className="text-brand/70 w-48 mb-8" />
           <div className="max-w-2xl">
             <BlueprintTag>Smart estimating</BlueprintTag>
             <h2
