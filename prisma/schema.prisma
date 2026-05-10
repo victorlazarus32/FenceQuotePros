@@ -58,6 +58,17 @@ model Client {
   // FL property folio / parcel ID — used on permit submissions to identify
   // the property. Format varies by county (Miami-Dade: 13 digits with dashes).
   folioNumber  String?
+  // HOA / community association. When hoaRequired is true the contractor
+  // expects to file an ARC (Architectural Review Committee) application
+  // before pulling permits. The contact + URL fields feed the HOA
+  // application autofill packet (per-association template).
+  hoaRequired       Boolean @default(false)
+  hoaName           String?
+  hoaContactName    String?
+  hoaContactEmail   String?
+  hoaContactPhone   String?
+  hoaSubmissionUrl  String?
+  hoaNotes          String?
   notes        String?
   createdAt    DateTime   @default(now())
   estimates    Estimate[]

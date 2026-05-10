@@ -46,6 +46,57 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
         </div>
       </div>
 
+      {client.hoaRequired && (
+        <div className="bg-blue-50 border border-blue-200 rounded p-4 text-sm text-blue-900">
+          <div className="flex items-center justify-between mb-1">
+            <strong>HOA approval required</strong>
+            {client.hoaSubmissionUrl && (
+              <a
+                href={client.hoaSubmissionUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs underline hover:text-blue-700"
+              >
+                Open portal →
+              </a>
+            )}
+          </div>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
+            {client.hoaName && (
+              <div>
+                <dt className="inline text-blue-700">Association: </dt>
+                <dd className="inline">{client.hoaName}</dd>
+              </div>
+            )}
+            {client.hoaContactName && (
+              <div>
+                <dt className="inline text-blue-700">Contact: </dt>
+                <dd className="inline">{client.hoaContactName}</dd>
+              </div>
+            )}
+            {client.hoaContactEmail && (
+              <div>
+                <dt className="inline text-blue-700">Email: </dt>
+                <dd className="inline">
+                  <a href={`mailto:${client.hoaContactEmail}`} className="underline">
+                    {client.hoaContactEmail}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {client.hoaContactPhone && (
+              <div>
+                <dt className="inline text-blue-700">Phone: </dt>
+                <dd className="inline">{client.hoaContactPhone}</dd>
+              </div>
+            )}
+          </dl>
+          {client.hoaNotes && (
+            <p className="mt-2 whitespace-pre-wrap text-xs">{client.hoaNotes}</p>
+          )}
+        </div>
+      )}
+
       {client.notes && (
         <div className="bg-amber-50 border border-amber-200 rounded p-4 text-sm text-amber-900">
           <strong className="block mb-1">Notes</strong>

@@ -25,6 +25,13 @@ type Initial = {
   state?: string | null;
   zip?: string | null;
   folioNumber?: string | null;
+  hoaRequired?: boolean | null;
+  hoaName?: string | null;
+  hoaContactName?: string | null;
+  hoaContactEmail?: string | null;
+  hoaContactPhone?: string | null;
+  hoaSubmissionUrl?: string | null;
+  hoaNotes?: string | null;
   notes?: string | null;
 };
 
@@ -44,6 +51,10 @@ export function ClientForm({
     {},
   );
   const [phone, setPhone] = useState(formatUsPhone(initial?.phone ?? ""));
+  const [hoaRequired, setHoaRequired] = useState<boolean>(initial?.hoaRequired ?? false);
+  const [hoaContactPhone, setHoaContactPhone] = useState(
+    formatUsPhone(initial?.hoaContactPhone ?? ""),
+  );
 
   return (
     <form action={formAction} className="space-y-5 bg-white rounded-lg border border-slate-200 p-6">
@@ -80,6 +91,91 @@ export function ClientForm({
         placeholder="e.g. 30-3033-024-0010 (Miami-Dade)"
         helperText="Property folio / parcel ID — pulls onto permit applications."
       />
+
+      <div className="border-t border-slate-200 pt-5">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="hoaRequired"
+            checked={hoaRequired}
+            onChange={(e) => setHoaRequired(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
+          />
+          <span>
+            <span className="block text-sm font-medium text-slate-800">
+              This property is in an HOA
+            </span>
+            <span className="block text-xs text-slate-500">
+              Flag this job for ARC approval. We&apos;ll surface it on the
+              estimate and pull contact details onto the HOA application packet.
+            </span>
+          </span>
+        </label>
+
+        {hoaRequired && (
+          <div className="mt-4 space-y-4 bg-slate-50 border border-slate-200 rounded-md p-4">
+            <Field
+              label="HOA / association name"
+              name="hoaName"
+              defaultValue={initial?.hoaName}
+              placeholder="e.g. Doral Isles Master Association"
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field
+                label="Contact name"
+                name="hoaContactName"
+                defaultValue={initial?.hoaContactName}
+                placeholder="ARC chair / community manager"
+              />
+              <Field
+                label="Contact email"
+                name="hoaContactEmail"
+                defaultValue={initial?.hoaContactEmail}
+                type="email"
+                error={state.errors?.hoaContactEmail?.[0]}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Contact phone
+                </label>
+                <input
+                  type="tel"
+                  name="hoaContactPhone"
+                  value={hoaContactPhone}
+                  onChange={(e) => setHoaContactPhone(formatUsPhone(e.target.value))}
+                  inputMode="tel"
+                  placeholder="305-555-0100"
+                  maxLength={12}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:ring-1 focus:ring-brand"
+                />
+              </div>
+              <Field
+                label="Submission portal URL"
+                name="hoaSubmissionUrl"
+                defaultValue={initial?.hoaSubmissionUrl}
+                placeholder="https://…"
+                error={state.errors?.hoaSubmissionUrl?.[0]}
+                helperText="Online ARC portal, if the HOA uses one."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                HOA notes
+              </label>
+              <textarea
+                name="hoaNotes"
+                defaultValue={initial?.hoaNotes ?? ""}
+                rows={2}
+                placeholder="Setback rules, approved colors, neighbor sign-off needed, etc."
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:ring-1 focus:ring-brand"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
         <textarea
