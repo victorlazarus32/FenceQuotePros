@@ -24,7 +24,7 @@ export default function BeforeAfterVisual() {
           Visualizer · EST-1042
         </div>
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-          64 LF · 6′0″
+          64 LF · 6′
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default function BeforeAfterVisual() {
             After · {current.label}
           </span>
           <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/85">
-            6′0″ · 24 posts · 1 gate
+            6′ · 24 posts · 1 gate
           </span>
         </div>
       </div>
