@@ -220,8 +220,17 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="grid lg:grid-cols-[1fr_1.05fr] gap-12 items-start">
             <div>
-              <AnimatedFenceMark className="text-brand/70 w-48 mb-8" />
-              <BlueprintTag>Smart estimating</BlueprintTag>
+              {/* Inline brand-mark lockup: animated fence icon + section
+                  label on the same horizontal line. The AnimatedFenceMark
+                  has its own internal 'showLabel' (active fence type), so
+                  hide that and use the BlueprintTag as the section name. */}
+              <div className="flex items-center gap-4 mb-6">
+                <AnimatedFenceMark
+                  className="text-brand/70 w-24 sm:w-28 shrink-0"
+                  showLabel={false}
+                />
+                <BlueprintTag>Smart estimating</BlueprintTag>
+              </div>
               <h2
                 className="mt-5"
                 style={{
