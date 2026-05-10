@@ -125,7 +125,7 @@ export default async function AccountabilityListPage(
         <header className="bg-ink text-paper px-8 py-6 flex items-center gap-4 flex-wrap print:bg-white print:text-ink print:border-b-2 print:border-ink">
           <div className="flex items-center gap-3 grow">
             <Image
-              src="/logo.png"
+              src="/logo-v2.png"
               alt=""
               width={1536}
               height={1024}

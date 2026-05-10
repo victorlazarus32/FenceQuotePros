@@ -166,7 +166,7 @@ export default async function PublicEstimatePage(
           <header className="relative z-10 bg-ink text-paper px-8 py-6 flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-3 grow">
               <Image
-                src="/logo.png"
+                src="/logo-v2.png"
                 alt=""
                 width={1536}
                 height={1024}

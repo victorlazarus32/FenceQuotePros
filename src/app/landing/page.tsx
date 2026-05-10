@@ -555,7 +555,7 @@ export default function LandingPage() {
           <div className="col-span-2">
             <div className="mb-3">
               <Image
-                src="/logo.png"
+                src="/logo-v2.png"
                 alt="Fence Quote Pros"
                 width={1536}
                 height={1024}

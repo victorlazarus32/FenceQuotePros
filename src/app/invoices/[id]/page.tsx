@@ -69,7 +69,7 @@ export default async function InvoiceDetailPage(
           <div className="flex items-center gap-3 grow">
             <div className="bg-white rounded-md p-1 shrink-0">
               <Image
-                src="/logo.png"
+                src="/logo-v2.png"
                 alt=""
                 width={56}
                 height={56}

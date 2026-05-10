@@ -20,7 +20,7 @@ export default async function LoginPage() {
           aria-label="Fence Quote Pros home"
         >
           <Image
-            src="/logo.png"
+            src="/logo-v2.png"
             alt=""
             width={48}
             height={48}

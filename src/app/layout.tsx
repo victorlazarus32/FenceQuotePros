@@ -62,23 +62,24 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-paper text-ink" suppressHydrationWarning>
         <header className="no-print bg-white border-b border-line">
-          <nav className="max-w-6xl mx-auto px-4 h-20 sm:h-24 lg:h-28 flex items-center justify-between gap-4">
+          <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
             <Link
               href="/"
               className="flex items-center group shrink-0"
               aria-label="Fence Quote Pros home"
             >
-              {/* Wide horizontal logo. Intrinsic dims are placeholder —
-                  the actual rendered size is height-constrained via the
-                  className and width auto-scales. Bumping the header
-                  height above so the logo fills the white space. */}
+              {/* Wide horizontal logo. The 3:2 source has gradient
+                  atmosphere baked in, so we width-constrain (not
+                  height-constrain) and let the nav grow vertically to
+                  match. Mobile / tablet / desktop sizes tuned so the
+                  mark dominates the left side without crowding nav. */}
               <Image
-                src="/logo.png"
+                src="/logo-v2.png"
                 alt="Fence Quote Pros"
                 width={1536}
                 height={1024}
                 priority
-                className="h-16 sm:h-20 lg:h-24 w-auto"
+                className="w-[220px] sm:w-[300px] lg:w-[380px] h-auto"
               />
             </Link>
             <MobileNav loggedIn={loggedIn} />
