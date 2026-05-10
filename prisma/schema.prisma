@@ -41,6 +41,7 @@ model User {
   invoices      Invoice[]
   emailMessages EmailMessage[]
   notifications Notification[]
+  crews         Crew[]
 }
 
 model Client {
@@ -220,6 +221,38 @@ model FenceJob {
   marginMinimumCents     Int      @default(0)
   // Free-text
   notes                  String?
+  // Production scheduling (Phase E). When the estimate is accepted,
+  // the contractor schedules the install — picking a date and a crew.
+  // installStatus drives the production board card colors and the
+  // accountability list state.
+  scheduledDate          DateTime?
+  crewId                 String?
+  crew                   Crew?    @relation(fields: [crewId], references: [id])
+  installStatus          String   @default("unscheduled")
+  // unscheduled | scheduled | in_progress | completed
+  completedAt            DateTime?
+
+  @@index([scheduledDate])
+  @@index([crewId])
+}
+
+// Production crew. A two-or-three-person fence crew that gets
+// assigned to scheduled installs. Per-user (each contractor account
+// manages its own crews); kept lightweight on purpose — name + a
+// color tag so the production board is easy to read at a glance.
+model Crew {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  // Hex color (e.g. "#0e7490") used as the cell-tag accent on the
+  // production board. Optional; defaults to brand-orange in the UI.
+  colorTag  String?
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  jobs      FenceJob[]
+
+  @@index([userId, active])
 }
 
 model Payment {

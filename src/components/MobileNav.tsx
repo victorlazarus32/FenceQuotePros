@@ -36,6 +36,7 @@ export function MobileNav({ loggedIn }: { loggedIn: boolean }) {
               <>
                 <MobileItem href="/" label="Dashboard" onNavigate={close} />
                 <MobileItem href="/estimates" label="Estimates" onNavigate={close} />
+                <MobileItem href="/scheduling" label="Schedule" onNavigate={close} />
                 <MobileItem href="/invoices" label="Invoices" onNavigate={close} />
                 <MobileItem href="/clients" label="Clients" onNavigate={close} />
                 <MobileItem href="/profile" label="Profile" onNavigate={close} />

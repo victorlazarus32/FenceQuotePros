@@ -17,6 +17,7 @@ import { AcceptDeclineBlock } from "@/components/AcceptDeclineBlock";
 import { JobBreakdownPanel } from "@/components/JobBreakdownPanel";
 import { SendProposalButton } from "@/components/SendProposalButton";
 import { PermitDocsContractorPanel } from "@/components/PermitDocsContractorPanel";
+import { ScheduleInstallPanel } from "@/components/ScheduleInstallPanel";
 import { getTemplate } from "@/lib/permitDocs";
 import { calculateFenceJob, fenceJobRowToCalcInput } from "@/lib/fence";
 import { computeDepositCents, type DepositMode } from "@/lib/deposit";
@@ -51,6 +52,19 @@ export default async function EstimateDetailPage(
   if (!est || est.userId !== userId) notFound();
 
   const contractorHasSavedSig = Boolean(est.user.signatureDataUrl);
+
+  // Crews list for the inline scheduling panel. Only fetch when we'd
+  // actually show it — the panel surfaces once the customer signs or
+  // the contractor manually marks it accepted.
+  const showSchedulePanel =
+    Boolean(est.signedAt) || est.status === "accepted";
+  const crews = showSchedulePanel
+    ? await db.crew.findMany({
+        where: { userId, active: true },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, name: true, colorTag: true },
+      })
+    : [];
 
   const markSent = setEstimateStatus.bind(null, est.id, "sent");
   const markAccepted = setEstimateStatus.bind(null, est.id, "accepted");
@@ -529,6 +543,23 @@ export default async function EstimateDetailPage(
               })}
             />
           </div>
+
+          {showSchedulePanel && fenceJob && (
+            <div className="mt-6">
+              <ScheduleInstallPanel
+                estimateId={est.id}
+                fenceJobId={fenceJob.id}
+                initialDate={
+                  fenceJob.scheduledDate
+                    ? fenceJob.scheduledDate.toISOString().slice(0, 10)
+                    : null
+                }
+                initialCrewId={fenceJob.crewId ?? null}
+                installStatus={fenceJob.installStatus}
+                crews={crews}
+              />
+            </div>
+          )}
 
           {est.signedAt && est.signatureDataUrl && (
             <div

@@ -83,6 +83,7 @@ export default async function RootLayout({
                 <>
                   <NavLink href="/">Dashboard</NavLink>
                   <NavLink href="/estimates">Estimates</NavLink>
+                  <NavLink href="/scheduling">Schedule</NavLink>
                   <NavLink href="/invoices">Invoices</NavLink>
                   <NavLink href="/clients">Clients</NavLink>
                   <NavLink href="/profile">Profile</NavLink>
