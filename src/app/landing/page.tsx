@@ -76,11 +76,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── SECTION 2 — THE PROBLEM ─────────────────────────────── */}
+      {/* ─── SECTION 2 — COMMON CHALLENGES ───────────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="max-w-2xl">
-            <BlueprintTag>The problem</BlueprintTag>
+            <BlueprintTag>Common challenges</BlueprintTag>
             <h2
               className="mt-5"
               style={{
@@ -92,7 +92,7 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Three operational leaks{" "}
+              Three common problems{" "}
               <span className="text-brand">cost fence companies money.</span>
             </h2>
           </div>
@@ -101,27 +101,30 @@ export default function LandingPage() {
             <ProblemCard
               number="01"
               title="Slow estimates"
-              body="Manual quotes waste valuable sales time. Customers sign with the contractor who responded that night."
+              body="Manual quotes waste valuable sales time. Customers often move forward with the contractor who responds first."
             />
             <ProblemCard
               number="02"
               title="Homeowners can't visualize"
-              body="Customers hesitate when they can't clearly see the final project on their own property."
+              body="Customers hesitate when they cannot clearly see how the finished fence will look on their property."
               middle
             />
             <ProblemCard
               number="03"
               title="Operational confusion"
-              body="Miscommunication between sales and installers leads to costly mistakes — wrong gates, wrong heights, rework."
+              body="Miscommunication between sales and installers leads to wrong gates, incorrect heights, delays, and costly rework."
             />
           </div>
 
-          <p className="mt-10 text-paper/70 text-base">
-            <span className="text-brand font-semibold">
+          <div className="mt-10 max-w-3xl space-y-2 text-base leading-relaxed">
+            <p className="text-brand font-semibold">
               Fence Quote Pros simplifies the entire workflow.
-            </span>{" "}
-            Quoting, visualization, permits, and field operations — connected.
-          </p>
+            </p>
+            <p className="text-paper/75">
+              Professional quoting, realistic fence visualization, permits, and
+              installer work orders — connected in one platform.
+            </p>
+          </div>
         </div>
       </section>
 
