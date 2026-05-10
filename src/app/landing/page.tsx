@@ -72,9 +72,9 @@ export default function LandingPage() {
               modern fence contractors.
             </h1>
             <p className="text-lg sm:text-xl mt-6 max-w-xl text-paper/80 leading-relaxed">
-              Quotes, permits, fence visualizations, work orders,
-              scheduling, production tracking, and municipality automation
-              — all in one platform built specifically for fence companies.
+              AI-powered quoting, permit workflows, municipality intelligence,
+              production management, and installer accountability — all in one
+              platform built specifically for fence companies.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
@@ -105,27 +105,36 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── INDUSTRY PROBLEMS ──────────────────────────────────── */}
-      <section className="bg-paper border-b border-line">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12 max-w-3xl mx-auto">
-            <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
-              Industry problems
+      {/* ─── THE OLD WAY (Industry Chaos) ──────────────────────── */}
+      <section className="relative bg-ink text-paper border-b border-paper/10 overflow-hidden">
+        <div className="absolute inset-0 -z-0 opacity-[0.05] pointer-events-none">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[400px] rounded-full bg-brand blur-3xl" />
+        </div>
+        <div className="relative max-w-6xl mx-auto px-6 py-20 sm:py-24">
+          <div className="text-center mb-14 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-paper/15 text-[10px] uppercase tracking-[0.2em] mb-4 font-mono text-paper/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              Fence industry · 2026
             </div>
             <h2
-              className="text-ink"
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 900,
                 textTransform: "uppercase",
-                fontSize: "clamp(28px, 4vw, 48px)",
-                lineHeight: 1.05,
+                fontSize: "clamp(30px, 4.6vw, 56px)",
+                lineHeight: 1,
+                letterSpacing: "0.005em",
               }}
             >
-              The fence business is held together by phone calls, sticky notes, and tape measures.
+              The old way is{" "}
+              <span className="text-brand">costing fence companies money.</span>
             </h2>
+            <p className="text-base text-paper/60 mt-5 leading-relaxed">
+              Phone calls. Sticky notes. Tape measures. Spreadsheets that
+              don't sync. The status quo bleeds margin every job.
+            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <ProblemCard
               icon={<Clock className="w-5 h-5" />}
               title="Slow estimates"
@@ -176,19 +185,20 @@ export default function LandingPage() {
       </section>
 
       {/* ─── BUILT BY FENCE CONTRACTORS ─────────────────────────── */}
-      <section className="bg-white border-b border-line">
+      <section className="bg-paper border-b border-line">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12 items-center">
             <div>
-              <div className="aspect-square rounded-2xl bg-ink overflow-hidden relative shadow-[8px_8px_0_var(--brand)]">
+              <div className="aspect-square rounded-2xl bg-ink overflow-hidden relative shadow-[10px_10px_0_var(--brand)]">
                 <div className="absolute inset-0 bg-gradient-to-br from-ink via-ink-deep to-brand-dark opacity-90" />
+                <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-paper/10 border border-paper/15 text-[10px] uppercase tracking-[0.2em] font-mono text-paper/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand" />
+                  Founders
+                </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Hammer className="w-32 h-32 text-brand opacity-90" />
                 </div>
                 <div className="absolute bottom-6 left-6 right-6 text-paper text-center">
-                  <div className="text-xs uppercase tracking-wider opacity-70 mb-1">
-                    Founders
-                  </div>
                   <div
                     style={{
                       fontFamily: "var(--font-display)",
@@ -200,11 +210,14 @@ export default function LandingPage() {
                   >
                     Real fence contractors
                   </div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] font-mono text-paper/50 mt-1">
+                    Permit Solutions · PermitLens
+                  </div>
                 </div>
               </div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
+              <div className="text-xs uppercase tracking-[0.2em] text-brand font-bold mb-3 font-mono">
                 Built by fence contractors
               </div>
               <h2
@@ -213,7 +226,7 @@ export default function LandingPage() {
                   fontFamily: "var(--font-display)",
                   fontWeight: 900,
                   textTransform: "uppercase",
-                  fontSize: "clamp(30px, 4.4vw, 52px)",
+                  fontSize: "clamp(30px, 4.6vw, 56px)",
                   lineHeight: 1,
                   letterSpacing: "0.005em",
                 }}
@@ -221,16 +234,15 @@ export default function LandingPage() {
                 Not built by software developers guessing how contractors work.
               </h2>
               <p className="text-base text-slate-700 mt-5 leading-relaxed">
-                Fence Quote Pros was built by fence contractors who live the
-                business every day. Decades of permitting, installations,
-                callbacks, municipal AHJ paperwork, production scheduling,
-                and crew management are baked into every workflow.
+                Fence Quote Pros was built by real fence contractors who
+                understand permits, callbacks, production delays, installers,
+                and operational chaos — because we live it every day.
               </p>
               <p className="text-base text-slate-700 mt-4 leading-relaxed">
                 The platform reflects how fence companies actually run — not
                 how a generic SaaS team imagined they should. That's the
                 difference between contractor software people use, and
-                contractor software people pay for.
+                operational infrastructure people pay for.
               </p>
               <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
                 <ContractorPoint>Permitting expertise</ContractorPoint>
@@ -263,16 +275,17 @@ export default function LandingPage() {
                 fontFamily: "var(--font-display)",
                 fontWeight: 900,
                 textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.4vw, 52px)",
-                lineHeight: 1.05,
+                fontSize: "clamp(30px, 4.6vw, 56px)",
+                lineHeight: 1,
+                letterSpacing: "0.005em",
               }}
             >
-              Every step of the fence company lifecycle.{" "}
-              <span className="text-brand">In one platform.</span>
+              Run your entire fence operation{" "}
+              <span className="text-brand">from one platform.</span>
             </h2>
             <p className="text-lg text-paper/70 mt-5">
-              From the first inquiry to warranty follow-up, Fence Quote Pros
-              is the operational layer your business runs on.
+              Lead → Estimate → Permit → Production → Install → Completion.
+              The full operational pipeline, connected.
             </p>
           </div>
 
@@ -487,15 +500,23 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FINAL CTA ──────────────────────────────────────────── */}
-      <section className="bg-ink text-paper">
-        <div className="max-w-5xl mx-auto px-6 py-24 text-center">
+      <section className="relative bg-ink text-paper overflow-hidden">
+        <div className="absolute inset-0 -z-0 opacity-[0.07] pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] rounded-full bg-brand blur-3xl" />
+        </div>
+        <div className="relative max-w-5xl mx-auto px-6 py-24 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-paper/15 text-[10px] uppercase tracking-[0.2em] mb-6 font-mono text-paper/60">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+            Operational infrastructure · Built for fence contractors
+          </div>
           <h2
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 900,
               textTransform: "uppercase",
-              fontSize: "clamp(36px, 5.5vw, 72px)",
+              fontSize: "clamp(36px, 5.6vw, 72px)",
               lineHeight: 0.95,
+              letterSpacing: "0.005em",
             }}
           >
             Give your fence business{" "}
@@ -775,12 +796,11 @@ function ProblemCard({
   body: string;
 }) {
   return (
-    <div className="rounded-xl bg-white border border-line p-5 hover:border-ink transition-colors">
-      <div className="w-10 h-10 rounded-lg bg-paper border border-line flex items-center justify-center text-slate-500 mb-3">
+    <div className="rounded-lg bg-paper/[0.04] border border-paper/10 p-5 hover:border-brand/40 hover:bg-paper/[0.06] transition-colors">
+      <div className="w-10 h-10 rounded-md bg-paper/10 flex items-center justify-center text-brand mb-4">
         {icon}
       </div>
       <div
-        className="text-ink"
         style={{
           fontFamily: "var(--font-display)",
           fontWeight: 800,
@@ -791,7 +811,7 @@ function ProblemCard({
       >
         {title}
       </div>
-      <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{body}</p>
+      <p className="text-sm text-paper/60 mt-2 leading-relaxed">{body}</p>
     </div>
   );
 }
