@@ -778,7 +778,7 @@ function HeroVisual() {
             Project · EST-1042
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand">
-            184 LF · 6 FT
+            64 LF · 6 FT
           </div>
         </div>
         <div className="grid grid-cols-1">
@@ -846,7 +846,7 @@ function EstimateMockup() {
         </div>
         <div className="p-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <SpecLine label="Fence type" value="6′ Aluminum louvered" />
-          <SpecLine label="Linear feet" value="184 LF" />
+          <SpecLine label="Linear feet" value="64 LF" />
           <SpecLine label="Posts" value="24 × 2.5″ × 8′" />
           <SpecLine label="Concrete" value="48 bags / 80 lb" />
           <SpecLine label="Single gates" value="1 × 4′ swing" />
@@ -991,7 +991,7 @@ function ScheduleMockup() {
         <CrewRow
           name="A-1"
           cells={[
-            { kind: "job", title: "Sanchez", meta: "184 LF" },
+            { kind: "job", title: "Sanchez", meta: "64 LF" },
             { kind: "job", title: "Reyes", meta: "92 LF" },
             { kind: "empty" },
             { kind: "job", title: "Lopez", meta: "146 LF · gate" },
@@ -1138,7 +1138,7 @@ function WorkOrderMockup() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <WorkRow icon={<Ruler className="w-3 h-3 text-brand" />} label="Linear feet" value="184 LF" />
+            <WorkRow icon={<Ruler className="w-3 h-3 text-brand" />} label="Linear feet" value="64 LF" />
             <WorkRow icon={<Hammer className="w-3 h-3 text-brand" />} label="Posts" value="24" />
             <WorkRow icon={<Calendar className="w-3 h-3 text-brand" />} label="Install date" value="Tue · 06/04" />
             <WorkRow icon={<MapPin className="w-3 h-3 text-brand" />} label="Gate" value="4′ swing · East" />

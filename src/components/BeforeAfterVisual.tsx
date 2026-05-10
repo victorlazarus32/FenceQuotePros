@@ -24,7 +24,7 @@ export default function BeforeAfterVisual() {
           Visualizer · EST-1042
         </div>
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-          184 LF · 6′0″
+          64 LF · 6′0″
         </div>
       </div>
 
@@ -121,7 +121,7 @@ function DimensionBracket() {
         <span
           className="absolute left-1/2 -translate-x-1/2 -top-2 -translate-y-full px-1.5 bg-ink text-brand font-mono text-[9px] uppercase tracking-[0.22em]"
         >
-          184 LF
+          64 LF
         </span>
       </div>
     </div>
