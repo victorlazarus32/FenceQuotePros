@@ -209,7 +209,6 @@ export default function LandingPage() {
           </div>
 
           <div className="relative">
-            <SitePlanCorner className="absolute -top-6 -right-6 w-12 h-12 text-brand pointer-events-none" />
             <CornerTicks />
             <BeforeAfterVisual />
           </div>
