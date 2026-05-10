@@ -2,17 +2,21 @@
 
 :root {
   /* Surfaces */
-  --background: #fbfaf6; /* paper, cream-warm */
-  --foreground: #134e4a; /* deep teal — body text */
-  --line: #d6e1de;
+  --background: #fafaf9; /* warm off-white */
+  --foreground: #1f2937; /* slate-800 — body text */
+  --line: #e5e7eb; /* slate-200 — borders */
 
-  /* Brand (Fence Quote Pros: deep teal + orange + cream) */
+  /* Brand (Fence Quote Pros: charcoal + construction orange + warm white).
+     The teal palette was retired 2026-05-10 — the black-bg logo clashed
+     and teal pulled the visual direction away from the industrial-premium
+     feel we want. Charcoal lets the orange pop harder and the logo
+     blend naturally. */
   --brand: #ff6b1a;
   --brand-soft: #fff1e7;
-  --brand-dark: #155e75; /* hover darkens onto teal, not black */
-  --ink: #0e7490;        /* primary dark surface — vibrant ocean teal */
-  --ink-deep: #155e75;   /* deeper teal for hover/depth */
-  --paper: #fbfaf6;
+  --brand-dark: #c2410c;  /* orange-700 — hover darkens orange, not blue */
+  --ink: #1f2937;         /* slate-800 — primary dark surface (was teal) */
+  --ink-deep: #111827;    /* slate-900 — deeper for hover / depth */
+  --paper: #fafaf9;
   --text-strong: #0f172a; /* slate-900 for body copy */
 
   /* Type scale */
