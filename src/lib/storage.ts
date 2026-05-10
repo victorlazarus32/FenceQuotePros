@@ -159,4 +159,10 @@ export const keys = {
   permitDoc(estimateId: string, documentId: string, slug: string) {
     return `docs/${estimateId}/${documentId}-${slug}.pdf`;
   },
+  hoaTemplate(userId: string, templateId: string) {
+    return `hoa-templates/${userId}/${templateId}.pdf`;
+  },
+  hoaApplicationDoc(estimateId: string, documentId: string, templateId: string) {
+    return `docs/${estimateId}/${documentId}-hoa-${templateId}.pdf`;
+  },
 };

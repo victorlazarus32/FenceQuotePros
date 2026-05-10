@@ -22,6 +22,7 @@ const ClientSchema = z.object({
   hoaContactPhone: z.string().max(40).optional(),
   hoaSubmissionUrl: z.string().url().or(z.literal("")).optional(),
   hoaNotes: z.string().max(2000).optional(),
+  hoaTemplateId: z.string().max(40).optional(),
   notes: z.string().max(2000).optional(),
 });
 
@@ -47,6 +48,7 @@ function parseForm(formData: FormData) {
     hoaContactPhone: formData.get("hoaContactPhone") ?? "",
     hoaSubmissionUrl: formData.get("hoaSubmissionUrl") ?? "",
     hoaNotes: formData.get("hoaNotes") ?? "",
+    hoaTemplateId: formData.get("hoaTemplateId") ?? "",
     notes: formData.get("notes") ?? "",
   });
 }
@@ -82,6 +84,7 @@ export async function createClient(
       hoaContactPhone: data.hoaContactPhone || null,
       hoaSubmissionUrl: data.hoaSubmissionUrl || null,
       hoaNotes: data.hoaNotes || null,
+      hoaTemplateId: data.hoaTemplateId || null,
       notes: data.notes || null,
     },
   });
@@ -125,6 +128,7 @@ export async function updateClient(
       hoaContactPhone: data.hoaContactPhone || null,
       hoaSubmissionUrl: data.hoaSubmissionUrl || null,
       hoaNotes: data.hoaNotes || null,
+      hoaTemplateId: data.hoaTemplateId || null,
       notes: data.notes || null,
     },
   });

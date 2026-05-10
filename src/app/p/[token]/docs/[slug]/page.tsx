@@ -6,7 +6,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { getTemplate } from "@/lib/permitDocs";
+import { getTemplate, type PermitDocField } from "@/lib/permitDocs";
+import { parseFieldMappings } from "@/lib/hoaTemplates";
 import { pickLang } from "@/lib/i18n";
 import { PermitDocSignForm } from "@/components/PermitDocSignForm";
 
@@ -36,13 +37,49 @@ export default async function PermitDocSignPage(
   const document = estimate.documents[0];
   if (!document) notFound();
 
-  const template = getTemplate(slug);
-  if (!template) notFound();
+  // For built-in permit templates, look up the static template registry.
+  // For HOA applications, build a virtual template shim from the per-user
+  // HoaApplicationTemplate row so the same signing UI renders both.
+  let displayName: string;
+  let displayDescription: string;
+  let blankFormHref: string | null;
+  let promptedFields: PermitDocField[];
+
+  if (slug === "hoa_application") {
+    if (!document.hoaTemplateId) notFound();
+    const hoaTemplate = await db.hoaApplicationTemplate.findUnique({
+      where: { id: document.hoaTemplateId },
+      select: { name: true, fieldMappings: true },
+    });
+    if (!hoaTemplate) notFound();
+    displayName = hoaTemplate.name;
+    displayDescription =
+      "HOA / ARC application — auto-filled from your fence project. Review, complete any open fields, and sign.";
+    blankFormHref = null;
+    const mappings = parseFieldMappings(hoaTemplate.fieldMappings);
+    // Fields with no defaultFrom and no staticValue are presented to the
+    // signer for manual entry. Skip checkboxes — those rarely make sense
+    // as free-text inputs.
+    promptedFields = mappings
+      .filter((m) => !m.defaultFrom && !m.staticValue && m.kind !== "checkbox")
+      .map((m) => ({
+        formFieldName: m.formFieldName,
+        kind: m.kind,
+        label: m.label ?? m.formFieldName,
+        promptHuman: true,
+      }));
+  } else {
+    const template = getTemplate(slug);
+    if (!template) notFound();
+    displayName = template.name;
+    displayDescription = template.description;
+    blankFormHref = `/forms/${template.sourcePdfFilename}`;
+    promptedFields = template.fields.filter((f) => f.promptHuman);
+  }
 
   const initialFieldValues: Record<string, string> = document.fieldValues
     ? (JSON.parse(document.fieldValues) as Record<string, string>)
     : {};
-  const promptedFields = template.fields.filter((f) => f.promptHuman);
 
   const alreadySigned = Boolean(document.ownerSignedAt);
 
@@ -69,7 +106,7 @@ export default async function PermitDocSignPage(
                 lineHeight: 1.1,
               }}
             >
-              {template.name}
+              {displayName}
             </h1>
             <div className="text-sm opacity-80 mt-2">
               {estimate.number} · {estimate.client.name}
@@ -78,30 +115,32 @@ export default async function PermitDocSignPage(
 
           <div className="p-6 space-y-6">
             <p className="text-sm text-slate-700 leading-relaxed">
-              {template.description}
+              {displayDescription}
             </p>
 
-            <div className="rounded border border-line bg-slate-50 p-4 text-sm">
-              <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">
-                {lang === "es" ? "Vista previa del formulario" : "Form preview"}
+            {blankFormHref && (
+              <div className="rounded border border-line bg-slate-50 p-4 text-sm">
+                <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">
+                  {lang === "es" ? "Vista previa del formulario" : "Form preview"}
+                </div>
+                <a
+                  href={blankFormHref}
+                  target="_blank"
+                  rel="noopener"
+                  className="text-brand font-semibold hover:underline"
+                >
+                  {lang === "es"
+                    ? "Abrir el formulario en blanco (PDF)"
+                    : "Open the blank form (PDF)"}{" "}
+                  ↗
+                </a>
+                <div className="text-xs text-slate-500 mt-1">
+                  {lang === "es"
+                    ? "Después de firmar, recibirá una copia ejecutada de este formulario."
+                    : "Once signed, you'll receive an executed copy of this form."}
+                </div>
               </div>
-              <a
-                href={`/forms/${template.sourcePdfFilename}`}
-                target="_blank"
-                rel="noopener"
-                className="text-brand font-semibold hover:underline"
-              >
-                {lang === "es"
-                  ? "Abrir el formulario en blanco (PDF)"
-                  : "Open the blank form (PDF)"}{" "}
-                ↗
-              </a>
-              <div className="text-xs text-slate-500 mt-1">
-                {lang === "es"
-                  ? "Después de firmar, recibirá una copia ejecutada de este formulario."
-                  : "Once signed, you'll receive an executed copy of this form."}
-              </div>
-            </div>
+            )}
 
             {alreadySigned ? (
               <SignedReceipt

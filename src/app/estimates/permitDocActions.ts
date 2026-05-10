@@ -20,7 +20,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { renderExecutedPdf } from "@/lib/permitDocPdf";
+import {
+  renderExecutedPdf,
+  renderExecutedHoaApplication,
+} from "@/lib/permitDocPdf";
 import {
   buildInitialFieldValues,
   fieldKey,
@@ -29,6 +32,10 @@ import {
   type EstimateRenderContext,
   type PermitDocTemplate,
 } from "@/lib/permitDocs";
+import {
+  buildHoaInitialFieldValues,
+  parseFieldMappings,
+} from "@/lib/hoaTemplates";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -143,11 +150,59 @@ async function recordRequestSignature(): Promise<{
   }
 }
 
+// Unified template info for either a hardcoded permit template or a per-user
+// HOA application template. Used by the signing actions so they don't have
+// to branch on slug at every step.
+interface DocTemplateInfo {
+  displayName: string;
+  requiresOwnerSignature: boolean;
+  requiresContractorSignature: boolean;
+  slugForRevalidate: string;
+}
+
+async function loadDocTemplateInfo(doc: {
+  templateSlug: string;
+  hoaTemplateId: string | null;
+}): Promise<DocTemplateInfo | null> {
+  if (doc.templateSlug === "hoa_application") {
+    if (!doc.hoaTemplateId) return null;
+    const t = await db.hoaApplicationTemplate.findUnique({
+      where: { id: doc.hoaTemplateId },
+      select: {
+        name: true,
+        requiresOwnerSignature: true,
+        requiresContractorSignature: true,
+      },
+    });
+    if (!t) return null;
+    return {
+      displayName: t.name,
+      requiresOwnerSignature: t.requiresOwnerSignature,
+      requiresContractorSignature: t.requiresContractorSignature,
+      slugForRevalidate: "hoa_application",
+    };
+  }
+  const t = getTemplate(doc.templateSlug);
+  if (!t) return null;
+  return {
+    displayName: t.name,
+    requiresOwnerSignature: t.requiresOwnerSignature,
+    requiresContractorSignature: t.requiresContractorSignature,
+    slugForRevalidate: t.slug,
+  };
+}
+
 async function maybeRenderPdf(documentId: string): Promise<void> {
   const doc = await db.estimateDocument.findUnique({
     where: { id: documentId },
   });
   if (!doc) return;
+
+  if (doc.templateSlug === "hoa_application") {
+    await maybeRenderHoaPdf(doc);
+    return;
+  }
+
   const template = getTemplate(doc.templateSlug);
   if (!template) return;
 
@@ -214,6 +269,90 @@ async function maybeRenderPdf(documentId: string): Promise<void> {
   }
 }
 
+// HOA application: same lifecycle as a permit doc but the template + source
+// PDF live in the database / object storage rather than being shipped with
+// the codebase.
+async function maybeRenderHoaPdf(
+  doc: {
+    id: string;
+    estimateId: string;
+    hoaTemplateId: string | null;
+    fieldValues: string | null;
+    ownerSignatureDataUrl: string | null;
+    contractorSignatureDataUrl: string | null;
+  },
+): Promise<void> {
+  if (!doc.hoaTemplateId) return;
+  const template = await db.hoaApplicationTemplate.findUnique({
+    where: { id: doc.hoaTemplateId },
+  });
+  if (!template) return;
+
+  const ownerSatisfied = template.requiresOwnerSignature
+    ? Boolean(doc.ownerSignatureDataUrl)
+    : true;
+  const contractorSatisfied = template.requiresContractorSignature
+    ? Boolean(doc.contractorSignatureDataUrl)
+    : true;
+  if (!ownerSatisfied || !contractorSatisfied) return;
+
+  const fieldValues = doc.fieldValues
+    ? (JSON.parse(doc.fieldValues) as Record<string, string>)
+    : {};
+  const mappings = parseFieldMappings(template.fieldMappings);
+
+  try {
+    const generatedPdfKey = await renderExecutedHoaApplication({
+      estimateId: doc.estimateId,
+      documentId: doc.id,
+      templateId: template.id,
+      templateName: template.name,
+      pdfStorageKey: template.pdfStorageKey,
+      mappings,
+      fieldValues,
+      ownerSignatureFieldName: template.ownerSignatureFieldName,
+      contractorSignatureFieldName: template.contractorSignatureFieldName,
+      ownerSignatureDataUrl: doc.ownerSignatureDataUrl,
+      contractorSignatureDataUrl: doc.contractorSignatureDataUrl,
+    });
+    await db.estimateDocument.update({
+      where: { id: doc.id },
+      data: {
+        status: "completed",
+        generatedPdfKey,
+        generatedAt: new Date(),
+      },
+    });
+
+    const estimate = await db.estimate.findUnique({
+      where: { id: doc.estimateId },
+      select: {
+        userId: true,
+        number: true,
+        client: { select: { name: true } },
+      },
+    });
+    if (estimate) {
+      await db.notification.create({
+        data: {
+          userId: estimate.userId,
+          kind: "permit_doc_completed",
+          title: `HOA application ready: ${template.name}`,
+          body: `${estimate.number} · ${estimate.client.name} · executed PDF available for download.`,
+          estimateId: doc.estimateId,
+          channels: "in_app",
+        },
+      });
+    }
+  } catch (err) {
+    console.error("renderExecutedHoaApplication failed", err);
+    await db.estimateDocument.update({
+      where: { id: doc.id },
+      data: { status: "render_failed" },
+    });
+  }
+}
+
 // ── enqueuePermitDocs ────────────────────────────────────────────────────
 
 export async function enqueuePermitDocs(estimateId: string): Promise<{
@@ -253,6 +392,41 @@ export async function enqueuePermitDocs(estimateId: string): Promise<{
         },
       });
       enqueued.push(template.slug);
+    }
+  }
+
+  // HOA application: if the client is in an HOA with an assigned template,
+  // enqueue a filled application alongside the permit packet.
+  if (estimate.client.hoaRequired && estimate.client.hoaTemplateId) {
+    const hoaTemplate = await db.hoaApplicationTemplate.findUnique({
+      where: { id: estimate.client.hoaTemplateId },
+    });
+    if (hoaTemplate && hoaTemplate.userId === estimate.userId) {
+      const mappings = parseFieldMappings(hoaTemplate.fieldMappings);
+      const hoaFieldValues = buildHoaInitialFieldValues(mappings, ctx, {
+        hoaName: estimate.client.hoaName,
+        hoaContactName: estimate.client.hoaContactName,
+      });
+      const existingHoa = await db.estimateDocument.findUnique({
+        where: {
+          estimateId_templateSlug: {
+            estimateId: estimate.id,
+            templateSlug: "hoa_application",
+          },
+        },
+      });
+      if (!existingHoa) {
+        await db.estimateDocument.create({
+          data: {
+            estimateId: estimate.id,
+            templateSlug: "hoa_application",
+            hoaTemplateId: hoaTemplate.id,
+            fieldValues: JSON.stringify(hoaFieldValues),
+            status: "pending",
+          },
+        });
+        enqueued.push("hoa_application");
+      }
     }
   }
 
@@ -409,8 +583,8 @@ export async function signPermitDocumentByOwner(
     return { message: "This document has already been signed." };
   }
 
-  const template = getTemplate(document.templateSlug);
-  if (!template) return { message: "Unknown document template." };
+  const info = await loadDocTemplateInfo(document);
+  if (!info) return { message: "Unknown document template." };
 
   // Merge any human-entered field values on top of the prefill.
   let mergedFields: Record<string, string> = document.fieldValues
@@ -436,9 +610,7 @@ export async function signPermitDocumentByOwner(
       ownerSignedByName: signedByName,
       ownerSignedIp: meta.ipAddress,
       ownerSignedUserAgent: meta.userAgent,
-      status: template.requiresContractorSignature
-        ? "owner_signed"
-        : "owner_signed",
+      status: "owner_signed",
     },
   });
 
@@ -446,7 +618,7 @@ export async function signPermitDocumentByOwner(
     data: {
       userId: document.estimate.userId,
       kind: "permit_doc_owner_signed",
-      title: `Customer signed: ${template.name}`,
+      title: `Customer signed: ${info.displayName}`,
       body: `Signed by ${signedByName}.`,
       estimateId: document.estimate.id,
       channels: "in_app",
@@ -456,7 +628,7 @@ export async function signPermitDocumentByOwner(
   await maybeRenderPdf(document.id);
 
   revalidatePath(`/p/${token}`);
-  revalidatePath(`/p/${token}/docs/${template.slug}`);
+  revalidatePath(`/p/${token}/docs/${info.slugForRevalidate}`);
   revalidatePath(`/estimates/${document.estimate.id}`);
   return { ok: true };
 }
@@ -477,9 +649,9 @@ export async function contractorSignPermitDocument(
   if (document.contractorSignedAt) {
     return { ok: false, message: "Already signed." };
   }
-  const template = getTemplate(document.templateSlug);
-  if (!template) return { ok: false, message: "Unknown template." };
-  if (!template.requiresContractorSignature) {
+  const info = await loadDocTemplateInfo(document);
+  if (!info) return { ok: false, message: "Unknown template." };
+  if (!info.requiresContractorSignature) {
     return { ok: false, message: "This document does not need a contractor signature." };
   }
 

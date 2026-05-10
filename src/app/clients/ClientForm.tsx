@@ -32,19 +32,24 @@ type Initial = {
   hoaContactPhone?: string | null;
   hoaSubmissionUrl?: string | null;
   hoaNotes?: string | null;
+  hoaTemplateId?: string | null;
   notes?: string | null;
 };
+
+type HoaTemplateOption = { id: string; name: string };
 
 export function ClientForm({
   action,
   initial,
   cancelHref,
   submitLabel,
+  hoaTemplates,
 }: {
   action: (prev: ClientFormState, fd: FormData) => Promise<ClientFormState>;
   initial?: Initial;
   cancelHref: string;
   submitLabel: string;
+  hoaTemplates: HoaTemplateOption[];
 }) {
   const [state, formAction, pending] = useActionState<ClientFormState, FormData>(
     action,
@@ -159,6 +164,36 @@ export function ClientForm({
                 error={state.errors?.hoaSubmissionUrl?.[0]}
                 helperText="Online ARC portal, if the HOA uses one."
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Application template
+              </label>
+              <select
+                name="hoaTemplateId"
+                defaultValue={initial?.hoaTemplateId ?? ""}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:ring-1 focus:ring-brand"
+              >
+                <option value="">— No template —</option>
+                {hoaTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-slate-500">
+                Pick the uploaded ARC application that matches this HOA.
+                Estimates for this client will auto-fill it alongside the
+                permit packet.{" "}
+                <a
+                  href="/hoa-templates"
+                  className="underline hover:text-brand"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Manage templates →
+                </a>
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">

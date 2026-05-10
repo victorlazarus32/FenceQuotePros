@@ -42,6 +42,7 @@ model User {
   emailMessages EmailMessage[]
   notifications Notification[]
   crews         Crew[]
+  hoaTemplates  HoaApplicationTemplate[]
 }
 
 model Client {
@@ -69,10 +70,51 @@ model Client {
   hoaContactPhone   String?
   hoaSubmissionUrl  String?
   hoaNotes          String?
+  // When set, points at a per-user HOA application template (uploaded PDF
+  // + field mappings). Estimates signed for this client will auto-enqueue
+  // a filled HOA application alongside the permit packet.
+  hoaTemplateId     String?
+  hoaTemplate       HoaApplicationTemplate? @relation(fields: [hoaTemplateId], references: [id], onDelete: SetNull)
   notes        String?
   createdAt    DateTime   @default(now())
   estimates    Estimate[]
   invoices     Invoice[]
+
+  @@index([userId])
+  @@index([hoaTemplateId])
+}
+
+// HOA / ARC application template — per-user library of association-specific
+// PDFs. Each HOA writes its own application form, so we let the contractor
+// upload the PDF once, map AcroForm fields to estimate-context values, and
+// then auto-fill it whenever a client tied to that template is enqueued for
+// permit docs.
+//
+// fieldMappings stores a JSON array shaped like:
+//   [{ formFieldName, defaultFrom?, staticValue?, label?, kind? }]
+// where defaultFrom matches the same enum used by lib/permitDocs.ts. Fields
+// the contractor can't auto-resolve are left without defaultFrom/staticValue
+// and remain blank for human entry on the signing page.
+model HoaApplicationTemplate {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Display name for the contractor, e.g. "Doral Isles Master Association"
+  name            String
+  // Source PDF stored via lib/storage — local FS in dev, Supabase in prod.
+  pdfStorageKey   String
+  pdfFilename     String
+  // JSON-encoded mapping: PermitDocField[]-shaped (see lib/hoaTemplates.ts).
+  fieldMappings   String   @default("[]")
+  // AcroForm signature field names, if the source PDF has them.
+  ownerSignatureFieldName      String?
+  contractorSignatureFieldName String?
+  requiresOwnerSignature       Boolean  @default(true)
+  requiresContractorSignature  Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  clients         Client[]
+  estimateDocuments EstimateDocument[]
 
   @@index([userId])
 }
@@ -406,7 +448,12 @@ model EstimateDocument {
   id                       String    @id @default(cuid())
   estimateId               String
   estimate                 Estimate  @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  // For built-in permit templates this is the slug from lib/permitDocs.ts.
+  // For per-user HOA templates this is the literal "hoa_application" and
+  // hoaTemplateId points at the actual template row.
   templateSlug             String
+  hoaTemplateId            String?
+  hoaTemplate              HoaApplicationTemplate? @relation(fields: [hoaTemplateId], references: [id], onDelete: SetNull)
   status                   String    @default("pending")
   fieldValues              String?   // JSON-encoded { fieldKey: value }
   // Owner signature (homeowner / property owner)

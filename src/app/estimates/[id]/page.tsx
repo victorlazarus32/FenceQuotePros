@@ -53,6 +53,21 @@ export default async function EstimateDetailPage(
 
   const contractorHasSavedSig = Boolean(est.user.signatureDataUrl);
 
+  // Per-user HOA application templates referenced by any docs in this
+  // estimate. Pre-loaded so the contractor panel can show a real name and
+  // signature requirements for HOA docs (built-in permit docs come from
+  // lib/permitDocs.ts).
+  const hoaTemplateIds = est.documents
+    .map((d) => d.hoaTemplateId)
+    .filter((id): id is string => id !== null);
+  const hoaTemplates =
+    hoaTemplateIds.length > 0
+      ? await db.hoaApplicationTemplate.findMany({
+          where: { id: { in: hoaTemplateIds } },
+        })
+      : [];
+  const hoaTemplateById = new Map(hoaTemplates.map((t) => [t.id, t]));
+
   // Crews list for the inline scheduling panel. Only fetch when we'd
   // actually show it — the panel surfaces once the customer signs or
   // the contractor manually marks it accepted.
@@ -523,6 +538,27 @@ export default async function EstimateDetailPage(
               )}
               showDemoButton={process.env.NODE_ENV !== "production"}
               documents={est.documents.map((d) => {
+                if (d.templateSlug === "hoa_application") {
+                  const hoa = d.hoaTemplateId
+                    ? hoaTemplateById.get(d.hoaTemplateId)
+                    : undefined;
+                  return {
+                    id: d.id,
+                    templateSlug: d.templateSlug,
+                    templateName: hoa?.name ?? "HOA application",
+                    // No blank PDF link for HOA docs (each association's
+                    // form is private to the contractor).
+                    templateSourcePdfFilename: hoa?.pdfFilename ?? "blank.pdf",
+                    status: d.status,
+                    ownerSignedAt: d.ownerSignedAt,
+                    ownerSignedByName: d.ownerSignedByName,
+                    contractorSignedAt: d.contractorSignedAt,
+                    contractorRequired:
+                      hoa?.requiresContractorSignature ?? false,
+                    generatedPdfKey: d.generatedPdfKey,
+                    hasContractorSavedSig: contractorHasSavedSig,
+                  };
+                }
                 const tpl = getTemplate(d.templateSlug);
                 return {
                   id: d.id,

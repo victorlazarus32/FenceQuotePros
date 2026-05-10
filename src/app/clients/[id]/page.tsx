@@ -14,6 +14,7 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
     include: {
       estimates: { orderBy: { createdAt: "desc" }, take: 20 },
       invoices: { orderBy: { createdAt: "desc" }, take: 20 },
+      hoaTemplate: { select: { id: true, name: true } },
     },
   });
   if (!client || client.userId !== userId) notFound();
@@ -91,6 +92,17 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
               </div>
             )}
           </dl>
+          {client.hoaTemplate && (
+            <div className="mt-2 text-xs">
+              <span className="text-blue-700">Template: </span>
+              <Link
+                href={`/hoa-templates/${client.hoaTemplate.id}`}
+                className="underline hover:text-blue-900"
+              >
+                {client.hoaTemplate.name}
+              </Link>
+            </div>
+          )}
           {client.hoaNotes && (
             <p className="mt-2 whitespace-pre-wrap text-xs">{client.hoaNotes}</p>
           )}

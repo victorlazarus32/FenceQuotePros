@@ -11,6 +11,11 @@ export default async function EditClientPage(props: PageProps<"/clients/[id]/edi
   if (!client || client.userId !== userId) notFound();
 
   const action = updateClient.bind(null, id);
+  const hoaTemplates = await db.hoaApplicationTemplate.findMany({
+    where: { userId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -20,6 +25,7 @@ export default async function EditClientPage(props: PageProps<"/clients/[id]/edi
         initial={client}
         cancelHref={`/clients/${id}`}
         submitLabel="Save changes"
+        hoaTemplates={hoaTemplates}
       />
     </div>
   );
