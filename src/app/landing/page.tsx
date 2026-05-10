@@ -210,9 +210,6 @@ export default function LandingPage() {
                   >
                     Real fence contractors
                   </div>
-                  <div className="text-[10px] uppercase tracking-[0.2em] font-mono text-paper/50 mt-1">
-                    Permit Solutions · PermitLens
-                  </div>
                 </div>
               </div>
             </div>
@@ -251,12 +248,6 @@ export default function LandingPage() {
                 <ContractorPoint>Field operations</ContractorPoint>
                 <ContractorPoint>Code compliance</ContractorPoint>
                 <ContractorPoint>AHJ workflows</ContractorPoint>
-              </div>
-              <div className="mt-6 text-xs text-slate-500 leading-relaxed">
-                Powered by the team behind{" "}
-                <strong className="text-ink">Permit Solutions</strong> and{" "}
-                <strong className="text-ink">PermitLens</strong> — operating
-                in Miami-Dade AHJ portals every day.
               </div>
             </div>
           </div>
