@@ -265,10 +265,10 @@ export default function LandingPage() {
 
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border border-paper/15">
             <EstimateTile label="Materials" />
-            <EstimateTile label="Posts + Concrete" />
+            <EstimateTile label="Accountability List" />
             <EstimateTile label="Gates + Hardware" />
             <EstimateTile label="Labor" />
-            <EstimateTile label="Demolition" />
+            <EstimateTile label="Scheduler" />
             <EstimateTile label="Margins" />
             <EstimateTile label="Fence Styles" />
             <EstimateTile label="Job Costing" />

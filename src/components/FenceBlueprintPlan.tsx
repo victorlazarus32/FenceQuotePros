@@ -321,19 +321,20 @@ export default function FenceBlueprintPlan() {
 
         {/* Footer strip with the same job number / address treatment used
             on the visualizer card so the two visuals feel like documents
-            from the same project file. */}
-        <div className="mt-3 grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
-          <div>
-            <div className="text-paper/40">Folio</div>
-            <div className="text-paper mt-0.5">30-5911-321-1234</div>
+            from the same project file. Stacked vertically so each line
+            stays on one row at the narrower site-plan column width. */}
+        <div className="mt-3 flex flex-col gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
+          <div className="flex items-baseline gap-2">
+            <span className="text-paper/40 w-14 shrink-0">Folio</span>
+            <span className="text-paper">30-5911-321-1234</span>
           </div>
-          <div>
-            <div className="text-paper/40">Style</div>
-            <div className="text-paper mt-0.5">6′ Aluminum</div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-paper/40 w-14 shrink-0">Style</span>
+            <span className="text-paper">6′ Aluminum</span>
           </div>
-          <div>
-            <div className="text-paper/40">Status</div>
-            <div className="text-brand mt-0.5">Estimated</div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-paper/40 w-14 shrink-0">Status</span>
+            <span className="text-brand">Estimated</span>
           </div>
         </div>
       </div>
