@@ -511,17 +511,15 @@ export default function LandingPage() {
       <footer className="bg-ink text-paper">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm">
           <div className="col-span-2">
-            {/* Source PNG (1536x1024) has gradient atmosphere + glow padding
-                baked in around the actual mark. Render large and clip the
-                middle band so the visible logo dominates without ballooning
-                the footer height. Mirrors the nav lockup pattern. */}
-            <div className="relative h-20 sm:h-24 w-[360px] sm:w-[440px] overflow-hidden flex items-center -ml-4 sm:-ml-6 mb-1">
-              <Image
-                src="/logo-v2.png"
-                alt="Fence Quote Pros"
-                width={1536}
-                height={1024}
-                className="w-full h-auto"
+            {/* Footer brand: render the wordmark via BrandWordmark instead
+                of the PNG so on the dark footer background FENCE and PROS
+                pick up the parent paper color (white) while QUOTE stays
+                brand orange. The PNG bakes in black for those segments,
+                which disappear into the bg-ink footer. */}
+            <div className="text-paper mb-3" style={{ lineHeight: 1 }}>
+              <BrandWordmark
+                tm
+                className="text-3xl sm:text-4xl lg:text-5xl"
               />
             </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">

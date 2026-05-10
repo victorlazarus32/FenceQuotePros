@@ -140,6 +140,43 @@ textarea:focus {
   }
 }
 
+/* Sonar-pulse rings for the click-to-play overlay on the Permit
+   Autofill spot. Three rings on staggered delays expand outward and
+   fade — reads as a hailing pulse asking the user to press play. */
+@keyframes fqp-sonar {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.fqp-sonar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid #ff5a0f;
+  pointer-events: none;
+  animation: fqp-sonar 2.4s ease-out infinite;
+}
+.fqp-sonar-ring-2 {
+  animation-delay: 0.8s;
+}
+.fqp-sonar-ring-3 {
+  animation-delay: 1.6s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fqp-sonar-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
