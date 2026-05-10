@@ -965,13 +965,23 @@ function BeforeAfterVisual() {
   return (
     <div className="rounded-xl border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden bg-ink">
       <div className="grid grid-cols-1">
-        <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center">
-          <ImageIcon className="w-12 h-12 text-paper/30" />
-          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold">
+        {/* BEFORE — real property photo. Drop the file at
+            /public/landing-preview/before.jpg to populate. */}
+        <div className="relative aspect-[16/10] bg-slate-800 overflow-hidden">
+          <Image
+            src="/landing-preview/before.jpg"
+            alt="Property before fence install"
+            fill
+            sizes="(max-width: 1024px) 100vw, 600px"
+            className="object-cover"
+          />
+          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold backdrop-blur">
             Before
           </div>
         </div>
         <div className="h-px bg-brand" />
+        {/* AFTER — placeholder until the rendered photo is dropped in
+            at /public/landing-preview/after.jpg */}
         <div className="relative aspect-[16/10] bg-gradient-to-br from-ink via-ink-deep to-brand-dark flex items-center justify-center">
           <ImageIcon className="w-12 h-12 text-brand/40" />
           <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold">
