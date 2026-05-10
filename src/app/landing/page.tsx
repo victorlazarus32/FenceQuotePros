@@ -268,6 +268,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── SECTION 5b — PRODUCTION SCHEDULING ─────────────────── */}
+      <section className="bg-ink text-paper border-b border-paper/10">
+        <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1fr_1.15fr] gap-14 items-center">
+          <div>
+            <BlueprintTag>Production scheduling</BlueprintTag>
+            <h2
+              className="mt-5"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                fontSize: "clamp(30px, 4.6vw, 56px)",
+                lineHeight: 1,
+                letterSpacing: "0.005em",
+              }}
+            >
+              Your whole week{" "}
+              <span className="text-brand">on one board.</span>
+            </h2>
+            <p className="mt-5 text-lg text-paper/80 leading-relaxed max-w-xl">
+              Slot accepted jobs into crew calendars, see who&apos;s booked
+              and who&apos;s open at a glance, and walk every install from
+              scheduled to complete without leaving the page.
+            </p>
+            <ul className="mt-8 space-y-3 max-w-md">
+              <CheckRow dark>Day × crew week grid — every install in one view</CheckRow>
+              <CheckRow dark>Unscheduled column for accepted jobs awaiting a date</CheckRow>
+              <CheckRow dark>Status flow: scheduled → in progress → complete</CheckRow>
+              <CheckRow dark>Crew capacity at a glance — no double-booked Tuesdays</CheckRow>
+            </ul>
+          </div>
+
+          <ScheduleMockup />
+        </div>
+      </section>
+
       {/* ─── SECTION 6 — INSTALLER WORK ORDERS ───────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1fr_1.1fr] gap-14 items-center">
@@ -477,6 +513,7 @@ export default function LandingPage() {
               ["Visualization", "/landing#"],
               ["Estimating", "/landing#"],
               ["Permits", "/landing#"],
+              ["Scheduling", "/landing#"],
               ["Work Orders", "/landing#"],
             ]}
           />
@@ -888,6 +925,159 @@ function DocRow({
         {status}
       </span>
     </li>
+  );
+}
+
+// ─── Production-board mockup ──────────────────────────────────────
+// Day × Crew week grid. Mirrors the real /scheduling page in spirit:
+// crews on the left, weekdays across the top, a few jobs scattered in.
+
+function ScheduleMockup() {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  return (
+    <div className="relative">
+      <CornerTicks />
+      <div className="bg-white text-ink border border-line">
+        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-text-soft">
+            <Calendar className="w-3 h-3 text-brand" />
+            Production board · Wk of Jun 03
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
+            6 jobs · 3 crews
+          </div>
+        </div>
+
+        {/* Day header row */}
+        <div className="grid grid-cols-[88px_repeat(5,_1fr)] border-b border-line bg-paper">
+          <div className="px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-text-soft border-r border-line">
+            Crew
+          </div>
+          {days.map((d, i) => (
+            <div
+              key={d}
+              className={`px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-text-soft ${
+                i < days.length - 1 ? "border-r border-line" : ""
+              }`}
+            >
+              {d}
+            </div>
+          ))}
+        </div>
+
+        {/* Crew rows */}
+        <CrewRow
+          name="A-1"
+          cells={[
+            { kind: "job", title: "Sanchez", meta: "184 LF" },
+            { kind: "job", title: "Reyes", meta: "92 LF" },
+            { kind: "empty" },
+            { kind: "job", title: "Lopez", meta: "146 LF · gate" },
+            { kind: "empty" },
+          ]}
+        />
+        <CrewRow
+          name="B-2"
+          cells={[
+            { kind: "empty" },
+            { kind: "job", title: "Cohen", meta: "60 LF · pool" },
+            { kind: "job", title: "Cohen", meta: "cont." },
+            { kind: "empty" },
+            { kind: "job", title: "Diaz", meta: "210 LF" },
+          ]}
+        />
+        <CrewRow
+          name="C-3"
+          cells={[
+            { kind: "job", title: "Park", meta: "44 LF" },
+            { kind: "empty" },
+            { kind: "empty" },
+            { kind: "empty" },
+            { kind: "empty" },
+          ]}
+          last
+        />
+
+        <div className="px-5 py-3 border-t border-line bg-paper grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.22em]">
+          <div>
+            <div className="text-text-soft">Scheduled</div>
+            <div className="text-ink mt-0.5">5</div>
+          </div>
+          <div>
+            <div className="text-text-soft">In progress</div>
+            <div className="text-brand mt-0.5">1</div>
+          </div>
+          <div>
+            <div className="text-text-soft">Unscheduled</div>
+            <div className="text-ink mt-0.5">3 awaiting</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type CrewCell =
+  | { kind: "job"; title: string; meta: string }
+  | { kind: "empty" };
+
+function CrewRow({
+  name,
+  cells,
+  last = false,
+}: {
+  name: string;
+  cells: CrewCell[];
+  last?: boolean;
+}) {
+  return (
+    <div
+      className={`grid grid-cols-[88px_repeat(5,_1fr)] ${
+        last ? "" : "border-b border-line"
+      }`}
+    >
+      <div className="px-3 py-3 border-r border-line flex items-center">
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 800,
+            fontSize: "var(--text-md)",
+            textTransform: "uppercase",
+            letterSpacing: "0.005em",
+          }}
+        >
+          {name}
+        </span>
+      </div>
+      {cells.map((cell, i) => (
+        <div
+          key={i}
+          className={`p-2 min-h-[64px] ${
+            i < cells.length - 1 ? "border-r border-line" : ""
+          }`}
+        >
+          {cell.kind === "job" ? (
+            <div className="bg-brand-soft border-l-2 border-brand p-2">
+              <div
+                className="text-ink leading-tight"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 700,
+                  fontSize: "12px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.005em",
+                }}
+              >
+                {cell.title}
+              </div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-text-soft mt-0.5">
+                {cell.meta}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
   );
 }
 
