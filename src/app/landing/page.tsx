@@ -9,6 +9,7 @@ import {
   Ruler,
 } from "lucide-react";
 import BeforeAfterVisual from "@/components/BeforeAfterVisual";
+import BrandWordmark from "@/components/BrandWordmark";
 import {
   PostSpacingMark,
   GateSwingMark,
@@ -29,7 +30,9 @@ export default function LandingPage() {
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
           <div>
-            <BlueprintTag>Fence Quote Pros · Field-tested workflows</BlueprintTag>
+            <BlueprintTag>
+              <BrandWordmark tm /> · Field-tested workflows
+            </BlueprintTag>
             <h1
               className="mt-5 text-paper"
               style={{
@@ -117,8 +120,8 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 max-w-3xl space-y-2 text-base leading-relaxed">
-            <p className="text-brand font-semibold">
-              Fence Quote Pros simplifies the entire workflow.
+            <p className="font-semibold">
+              <BrandWordmark /> simplifies the entire workflow.
             </p>
             <p className="text-paper/75">
               Professional quoting, realistic fence visualization, permits, and
@@ -368,8 +371,8 @@ export default function LandingPage() {
             <span className="text-brand">real fence experience.</span>
           </h2>
           <p className="mt-6 text-lg text-text-soft leading-relaxed max-w-3xl mx-auto">
-            Permitting. Estimating. Installation. Inspections. Field operations.
-            Fence Quote Pros was built by people who&apos;ve done all of it —
+            Permitting. Estimating. Installation. Inspections. Field operations.{" "}
+            <BrandWordmark /> was built by people who&apos;ve done all of it —
             and got tired of running fence companies on phone calls and
             spreadsheets.
           </p>
@@ -538,8 +541,10 @@ export default function LandingPage() {
           />
         </div>
         <div className="border-t border-paper/10">
-          <div className="max-w-7xl mx-auto px-6 py-4 text-xs opacity-60">
-            © {new Date().getFullYear()} Fence Quote Pros. All rights reserved.
+          <div className="max-w-7xl mx-auto px-6 py-4 text-xs opacity-60 flex items-center gap-1.5">
+            <span>© {new Date().getFullYear()}</span>
+            <BrandWordmark />
+            <span>. All rights reserved.</span>
           </div>
         </div>
       </footer>
