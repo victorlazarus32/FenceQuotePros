@@ -693,7 +693,7 @@ function HeroDashboard() {
               6 ft Wood Privacy
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
-              Shadow-box · cedar · 184 LF
+              Shadow-box · PT pine · 184 LF
             </div>
           </div>
 
@@ -1086,9 +1086,9 @@ function AccountabilityVisual() {
       <div className="p-4 text-sm">
         <AccItem label="Gates" value="1× swing-walk · facing in" />
         <AccItem label="Slope" value="2 ft drop NE corner" />
-        <AccItem label="Posts" value="23 × 4×4 cedar · 30in concrete" />
+        <AccItem label="Posts" value="23 × 4×4 PT pine · 30in concrete" />
         <AccItem label="Spacing" value="8 ft · 2 corners" />
-        <AccItem label="Materials" value="184 LF cedar · 1 single gate kit" />
+        <AccItem label="Materials" value="184 LF PT pine · 1 single gate kit" />
         <AccItem label="Site notes" value="Pool gate latch ≥ 54in" />
       </div>
       <div className="bg-paper border-t border-line p-4 flex items-center gap-2">

@@ -157,9 +157,9 @@ export type ColorOption = { value: string; label: string; swatch?: string };
 export const COLOR_OPTIONS_BY_TYPE: Record<FenceType, ColorOption[]> = {
   wood_privacy: [
     { value: "natural", label: "Natural / unstained", swatch: "#c9a46a" },
-    { value: "cedar", label: "Cedar tone", swatch: "#a0673b" },
-    { value: "walnut", label: "Walnut", swatch: "#5a3a22" },
-    { value: "redwood", label: "Redwood", swatch: "#8b3a2a" },
+    { value: "cedar", label: "Pine — natural tone", swatch: "#a0673b" },
+    { value: "walnut", label: "Walnut stain", swatch: "#5a3a22" },
+    { value: "redwood", label: "Redwood stain", swatch: "#8b3a2a" },
     { value: "black_stain", label: "Black stain", swatch: "#1a1a1a" },
     { value: "white_paint", label: "White paint", swatch: "#f5f5f0" },
     { value: "custom", label: "Custom (specify in notes)" },
@@ -167,8 +167,8 @@ export const COLOR_OPTIONS_BY_TYPE: Record<FenceType, ColorOption[]> = {
   wood_picket: [
     { value: "natural", label: "Natural / unstained", swatch: "#c9a46a" },
     { value: "white_paint", label: "White paint", swatch: "#f5f5f0" },
-    { value: "cedar", label: "Cedar tone", swatch: "#a0673b" },
-    { value: "walnut", label: "Walnut", swatch: "#5a3a22" },
+    { value: "cedar", label: "Pine — natural tone", swatch: "#a0673b" },
+    { value: "walnut", label: "Walnut stain", swatch: "#5a3a22" },
     { value: "black_stain", label: "Black stain", swatch: "#1a1a1a" },
     { value: "custom", label: "Custom" },
   ],
@@ -208,7 +208,7 @@ export const COLOR_OPTIONS_BY_TYPE: Record<FenceType, ColorOption[]> = {
     { value: "espresso", label: "Espresso", swatch: "#3a2418" },
     { value: "gray", label: "Gray", swatch: "#888c90" },
     { value: "tan", label: "Tan", swatch: "#c8b793" },
-    { value: "weathered_cedar", label: "Weathered cedar", swatch: "#9a8268" },
+    { value: "weathered_cedar", label: "Weathered grey", swatch: "#9a8268" },
   ],
   dura_fence: [
     { value: "black", label: "Black", swatch: "#1a1a1a" },

@@ -127,7 +127,7 @@ const FENCE_TYPE_VISUAL: Record<
   FenceType,
   { icon: typeof Trees; tagline: string }
 > = {
-  wood_privacy: { icon: Trees, tagline: "Cedar / pressure-treated panels" },
+  wood_privacy: { icon: Trees, tagline: "Pressure-treated pine panels" },
   wood_picket: { icon: Trees, tagline: "Classic picket fencing" },
   chain_link: { icon: Grid3x3, tagline: "Galvanized · pet & boundary" },
   vinyl: { icon: Columns3, tagline: "Maintenance-free PVC" },

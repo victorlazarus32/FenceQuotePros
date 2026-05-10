@@ -120,7 +120,7 @@ function woodFollowUp(ctx: FollowUpEmailContext): string {
     ``,
     `Thanks for taking a look at the proposal. A few things worth knowing about wood fences in Florida:`,
     ``,
-    `• Lifespan: 15–20 years for pressure-treated pine, 25+ for cedar, when sealed every 2–3 years.`,
+    `• Lifespan: 15–20 years for pressure-treated pine when sealed every 2–3 years.`,
     `• Stain & seal: we recommend a quality water-repellent stain on both sides within 90 days of install — it locks out moisture and slows graying.`,
     `• Wind: per the engineering for Florida code, wood privacy fences perform well at 6 ft and below. Above that, we recommend galvanized post hardware and tighter post spacing.`,
     `• Finished side: per Miami-Dade Sec. 33-11(b)(2), the finished (smooth) side faces the neighbor by default. Facing it inward needs the neighbor to sign an Affidavit to Waive — we can prepare that if it applies.`,
