@@ -62,19 +62,23 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-paper text-ink" suppressHydrationWarning>
         <header className="no-print bg-white border-b border-line">
-          <nav className="max-w-6xl mx-auto px-4 h-16 sm:h-20 lg:h-24 flex items-center justify-between gap-4">
+          <nav className="max-w-6xl mx-auto px-4 h-20 sm:h-24 lg:h-28 flex items-center justify-between gap-4">
             <Link
               href="/"
               className="flex items-center group shrink-0"
               aria-label="Fence Quote Pros home"
             >
+              {/* Wide horizontal logo. Intrinsic dims are placeholder —
+                  the actual rendered size is height-constrained via the
+                  className and width auto-scales. Bumping the header
+                  height above so the logo fills the white space. */}
               <Image
                 src="/logo.png"
                 alt="Fence Quote Pros"
-                width={112}
-                height={112}
+                width={500}
+                height={140}
                 priority
-                className="rounded-md h-12 sm:h-16 lg:h-20 w-auto"
+                className="h-14 sm:h-16 lg:h-20 w-auto"
               />
             </Link>
             <MobileNav loggedIn={loggedIn} />

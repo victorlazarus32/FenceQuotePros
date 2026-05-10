@@ -553,26 +553,14 @@ export default function LandingPage() {
       <footer className="bg-ink text-paper border-t border-paper/10">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm">
           <div className="col-span-2">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="bg-white rounded-md p-0.5">
-                <Image
-                  src="/logo.png"
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="rounded-sm"
-                />
-              </div>
-              <span
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  fontSize: 14,
-                }}
-              >
-                Fence <span className="text-brand">Quote</span> Pros
-              </span>
+            <div className="mb-3">
+              <Image
+                src="/logo.png"
+                alt="Fence Quote Pros"
+                width={400}
+                height={112}
+                className="h-10 w-auto"
+              />
             </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">
               The operating system for modern fence contractors. Built in

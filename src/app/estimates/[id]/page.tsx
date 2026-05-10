@@ -283,15 +283,13 @@ export default async function EstimateDetailPage(
         {/* Banded ink header — Direction B */}
         <header className="relative z-10 bg-ink text-paper px-8 py-6 flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-3 grow">
-            <div className="bg-white rounded-md p-1 shrink-0">
-              <Image
-                src="/logo.png"
-                alt=""
-                width={56}
-                height={56}
-                className="rounded-sm"
-              />
-            </div>
+            <Image
+              src="/logo.png"
+              alt=""
+              width={400}
+              height={112}
+              className="h-12 w-auto shrink-0"
+            />
             <div className="min-w-0">
               <div
                 className="text-paper truncate"
