@@ -325,7 +325,7 @@ export default function FenceBlueprintPlan() {
         <div className="mt-3 grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
           <div>
             <div className="text-paper/40">Folio</div>
-            <div className="text-paper mt-0.5">30-4029-001</div>
+            <div className="text-paper mt-0.5">30-5911-321-1234</div>
           </div>
           <div>
             <div className="text-paper/40">Style</div>
