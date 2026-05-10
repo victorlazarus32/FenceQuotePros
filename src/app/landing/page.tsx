@@ -366,14 +366,14 @@ export default function LandingPage() {
             badge="Accountability lists"
             title="Eliminate"
             highlight="installer confusion."
-            body="When the crew rolls out, every detail is in their hand: scope, gate locations, exact measurements, materials, post counts, concrete quantities, site photos, and compliance gotchas. No call-backs to the office, no wrong gates, no rework."
+            body="When the crew rolls out, every detail is in their hand: scope, gate locations, exact measurements, materials, post counts, concrete quantities, and site photos. No call-backs to the office, no wrong gates, no rework."
             bullets={[
               "Scope details",
               "Gate locations + swing",
               "Exact measurements",
               "Materials + post counts",
+              "Concrete quantities",
               "Site photos",
-              "Compliance gotchas",
             ]}
             metric={{ value: "Fewer", label: "callbacks per job" }}
             visual={<AccountabilityVisual />}
