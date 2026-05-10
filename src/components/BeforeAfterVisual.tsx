@@ -1,19 +1,63 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Style = "aluminum" | "wood" | "pvc";
 
-const styles: { id: Style; label: string; src: string | null }[] = [
+const styles: { id: Style; label: string; src: string }[] = [
   { id: "aluminum", label: "Aluminum", src: "/landing-preview/after-aluminum.png" },
   { id: "pvc", label: "PVC", src: "/landing-preview/after-pvc.png" },
   { id: "wood", label: "Wood", src: "/landing-preview/after-wood.png" },
 ];
 
+const CYCLE_MS = 2000;
+const FADE_MS = 700;
+
 export default function BeforeAfterVisual() {
   const [active, setActive] = useState<Style>("aluminum");
+  const intervalRef = useRef<number | null>(null);
   const current = styles.find((s) => s.id === active)!;
+
+  const advance = useCallback(() => {
+    setActive((cur) => {
+      const i = styles.findIndex((s) => s.id === cur);
+      return styles[(i + 1) % styles.length].id;
+    });
+  }, []);
+
+  const startCycle = useCallback(() => {
+    if (intervalRef.current !== null) {
+      window.clearInterval(intervalRef.current);
+    }
+    intervalRef.current = window.setInterval(advance, CYCLE_MS);
+  }, [advance]);
+
+  // Auto-cycle through fence styles every 2s on mount. Honors
+  // prefers-reduced-motion: reduce — no cycle, sticks on aluminum.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduce) return;
+    startCycle();
+    return () => {
+      if (intervalRef.current !== null) {
+        window.clearInterval(intervalRef.current);
+      }
+    };
+  }, [startCycle]);
+
+  // Click resets the timer so the user gets a fresh 2s on their pick
+  // before the cycle advances again.
+  const handlePick = useCallback(
+    (id: Style) => {
+      setActive(id);
+      startCycle();
+    },
+    [startCycle],
+  );
 
   return (
     <div className="bg-white border border-ink/15">
@@ -49,27 +93,31 @@ export default function BeforeAfterVisual() {
         <div className="h-px bg-brand" />
 
         <div className="relative aspect-[16/10] bg-ink overflow-hidden">
-          {current.src ? (
+          {/* All three after-renders are layered; opacity drives which one
+              is visible. Cross-fades smoothly on every cycle tick instead
+              of flashing through a remount. */}
+          {styles.map((s) => (
             <Image
-              key={current.id}
-              src={current.src}
-              alt={`Property after fence install — ${current.label.toLowerCase()}`}
+              key={s.id}
+              src={s.src}
+              alt={`Property after fence install — ${s.label.toLowerCase()}`}
               fill
               sizes="(max-width: 1024px) 100vw, 600px"
               className="object-cover"
+              style={{
+                opacity: s.id === active ? 1 : 0,
+                transition: `opacity ${FADE_MS}ms ease-in-out`,
+              }}
             />
-          ) : (
-            <div className="absolute inset-0 bg-ink flex items-center justify-center">
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
-                {current.label} render coming soon
-              </span>
-            </div>
-          )}
+          ))}
 
           {/* Architectural dimension overlay — top edge: linear feet bracket */}
           <DimensionBracket />
 
-          <span className="absolute top-3 left-3 px-2.5 py-1 bg-brand text-ink text-[10px] uppercase tracking-[0.22em] font-bold">
+          <span
+            key={`label-${current.id}`}
+            className="fqp-cell-in absolute top-3 left-3 px-2.5 py-1 bg-brand text-ink text-[10px] uppercase tracking-[0.22em] font-bold"
+          >
             After · {current.label}
           </span>
           <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/85">
@@ -78,7 +126,9 @@ export default function BeforeAfterVisual() {
         </div>
       </div>
 
-      {/* Style selector — flat tabs, no rounded pills */}
+      {/* Style selector — flat tabs that double as a live indicator of
+          which fence the auto-cycle is currently showing. Click jumps
+          to that style and resets the 2s timer. */}
       <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between border-t border-paper/10">
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
           Fence style
@@ -90,7 +140,7 @@ export default function BeforeAfterVisual() {
               <button
                 key={s.id}
                 type="button"
-                onClick={() => setActive(s.id)}
+                onClick={() => handlePick(s.id)}
                 aria-pressed={isActive}
                 className={
                   isActive
