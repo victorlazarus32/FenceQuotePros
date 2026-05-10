@@ -67,14 +67,26 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── SIGNAL STRIP — operational coverage, not testimonials ── */}
+      {/* ─── CREDIBILITY STRIP — positioning between hero and pain points ── */}
       <section className="bg-ink text-paper border-b border-paper/10">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4 items-center">
-            <SignalCell label="Built for" value="Fence professionals" />
-            <SignalCell label="Coverage" value="Lead → Permit → Install" />
-            <SignalCell label="Calculator" value="Linear-foot · per-gate" />
-            <SignalCell label="Specs" value="Aluminum · PVC · Wood · Chain" />
+        <div className="max-w-7xl mx-auto px-6 py-12 sm:py-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-8 lg:gap-x-10">
+            <ProofBlock
+              heading="Built by fence contractors"
+              body="Real-world experience in estimating, permits, and field operations."
+            />
+            <ProofBlock
+              heading="From lead to install"
+              body="Quoting, previews, permits, and crew workflows connected in one platform."
+            />
+            <ProofBlock
+              heading="Real property previews"
+              body="Show customers the finished fence before installation begins."
+            />
+            <ProofBlock
+              heading="Built for modern fence companies"
+              body="Professional tools designed specifically for fence operations."
+            />
           </div>
         </div>
       </section>
@@ -631,27 +643,25 @@ function SecondaryCta({
   );
 }
 
-function SignalCell({ label, value }: { label: string; value: string }) {
+function ProofBlock({ heading, body }: { heading: string; body: string }) {
   return (
-    <div className="flex items-center gap-3 border-l-2 border-brand/70 pl-3">
-      <div>
-        <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-paper/45">
-          {label}
-        </div>
-        <div
-          className="text-paper mt-0.5"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 700,
-            fontSize: "var(--text-md)",
-            textTransform: "uppercase",
-            letterSpacing: "0.005em",
-            lineHeight: 1.1,
-          }}
-        >
-          {value}
-        </div>
-      </div>
+    <div className="border-l-2 border-brand pl-5">
+      <h3
+        className="text-paper"
+        style={{
+          fontFamily: "var(--font-display)",
+          fontWeight: 800,
+          fontSize: "var(--text-lg)",
+          textTransform: "uppercase",
+          letterSpacing: "0.005em",
+          lineHeight: 1.15,
+        }}
+      >
+        {heading}
+      </h3>
+      <p className="mt-2.5 text-sm sm:text-[15px] text-paper/75 leading-relaxed">
+        {body}
+      </p>
     </div>
   );
 }
