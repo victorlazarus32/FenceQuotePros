@@ -511,17 +511,6 @@ export default function LandingPage() {
       <footer className="bg-ink text-paper">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm">
           <div className="col-span-2">
-            {/* Footer brand: render the wordmark via BrandWordmark instead
-                of the PNG so on the dark footer background FENCE and PROS
-                pick up the parent paper color (white) while QUOTE stays
-                brand orange. The PNG bakes in black for those segments,
-                which disappear into the bg-ink footer. */}
-            <div className="text-paper mb-3" style={{ lineHeight: 1 }}>
-              <BrandWordmark
-                tm
-                className="text-3xl sm:text-4xl lg:text-5xl"
-              />
-            </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">
               The modern operating platform for fence contractors. Built in
               Miami. Shipping nationwide.
