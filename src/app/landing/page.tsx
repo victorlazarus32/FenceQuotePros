@@ -136,7 +136,7 @@ export default function LandingPage() {
       <section className="bg-paper border-b border-line">
         <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center">
           <div>
-            <BlueprintTag dark>Property visualization</BlueprintTag>
+            <BlueprintTag dark>Before &amp; After Previews</BlueprintTag>
             <h2
               className="mt-5 text-ink"
               style={{
@@ -152,16 +152,16 @@ export default function LandingPage() {
               <span className="text-brand">what they&apos;re buying.</span>
             </h2>
             <p className="mt-6 text-lg text-text-soft leading-relaxed max-w-xl">
-              Create realistic fence visualizations directly from property
-              photos. Your customers see the finished fence on their own home
-              before they sign — no guesswork, no buyer&apos;s remorse, no
-              hesitation at the close.
+              Show customers what the finished fence will look like on their
+              own property before installation begins. Customers can compare
+              fence styles and see the finished project before they commit —
+              helping eliminate guesswork, hesitation, and buyer uncertainty.
             </p>
             <ul className="mt-8 space-y-3 max-w-md">
               <CheckRow>Real property photos, not generic mockups</CheckRow>
               <CheckRow>Multiple fence styles per quote</CheckRow>
-              <CheckRow>Aluminum, PVC, and wood</CheckRow>
-              <CheckRow>Side-by-side options for upsells</CheckRow>
+              <CheckRow>Compare aluminum, PVC, and wood fence options</CheckRow>
+              <CheckRow>Compare fence styles side-by-side</CheckRow>
             </ul>
             <div className="mt-10 inline-flex items-center gap-3 border border-ink px-4 py-2 bg-white">
               <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
@@ -176,7 +176,7 @@ export default function LandingPage() {
                   textTransform: "uppercase",
                 }}
               >
-                Higher close rates
+                Win more jobs
               </span>
             </div>
           </div>
@@ -447,7 +447,7 @@ export default function LandingPage() {
               tagline="The full operating platform."
               features={[
                 "Everything in Pro",
-                "Property visualization",
+                "Before & after previews",
                 "Permit-ready workflows",
                 "HOA application packets",
                 "Advanced job costing",
