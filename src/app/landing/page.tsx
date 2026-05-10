@@ -578,10 +578,6 @@ export default function LandingPage() {
                 style={{ filter: "invert(1) hue-rotate(180deg)" }}
               />
             </div>
-            <div className="text-xs opacity-60 max-w-xs leading-relaxed">
-              The modern operating platform for fence contractors. Built in
-              Miami. Shipping nationwide.
-            </div>
           </div>
           <FooterCol
             title="Platform"
