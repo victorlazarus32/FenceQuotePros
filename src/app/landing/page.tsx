@@ -71,7 +71,7 @@ export default function LandingPage() {
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4 items-center">
-            <SignalCell label="Built for" value="Florida fence pros" />
+            <SignalCell label="Built for" value="Fence professionals" />
             <SignalCell label="Coverage" value="Lead → Permit → Install" />
             <SignalCell label="Calculator" value="Linear-foot · per-gate" />
             <SignalCell label="Specs" value="Aluminum · PVC · Wood · Chain" />
