@@ -537,7 +537,16 @@ export default function LandingPage() {
             {/* Logo lockup (icon + wordmark). Source PNG (1536x1024) has
                 gradient atmosphere baked in around the actual mark; render
                 it large and clip the middle band so the visible logo
-                dominates without ballooning footer height. */}
+                dominates without ballooning footer height.
+
+                The PNG's BLACK wordmark portions disappear into the
+                bg-ink footer, so we run a CSS filter that flips dark
+                pixels to light while preserving colored ones:
+                  invert(1)            -> black->white, orange->cyan-ish
+                  hue-rotate(180deg)   -> cyan-ish back to orange, white
+                                          unaffected (no saturation)
+                Net result on this footer: white FENCE / orange QUOTE /
+                white PROS, orange icon preserved. */}
             <div className="relative h-24 sm:h-28 w-[420px] sm:w-[480px] overflow-hidden flex items-center -ml-4 sm:-ml-6 mb-3">
               <Image
                 src="/logo-v2.png"
@@ -545,6 +554,7 @@ export default function LandingPage() {
                 width={1536}
                 height={1024}
                 className="w-full h-auto"
+                style={{ filter: "invert(1) hue-rotate(180deg)" }}
               />
             </div>
             <div className="text-xs opacity-60 max-w-xs leading-relaxed">
