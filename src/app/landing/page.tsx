@@ -185,8 +185,11 @@ export default function LandingPage() {
       </section>
 
       {/* ─── BUILT BY FENCE CONTRACTORS ─────────────────────────── */}
-      <section className="bg-paper border-b border-line">
-        <div className="max-w-6xl mx-auto px-6 py-20">
+      <section className="relative bg-ink text-paper border-b border-paper/10 overflow-hidden">
+        <div className="absolute inset-0 -z-0 opacity-[0.05] pointer-events-none">
+          <div className="absolute -bottom-40 right-1/4 w-[700px] h-[400px] rounded-full bg-brand blur-3xl" />
+        </div>
+        <div className="relative max-w-6xl mx-auto px-6 py-20">
           <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12 items-center">
             <div>
               <div className="aspect-square rounded-2xl bg-ink overflow-hidden relative shadow-[10px_10px_0_var(--brand)]">
@@ -218,7 +221,6 @@ export default function LandingPage() {
                 Built by fence contractors
               </div>
               <h2
-                className="text-ink"
                 style={{
                   fontFamily: "var(--font-display)",
                   fontWeight: 900,
@@ -230,12 +232,12 @@ export default function LandingPage() {
               >
                 Not built by software developers guessing how contractors work.
               </h2>
-              <p className="text-base text-slate-700 mt-5 leading-relaxed">
+              <p className="text-base text-paper/75 mt-5 leading-relaxed">
                 Fence Quote Pros was built by real fence contractors who
                 understand permits, callbacks, production delays, installers,
                 and operational chaos — because we live it every day.
               </p>
-              <p className="text-base text-slate-700 mt-4 leading-relaxed">
+              <p className="text-base text-paper/75 mt-4 leading-relaxed">
                 The platform reflects how fence companies actually run — not
                 how a generic SaaS team imagined they should. That's the
                 difference between contractor software people use, and
@@ -296,20 +298,24 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PREMIUM FEATURES ────────────────────────────────────── */}
-      <section className="bg-paper border-b border-line">
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24 space-y-24">
+      <section className="relative bg-ink text-paper border-b border-paper/10 overflow-hidden">
+        <div className="absolute inset-0 -z-0 opacity-[0.04] pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-brand blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full bg-brand blur-3xl" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-6 py-20 sm:py-24 space-y-24">
           <div className="text-center max-w-3xl mx-auto">
             <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
               Premium features
             </div>
             <h2
-              className="text-ink"
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 900,
                 textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.4vw, 52px)",
-                lineHeight: 1.05,
+                fontSize: "clamp(30px, 4.6vw, 56px)",
+                lineHeight: 1,
+                letterSpacing: "0.005em",
               }}
             >
               The four features that{" "}
@@ -396,25 +402,31 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PRICING ────────────────────────────────────────────── */}
-      <section id="pricing" className="bg-white border-b border-line">
-        <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24">
+      <section
+        id="pricing"
+        className="relative bg-ink text-paper border-b border-paper/10 overflow-hidden"
+      >
+        <div className="absolute inset-0 -z-0 opacity-[0.05] pointer-events-none">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-brand blur-3xl" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-6 py-20 sm:py-24">
           <div className="text-center mb-14 max-w-3xl mx-auto">
             <div className="text-xs uppercase tracking-wider text-brand font-bold mb-3">
               Pricing
             </div>
             <h2
-              className="text-ink"
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 900,
                 textTransform: "uppercase",
-                fontSize: "clamp(28px, 4vw, 48px)",
-                lineHeight: 1.05,
+                fontSize: "clamp(28px, 4.4vw, 52px)",
+                lineHeight: 1,
+                letterSpacing: "0.005em",
               }}
             >
               Operational infrastructure for serious contractors.
             </h2>
-            <p className="text-base text-slate-600 mt-4">
+            <p className="text-base text-paper/70 mt-4">
               Most teams land on Pro. Performance unlocks the full operating system.
             </p>
           </div>
@@ -813,7 +825,7 @@ function ContractorPoint({ children }: { children: React.ReactNode }) {
   return (
     <li className="flex items-center gap-2">
       <Check className="w-4 h-4 text-brand shrink-0" strokeWidth={3} />
-      <span className="font-semibold text-ink">{children}</span>
+      <span className="font-semibold text-paper">{children}</span>
     </li>
   );
 }
@@ -908,12 +920,11 @@ function FeatureBlock({
   return (
     <div className="grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
       <div className={reverse ? "order-1 lg:order-2" : ""}>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-paper text-xs uppercase tracking-wider mb-5 font-bold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-paper/10 border border-paper/15 text-paper/80 text-xs uppercase tracking-wider mb-5 font-bold">
           <Zap className="w-3 h-3 text-brand" />
           {badge}
         </div>
         <h3
-          className="text-ink"
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 900,
@@ -926,18 +937,18 @@ function FeatureBlock({
           {title}{" "}
           <span className="text-brand">{highlight}</span>
         </h3>
-        <p className="text-base sm:text-lg text-slate-700 mt-5 leading-relaxed">
+        <p className="text-base sm:text-lg text-paper/75 mt-5 leading-relaxed">
           {body}
         </p>
         <ul className="mt-6 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
           {bullets.map((b) => (
             <li key={b} className="flex items-center gap-2">
               <Check className="w-4 h-4 text-brand shrink-0" strokeWidth={3} />
-              <span className="font-semibold text-ink">{b}</span>
+              <span className="font-semibold text-paper">{b}</span>
             </li>
           ))}
         </ul>
-        <div className="mt-6 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-ink text-paper">
+        <div className="mt-6 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-paper/10 border border-paper/15">
           <TrendingUp className="w-4 h-4 text-brand" />
           <div>
             <span
@@ -1188,8 +1199,8 @@ function PricingTier({
     <div
       className={`rounded-xl border-2 p-7 flex flex-col ${
         featured
-          ? "border-ink bg-ink text-paper shadow-[6px_6px_0_var(--brand)]"
-          : "border-line bg-white"
+          ? "border-brand bg-paper/[0.06] text-paper shadow-[6px_6px_0_var(--brand)] backdrop-blur"
+          : "border-paper/15 bg-paper/[0.03] text-paper hover:border-paper/30 transition-colors"
       }`}
     >
       <div className="flex items-center justify-between mb-2">
@@ -1199,7 +1210,7 @@ function PricingTier({
             fontWeight: 800,
             textTransform: "uppercase",
             fontSize: "var(--text-lg)",
-            color: featured ? "var(--brand)" : "var(--ink)",
+            color: featured ? "var(--brand)" : "var(--paper)",
           }}
         >
           {name}
@@ -1222,19 +1233,15 @@ function PricingTier({
           {price}
         </span>
         {priceUnit && (
-          <span className={`text-sm ${featured ? "opacity-60" : "text-slate-500"}`}>
-            {priceUnit}
-          </span>
+          <span className="text-sm text-paper/50">{priceUnit}</span>
         )}
       </div>
-      <p className={`text-sm mb-6 ${featured ? "opacity-80" : "text-slate-600"}`}>
-        {tagline}
-      </p>
+      <p className="text-sm mb-6 text-paper/70">{tagline}</p>
       <ul className="space-y-2 text-sm mb-8 grow">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2">
             <span className="text-brand mt-0.5 shrink-0">✓</span>
-            <span>{f}</span>
+            <span className="text-paper/85">{f}</span>
           </li>
         ))}
       </ul>
@@ -1243,7 +1250,7 @@ function PricingTier({
         className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md font-bold uppercase tracking-wide transition-colors ${
           featured
             ? "bg-brand text-ink hover:bg-paper"
-            : "bg-ink text-paper hover:bg-brand hover:text-ink"
+            : "bg-paper text-ink hover:bg-brand"
         }`}
         style={{ fontFamily: "var(--font-display)" }}
       >
