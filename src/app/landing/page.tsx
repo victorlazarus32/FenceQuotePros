@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import BeforeAfterVisual from "@/components/BeforeAfterVisual";
 import BrandWordmark from "@/components/BrandWordmark";
+import PermitAutofillSpot from "@/components/PermitAutofillSpot";
 import {
   PostSpacingMark,
   GateSwingMark,
@@ -64,6 +65,19 @@ export default function LandingPage() {
           </div>
 
           <HeroVisual />
+        </div>
+      </section>
+
+      {/* ─── FEATURED DEMO — Permit Autofill animated spot ─────────── */}
+      <section className="bg-ink border-b border-paper/10">
+        <div className="max-w-[1200px] mx-auto px-0 sm:px-6 py-10 sm:py-14">
+          <div className="px-6 sm:px-0 mb-5 flex items-center justify-between">
+            <BlueprintTag>Featured demo · 36 s</BlueprintTag>
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
+              Permit Autofill
+            </span>
+          </div>
+          <PermitAutofillSpot />
         </div>
       </section>
 
