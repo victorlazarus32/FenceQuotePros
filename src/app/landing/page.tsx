@@ -30,6 +30,7 @@ import {
   Wrench,
   Zap,
 } from "lucide-react";
+import BeforeAfterVisual from "@/components/BeforeAfterVisual";
 
 export const metadata = {
   title:
@@ -956,57 +957,6 @@ function FeatureBlock({
         </div>
       </div>
       <div className={reverse ? "order-2 lg:order-1" : ""}>{visual}</div>
-    </div>
-  );
-}
-
-function BeforeAfterVisual() {
-  return (
-    <div className="rounded-xl border-2 border-ink shadow-[8px_8px_0_var(--brand)] overflow-hidden bg-ink">
-      <div className="grid grid-cols-1">
-        {/* BEFORE — real property photo. Drop the file at
-            /public/landing-preview/before.jpg to populate. */}
-        <div className="relative aspect-[16/10] bg-slate-800 overflow-hidden">
-          <Image
-            src="/landing-preview/before.jpg"
-            alt="Property before fence install"
-            fill
-            sizes="(max-width: 1024px) 100vw, 600px"
-            className="object-cover"
-          />
-          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-ink/80 text-paper text-xs uppercase tracking-wider font-bold backdrop-blur">
-            Before
-          </div>
-        </div>
-        <div className="h-px bg-brand" />
-        {/* AFTER — rendered preview at /public/landing-preview/after.png */}
-        <div className="relative aspect-[16/10] bg-ink overflow-hidden">
-          <Image
-            src="/landing-preview/after.png"
-            alt="Property after fence install — aluminum louvered"
-            fill
-            sizes="(max-width: 1024px) 100vw, 600px"
-            className="object-cover"
-          />
-          <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand text-ink text-xs uppercase tracking-wider font-bold">
-            After
-          </div>
-        </div>
-      </div>
-      <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between">
-        <div className="text-xs uppercase tracking-wider opacity-60">Style</div>
-        <div className="flex gap-1.5">
-          <span className="px-2 py-0.5 rounded-full bg-brand text-ink text-[10px] uppercase tracking-wider font-bold">
-            Aluminum ✓
-          </span>
-          <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
-            Wood
-          </span>
-          <span className="px-2 py-0.5 rounded-full bg-paper/10 border border-paper/20 text-[10px] uppercase tracking-wider">
-            PVC
-          </span>
-        </div>
-      </div>
     </div>
   );
 }
