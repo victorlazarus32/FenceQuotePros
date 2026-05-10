@@ -313,7 +313,7 @@ export default function LandingPage() {
               }}
             >
               The four features that{" "}
-              <span className="text-brand">defend the moat.</span>
+              <span className="text-brand">run modern fence companies.</span>
             </h2>
           </div>
 
