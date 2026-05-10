@@ -12,6 +12,7 @@ import AnimatedFenceMark from "@/components/AnimatedFenceMark";
 import AnimatedScheduleMockup from "@/components/AnimatedScheduleMockup";
 import BeforeAfterVisual from "@/components/BeforeAfterVisual";
 import BrandWordmark from "@/components/BrandWordmark";
+import FenceBlueprintPlan from "@/components/FenceBlueprintPlan";
 import PermitAutofillSpot from "@/components/PermitAutofillSpot";
 import {
   GateSwingMark,
@@ -218,28 +219,40 @@ export default function LandingPage() {
       {/* ─── SECTION 4 — SMART ESTIMATING ────────────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
-          <AnimatedFenceMark className="text-brand/70 w-48 mb-8" />
-          <div className="max-w-2xl">
-            <BlueprintTag>Smart estimating</BlueprintTag>
-            <h2
-              className="mt-5"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                fontSize: "clamp(30px, 4.6vw, 56px)",
-                lineHeight: 1,
-                letterSpacing: "0.005em",
-              }}
-            >
-              Built for{" "}
-              <span className="text-brand">real fence contractors.</span>
-            </h2>
-            <p className="mt-5 text-paper/75 text-lg leading-relaxed">
-              Created by contractors who understand real-world fence
-              estimating. Not generic line-item software repurposed for the
-              trades.
-            </p>
+          <div className="grid lg:grid-cols-[1fr_1.05fr] gap-12 items-start">
+            <div>
+              <AnimatedFenceMark className="text-brand/70 w-48 mb-8" />
+              <BlueprintTag>Smart estimating</BlueprintTag>
+              <h2
+                className="mt-5"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  fontSize: "clamp(30px, 4.6vw, 56px)",
+                  lineHeight: 1,
+                  letterSpacing: "0.005em",
+                }}
+              >
+                Built for{" "}
+                <span className="text-brand">real fence contractors.</span>
+              </h2>
+              <p className="mt-5 text-paper/75 text-lg leading-relaxed">
+                Created by contractors who understand real-world fence
+                estimating. Not generic line-item software repurposed for the
+                trades.
+              </p>
+              <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 text-paper/85 max-w-md">
+                <CheckRow dark>Fence layout</CheckRow>
+                <CheckRow dark>Linear-foot dimensions</CheckRow>
+                <CheckRow dark>Post spacing</CheckRow>
+                <CheckRow dark>Gate callouts</CheckRow>
+                <CheckRow dark>Material takeoff</CheckRow>
+                <CheckRow dark>Concrete &amp; hardware</CheckRow>
+              </ul>
+            </div>
+
+            <FenceBlueprintPlan />
           </div>
 
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border border-paper/15">
