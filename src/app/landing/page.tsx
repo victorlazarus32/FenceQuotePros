@@ -9,6 +9,11 @@ import {
   Ruler,
 } from "lucide-react";
 import BeforeAfterVisual from "@/components/BeforeAfterVisual";
+import {
+  PostSpacingMark,
+  GateSwingMark,
+  SitePlanCorner,
+} from "@/components/FenceBlueprintMark";
 
 export const metadata = {
   title:
@@ -49,14 +54,25 @@ export default function LandingPage() {
               <PrimaryCta href="/book-demo">Book demo</PrimaryCta>
               <SecondaryCta href="/signup">Start free trial</SecondaryCta>
             </div>
-            <div className="mt-10 pt-6 border-t border-paper/10 grid grid-cols-3 gap-6 max-w-md">
-              <SpecRow label="Coverage" value="Lead → Install" />
-              <SpecRow label="Built for" value="Fence Pros" />
-              <SpecRow label="Priced from" value="$99 / mo" />
+            <div className="mt-8 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
+              <span className="w-6 h-px bg-brand" />
+              No credit card · 20-min walkthrough
             </div>
           </div>
 
           <HeroVisual />
+        </div>
+      </section>
+
+      {/* ─── SIGNAL STRIP — operational coverage, not testimonials ── */}
+      <section className="bg-ink text-paper border-b border-paper/10">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4 items-center">
+            <SignalCell label="Built for" value="Florida fence pros" />
+            <SignalCell label="Coverage" value="Lead → Permit → Install" />
+            <SignalCell label="Calculator" value="Linear-foot · per-gate" />
+            <SignalCell label="Specs" value="Aluminum · PVC · Wood · Chain" />
+          </div>
         </div>
       </section>
 
@@ -159,6 +175,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative">
+            <SitePlanCorner className="absolute -top-6 -right-6 w-12 h-12 text-brand pointer-events-none" />
             <CornerTicks />
             <BeforeAfterVisual />
           </div>
@@ -168,6 +185,7 @@ export default function LandingPage() {
       {/* ─── SECTION 4 — SMART ESTIMATING ────────────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
+          <PostSpacingMark className="text-brand/60 w-48 h-12 mb-8" />
           <div className="max-w-2xl">
             <BlueprintTag>Smart estimating</BlueprintTag>
             <h2
@@ -256,7 +274,10 @@ export default function LandingPage() {
           <WorkOrderMockup />
 
           <div>
-            <BlueprintTag>Field operations</BlueprintTag>
+            <div className="flex items-center gap-3">
+              <BlueprintTag>Field operations</BlueprintTag>
+              <GateSwingMark className="text-brand/70 w-7 h-7" />
+            </div>
             <h2
               className="mt-5"
               style={{
@@ -552,24 +573,26 @@ function SecondaryCta({
   );
 }
 
-function SpecRow({ label, value }: { label: string; value: string }) {
+function SignalCell({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">
-        {label}
-      </div>
-      <div
-        className="text-paper mt-1"
-        style={{
-          fontFamily: "var(--font-display)",
-          fontWeight: 800,
-          fontSize: "var(--text-base)",
-          letterSpacing: "0.005em",
-          textTransform: "uppercase",
-          lineHeight: 1.1,
-        }}
-      >
-        {value}
+    <div className="flex items-center gap-3 border-l-2 border-brand/70 pl-3">
+      <div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-paper/45">
+          {label}
+        </div>
+        <div
+          className="text-paper mt-0.5"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
+            fontSize: "var(--text-md)",
+            textTransform: "uppercase",
+            letterSpacing: "0.005em",
+            lineHeight: 1.1,
+          }}
+        >
+          {value}
+        </div>
       </div>
     </div>
   );
@@ -639,7 +662,7 @@ function EstimateTile({ label }: { label: string }) {
         style={{
           fontFamily: "var(--font-display)",
           fontWeight: 800,
-          fontSize: "var(--text-base)",
+          fontSize: "var(--text-md)",
           textTransform: "uppercase",
           letterSpacing: "0.005em",
         }}
@@ -661,7 +684,7 @@ function CredentialTile({ children }: { children: React.ReactNode }) {
         style={{
           fontFamily: "var(--font-display)",
           fontWeight: 800,
-          fontSize: "var(--text-base)",
+          fontSize: "var(--text-md)",
           textTransform: "uppercase",
           letterSpacing: "0.005em",
         }}
