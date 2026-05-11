@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ArrowRight,
   Calendar,
@@ -18,15 +19,35 @@ import {
   GateSwingMark,
   SitePlanCorner,
 } from "@/components/FenceBlueprintMark";
+import { COPY } from "@/lib/landing/copy";
+import {
+  LANG_LABEL,
+  parseLang,
+  type Lang,
+} from "@/lib/landing/lang";
 
-export const metadata = {
-  title:
-    "Fence Quote Pros — The modern operating platform for fence contractors",
-  description:
-    "Quote, visualize, and close fence projects faster. Built for fence contractors — material calculations, property visualizations, permit-ready workflows, and worker's accountability lists, in one platform.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string | string[] }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const lang = parseLang(sp.lang);
+  const c = COPY[lang];
+  return {
+    title: c.metaTitle,
+    description: c.metaDescription,
+  };
+}
 
-export default function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string | string[] }>;
+}) {
+  const sp = await searchParams;
+  const lang = parseLang(sp.lang);
+  const c = COPY[lang];
   return (
     <div className="-mx-4 -my-8 bg-paper">
       {/* ─── HERO ────────────────────────────────────────────────── */}
@@ -38,6 +59,14 @@ export default function LandingPage() {
           className="absolute top-6 left-6 w-14 h-14 text-brand/40 pointer-events-none hidden sm:block"
         />
 
+        {/* EN / ES language toggle — upper right. Server-rendered links
+            to ?lang=en|es so SEO and browser history work naturally. */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.22em]">
+          <LangPill lang="en" current={lang} />
+          <span className="text-paper/30">·</span>
+          <LangPill lang="es" current={lang} />
+        </div>
+
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-start">
           <div>
             {/* Geographic / vintage stamp — quiet gravitas above the
@@ -45,9 +74,9 @@ export default function LandingPage() {
                 framing without repeating the brand name. */}
             <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/45 mb-3">
               <span className="w-1.5 h-1.5 bg-brand rounded-full" />
-              Miami, FL · 2026
+              {c.hero.geoStamp}
             </div>
-            <BlueprintTag>Field-tested workflows</BlueprintTag>
+            <BlueprintTag>{c.hero.blueprintTag}</BlueprintTag>
             <h1
               className="mt-5 text-paper"
               style={{
@@ -59,26 +88,30 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Quote.
+              {c.hero.headline.line1}
               <br />
-              <span className="text-brand">Visualize.</span>
+              <span className="text-brand">{c.hero.headline.line2}</span>
               <br />
-              Close.
+              {c.hero.headline.line3}
             </h1>
             <p className="mt-6 max-w-xl text-lg sm:text-xl text-paper/80 leading-relaxed">
-              The all-in-one platform built specifically for fence contractors.
+              {c.hero.subhead}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <PrimaryCta href="/book-demo">Book demo</PrimaryCta>
-              <SecondaryCta href="/signup">Start free trial</SecondaryCta>
+              <PrimaryCta href={`/book-demo?lang=${lang}`}>
+                {c.hero.primaryCta}
+              </PrimaryCta>
+              <SecondaryCta href={`/signup?lang=${lang}`}>
+                {c.hero.secondaryCta}
+              </SecondaryCta>
             </div>
             <div className="mt-8 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
               <span className="w-6 h-px bg-brand" />
-              No credit card · 20-min walkthrough
+              {c.hero.fineLine}
             </div>
           </div>
 
-          <HeroVisual />
+          <HeroVisual lang={lang} />
         </div>
       </section>
 
@@ -86,22 +119,9 @@ export default function LandingPage() {
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-7xl mx-auto px-6 py-12 sm:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-8 lg:gap-x-10">
-            <ProofBlock
-              heading="Built by fence contractors"
-              body="Real-world experience in estimating, permits, and field operations."
-            />
-            <ProofBlock
-              heading="From lead to install"
-              body="Quoting, previews, permits, and crew workflows connected in one platform."
-            />
-            <ProofBlock
-              heading="Real property previews"
-              body="Show customers the finished fence before installation begins."
-            />
-            <ProofBlock
-              heading="Built for modern fence companies"
-              body="Professional tools designed specifically for fence operations."
-            />
+            {c.signals.map((s) => (
+              <ProofBlock key={s.title} heading={s.title} body={s.body} />
+            ))}
           </div>
         </div>
       </section>
@@ -110,7 +130,7 @@ export default function LandingPage() {
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="max-w-2xl">
-            <BlueprintTag>Common challenges</BlueprintTag>
+            <BlueprintTag>{c.problem.blueprintTag}</BlueprintTag>
             <h2
               className="mt-5"
               style={{
@@ -122,39 +142,30 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Three common problems{" "}
-              <span className="text-brand">cost fence companies money.</span>
+              {c.problem.headline.lead}{" "}
+              <span className="text-brand">{c.problem.headline.tail}</span>
             </h2>
           </div>
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-0 border border-paper/15">
-            <ProblemCard
-              number="01"
-              title="Slow estimates"
-              body="Manual quotes waste valuable sales time. Customers often move forward with the contractor who responds first."
-            />
-            <ProblemCard
-              number="02"
-              title="Homeowners can't visualize"
-              body="Customers hesitate when they cannot clearly see how the finished fence will look on their property."
-              middle
-            />
-            <ProblemCard
-              number="03"
-              title="Operational confusion"
-              body="Miscommunication between sales and installers leads to wrong gates, incorrect heights, delays, and costly rework."
-            />
+            {c.problem.cards.map((card, i) => (
+              <ProblemCard
+                key={card.title}
+                number={`0${i + 1}`}
+                title={card.title}
+                body={card.body}
+                middle={i === 1}
+                prefix={c.mockup.problemLabel}
+              />
+            ))}
           </div>
 
           <div className="mt-10 max-w-3xl space-y-2 text-base leading-relaxed">
             <p className="font-semibold">
               <BrandWordmark />
-              {" "}simplifies the entire workflow.
+              {" "}{c.problem.bottomLead}
             </p>
-            <p className="text-paper/75">
-              Professional quoting, realistic fence visualization, permits, and
-              worker&apos;s accountability lists — connected in one platform.
-            </p>
+            <p className="text-paper/75">{c.problem.bottomBody}</p>
           </div>
         </div>
       </section>
@@ -163,7 +174,7 @@ export default function LandingPage() {
       <section className="bg-paper border-b border-line">
         <div className="max-w-7xl mx-auto px-6 py-20 sm:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center">
           <div>
-            <BlueprintTag dark>Before &amp; After Previews</BlueprintTag>
+            <BlueprintTag dark>{c.visualization.blueprintTag}</BlueprintTag>
             <h2
               className="mt-5 text-ink"
               style={{
@@ -175,24 +186,22 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Show customers exactly{" "}
-              <span className="text-brand">what they&apos;re buying.</span>
+              {c.visualization.headline.lead}{" "}
+              <span className="text-brand">
+                {c.visualization.headline.tail}
+              </span>
             </h2>
             <p className="mt-6 text-lg text-text-soft leading-relaxed max-w-xl">
-              Show customers what the finished fence will look like on their
-              own property before installation begins. Customers can compare
-              fence styles and see the finished project before they commit —
-              helping eliminate guesswork, hesitation, and buyer uncertainty.
+              {c.visualization.body}
             </p>
             <ul className="mt-8 space-y-3 max-w-md">
-              <CheckRow>Real property photos, not generic mockups</CheckRow>
-              <CheckRow>Multiple fence styles per quote</CheckRow>
-              <CheckRow>Compare aluminum, PVC, and wood fence options</CheckRow>
-              <CheckRow>Compare fence styles side-by-side</CheckRow>
+              {c.visualization.bullets.map((b) => (
+                <CheckRow key={b}>{b}</CheckRow>
+              ))}
             </ul>
             <div className="mt-10 inline-flex items-center gap-3 border border-ink px-4 py-2 bg-white">
               <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
-                Outcome
+                {c.visualization.outcomeLabel}
               </span>
               <span
                 className="text-ink"
@@ -203,14 +212,14 @@ export default function LandingPage() {
                   textTransform: "uppercase",
                 }}
               >
-                Win more jobs
+                {c.visualization.outcomeValue}
               </span>
             </div>
           </div>
 
           <div className="relative">
             <CornerTicks />
-            <BeforeAfterVisual />
+            <BeforeAfterVisual lang={lang} />
           </div>
         </div>
       </section>
@@ -229,7 +238,7 @@ export default function LandingPage() {
                   className="text-brand/70 w-24 sm:w-28 shrink-0"
                   showLabel={false}
                 />
-                <BlueprintTag>Smart estimating</BlueprintTag>
+                <BlueprintTag>{c.estimating.blueprintTag}</BlueprintTag>
               </div>
               <h2
                 className="mt-5"
@@ -242,46 +251,39 @@ export default function LandingPage() {
                   letterSpacing: "0.005em",
                 }}
               >
-                Built for{" "}
-                <span className="text-brand">real fence contractors.</span>
+                {c.estimating.headline.lead}{" "}
+                <span className="text-brand">{c.estimating.headline.tail}</span>
               </h2>
               <p className="mt-5 text-paper/75 text-lg leading-relaxed">
-                Created by contractors who understand real-world fence
-                estimating. Not generic line-item software repurposed for the
-                trades.
+                {c.estimating.body}
               </p>
               <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 text-paper/85 max-w-md">
-                <CheckRow dark>Fence layout</CheckRow>
-                <CheckRow dark>Linear-foot dimensions</CheckRow>
-                <CheckRow dark>Post spacing</CheckRow>
-                <CheckRow dark>Gate callouts</CheckRow>
-                <CheckRow dark>Material takeoff</CheckRow>
-                <CheckRow dark>Concrete &amp; hardware</CheckRow>
+                {c.estimating.bulletsTop.map((b) => (
+                  <CheckRow key={b} dark>{b}</CheckRow>
+                ))}
               </ul>
             </div>
 
-            <FenceBlueprintPlan />
+            <FenceBlueprintPlan lang={lang} />
           </div>
 
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border border-paper/15">
-            <EstimateTile label="Materials" />
-            <EstimateTile label="Accountability List" />
-            <EstimateTile label="Gates + Hardware" />
-            <EstimateTile label="Labor" />
-            <EstimateTile label="Scheduler" />
-            <EstimateTile label="Margins" />
-            <EstimateTile label="Fence Styles" />
-            <EstimateTile label="Job Costing" />
+            {c.estimating.tiles.map((label) => (
+              <EstimateTile
+                key={label}
+                label={label}
+                caption={c.mockup.moduleLabel}
+              />
+            ))}
           </div>
 
           <div className="mt-10 grid lg:grid-cols-[1fr_1.4fr] gap-10 items-start">
             <ul className="space-y-3 text-paper/85">
-              <CheckRow dark>Per-foot or fixed-margin pricing</CheckRow>
-              <CheckRow dark>Wood, vinyl, aluminum, and chain-link</CheckRow>
-              <CheckRow dark>Single + double gates with motors</CheckRow>
-              <CheckRow dark>Removal &amp; haul-away built in</CheckRow>
+              {c.estimating.bulletsBottom.map((b) => (
+                <CheckRow key={b} dark>{b}</CheckRow>
+              ))}
             </ul>
-            <EstimateMockup />
+            <EstimateMockup lang={lang} />
           </div>
         </div>
       </section>
@@ -290,7 +292,7 @@ export default function LandingPage() {
       <section className="bg-paper border-b border-line">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="max-w-3xl">
-            <BlueprintTag dark>Permitting</BlueprintTag>
+            <BlueprintTag dark>{c.permits.blueprintTag}</BlueprintTag>
             <h2
               className="mt-5 text-ink"
               style={{
@@ -302,30 +304,27 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Permit-ready{" "}
-              <span className="text-brand">project workflows.</span>
+              {c.permits.headline.lead}{" "}
+              <span className="text-brand">{c.permits.headline.tail}</span>
             </h2>
             <p className="mt-5 text-lg text-text-soft leading-relaxed">
-              Generate organized project documentation faster and reduce
-              administrative delays. Your packets are ready when the customer
-              signs — not three days later.
+              {c.permits.body}
             </p>
             <ul className="mt-8 grid sm:grid-cols-2 gap-x-8 gap-y-3 max-w-3xl">
-              <CheckRow>Faster turnarounds</CheckRow>
-              <CheckRow>Cleaner submissions</CheckRow>
-              <CheckRow>Fewer corrections from the building department</CheckRow>
-              <CheckRow>Professional presentation, every time</CheckRow>
+              {c.permits.bullets.map((b) => (
+                <CheckRow key={b}>{b}</CheckRow>
+              ))}
             </ul>
           </div>
 
           <div className="mt-12 sm:mt-16">
             <div className="mb-4 flex items-center justify-between">
-              <BlueprintTag dark>Live demo · 36 s</BlueprintTag>
+              <BlueprintTag dark>{c.permits.demoBadge}</BlueprintTag>
               <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-text-soft">
-                Permit Autofill
+                {c.permits.demoLabel}
               </span>
             </div>
-            <PermitAutofillSpot />
+            <PermitAutofillSpot lang={lang} />
           </div>
         </div>
       </section>
@@ -334,7 +333,7 @@ export default function LandingPage() {
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1fr_1.15fr] gap-14 items-center">
           <div>
-            <BlueprintTag>Production scheduling</BlueprintTag>
+            <BlueprintTag>{c.scheduling.blueprintTag}</BlueprintTag>
             <h2
               className="mt-5"
               style={{
@@ -346,34 +345,31 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Your whole week{" "}
-              <span className="text-brand">on one board.</span>
+              {c.scheduling.headline.lead}{" "}
+              <span className="text-brand">{c.scheduling.headline.tail}</span>
             </h2>
             <p className="mt-5 text-lg text-paper/80 leading-relaxed max-w-xl">
-              Slot accepted jobs into crew calendars, see who&apos;s booked
-              and who&apos;s open at a glance, and walk every install from
-              scheduled to complete without leaving the page.
+              {c.scheduling.body}
             </p>
             <ul className="mt-8 space-y-3 max-w-md">
-              <CheckRow dark>Day × crew week grid — every install in one view</CheckRow>
-              <CheckRow dark>Unscheduled column for accepted jobs awaiting a date</CheckRow>
-              <CheckRow dark>Status flow: scheduled → in progress → complete</CheckRow>
-              <CheckRow dark>Crew capacity at a glance — no double-booked Tuesdays</CheckRow>
+              {c.scheduling.bullets.map((b) => (
+                <CheckRow key={b} dark>{b}</CheckRow>
+              ))}
             </ul>
           </div>
 
-          <AnimatedScheduleMockup />
+          <AnimatedScheduleMockup lang={lang} />
         </div>
       </section>
 
-      {/* ─── SECTION 6 — INSTALLER WORK ORDERS ───────────────────── */}
+      {/* ─── SECTION 6 — WORKER'S ACCOUNTABILITY LIST ───────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20 grid lg:grid-cols-[1fr_1.1fr] gap-14 items-center">
-          <WorkOrderMockup />
+          <WorkOrderMockup lang={lang} />
 
           <div>
             <div className="flex items-center gap-3">
-              <BlueprintTag>Field operations</BlueprintTag>
+              <BlueprintTag>{c.fieldOps.blueprintTag}</BlueprintTag>
               <GateSwingMark className="text-brand/70 w-7 h-7" />
             </div>
             <h2
@@ -387,22 +383,16 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Worker&apos;s{" "}
-              <span className="text-brand">accountability list.</span>
+              {c.fieldOps.headline.lead}{" "}
+              <span className="text-brand">{c.fieldOps.headline.tail}</span>
             </h2>
             <p className="mt-5 text-lg text-paper/80 leading-relaxed max-w-xl">
-              Reduce installer confusion and keep crews aligned in the field.
-              Every detail the crew needs — measurements, gate hardware, fence
-              style, materials, photos — in one packet they can pull up on
-              the truck.
+              {c.fieldOps.body}
             </p>
             <ul className="mt-8 grid grid-cols-2 gap-y-3 gap-x-6 max-w-lg">
-              <CheckRow dark>Measurements</CheckRow>
-              <CheckRow dark>Gate details</CheckRow>
-              <CheckRow dark>Fence style</CheckRow>
-              <CheckRow dark>Material breakdowns</CheckRow>
-              <CheckRow dark>Job notes</CheckRow>
-              <CheckRow dark>Site photos</CheckRow>
+              {c.fieldOps.bullets.map((b) => (
+                <CheckRow key={b} dark>{b}</CheckRow>
+              ))}
             </ul>
           </div>
         </div>
@@ -411,7 +401,7 @@ export default function LandingPage() {
       {/* ─── SECTION 7 — TRUST / AUTHENTICITY ───────────────────── */}
       <section className="bg-paper border-b border-line">
         <div className="max-w-5xl mx-auto px-6 py-24 text-center">
-          <BlueprintTag dark>Built by the industry</BlueprintTag>
+          <BlueprintTag dark>{c.trust.blueprintTag}</BlueprintTag>
           <h2
             className="mt-6 text-ink"
             style={{
@@ -423,20 +413,20 @@ export default function LandingPage() {
               letterSpacing: "0.005em",
             }}
           >
-            Designed by professionals with{" "}
-            <span className="text-brand">real fence experience.</span>
+            {c.trust.headline.lead}{" "}
+            <span className="text-brand">{c.trust.headline.tail}</span>
           </h2>
           <p className="mt-6 text-lg text-text-soft leading-relaxed max-w-3xl mx-auto">
-            Permitting. Estimating. Installation. Inspections. Field operations.{" "}
+            {c.trust.body.intro}{" "}
             <BrandWordmark />
-            {" "}was built by people who&apos;ve done all of it — and got tired
-            of running fence companies on phone calls and spreadsheets.
+            {" "}{c.trust.body.outroBefore} {c.trust.body.outroAfter}
           </p>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 border border-line bg-white">
-            <CredentialTile>Permitting expertise</CredentialTile>
-            <CredentialTile>Inspection-ready specs</CredentialTile>
-            <CredentialTile>Production management</CredentialTile>
-            <CredentialTile>Field operations</CredentialTile>
+            {c.trust.credentials.map((cred) => (
+              <CredentialTile key={cred} caption={c.mockup.credentialLabel}>
+                {cred}
+              </CredentialTile>
+            ))}
           </div>
         </div>
       </section>
@@ -445,7 +435,7 @@ export default function LandingPage() {
       <section id="pricing" className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <div className="max-w-2xl">
-            <BlueprintTag>Pricing</BlueprintTag>
+            <BlueprintTag>{c.pricing.blueprintTag}</BlueprintTag>
             <h2
               className="mt-5"
               style={{
@@ -457,63 +447,25 @@ export default function LandingPage() {
                 letterSpacing: "0.005em",
               }}
             >
-              Operational infrastructure{" "}
-              <span className="text-brand">for serious contractors.</span>
+              {c.pricing.headline.lead}{" "}
+              <span className="text-brand">{c.pricing.headline.tail}</span>
             </h2>
           </div>
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:items-start">
-            <PricingTier
-              name="Starter"
-              price="$99"
-              tagline="CRM, estimates, proposals."
-              features={[
-                "CRM + customer database",
-                "Estimates & digital proposals",
-                "Basic scheduling",
-                "Up to 2 users",
-              ]}
-              cta="Book demo"
-            />
-            <PricingTier
-              name="Pro"
-              price="$249"
-              tagline="Production-ready operations."
-              features={[
-                "Everything in Starter",
-                "Worker's accountability list",
-                "Material calculations",
-                "Crew scheduling + production board",
-                "Team management",
-              ]}
-              cta="Book demo"
-              featured
-            />
-            <PricingTier
-              name="Performance"
-              price="$499"
-              tagline="The full operating platform."
-              features={[
-                "Everything in Pro",
-                "Before & after previews",
-                "Permit-ready workflows",
-                "HOA application packets",
-                "Advanced job costing",
-              ]}
-              cta="Book demo"
-            />
-            <PricingTier
-              name="Enterprise"
-              price="Custom"
-              tagline="Multi-location · API · white label."
-              features={[
-                "Everything in Performance",
-                "Multi-location support",
-                "API access",
-                "Onboarding + training",
-                "Dedicated support",
-              ]}
-              cta="Contact sales"
-            />
+            {c.pricing.tiers.map((tier, i) => (
+              <PricingTier
+                key={tier.name}
+                name={tier.name}
+                price={tier.price}
+                tagline={tier.tagline}
+                features={tier.features}
+                cta={tier.cta}
+                featured={i === 1}
+                monthlyLabel={c.pricing.monthly}
+                mostPopLabel={c.pricing.mostPop}
+                lang={lang}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -521,7 +473,7 @@ export default function LandingPage() {
       {/* ─── FINAL CTA ──────────────────────────────────────────── */}
       <section className="bg-ink text-paper border-b border-paper/10">
         <div className="max-w-5xl mx-auto px-6 py-24 text-center">
-          <BlueprintTag>Get started</BlueprintTag>
+          <BlueprintTag>{c.finalCta.blueprintTag}</BlueprintTag>
           <h2
             className="mt-6"
             style={{
@@ -533,19 +485,18 @@ export default function LandingPage() {
               letterSpacing: "0.005em",
             }}
           >
-            The modern way to{" "}
-            <span className="text-brand">run a fence company.</span>
+            {c.finalCta.headline.lead}{" "}
+            <span className="text-brand">{c.finalCta.headline.tail}</span>
           </h2>
           <p className="mt-6 text-lg text-paper/80 max-w-2xl mx-auto">
-            Quote faster. Win more jobs. Keep crews aligned. See it on a real
-            project — book a 20-minute walkthrough with our team.
+            {c.finalCta.body}
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <PrimaryCta href="/book-demo" big>
-              Book demo
+            <PrimaryCta href={`/book-demo?lang=${lang}`} big>
+              {c.finalCta.primary}
             </PrimaryCta>
-            <SecondaryCta href="/signup" big>
-              Start free trial
+            <SecondaryCta href={`/signup?lang=${lang}`} big>
+              {c.finalCta.secondary}
             </SecondaryCta>
           </div>
         </div>
@@ -580,29 +531,26 @@ export default function LandingPage() {
             </div>
           </div>
           <FooterCol
-            title="Platform"
+            title={c.footer.platformTitle}
+            links={c.footer.platformLinks.map((label) => [
+              label,
+              `/landing?lang=${lang}#`,
+            ])}
+          />
+          <FooterCol
+            title={c.footer.companyTitle}
             links={[
-              ["Visualization", "/landing#"],
-              ["Estimating", "/landing#"],
-              ["Permits", "/landing#"],
-              ["Scheduling", "/landing#"],
-              ["Accountability List", "/landing#"],
+              [c.footer.companyLinks[0], `/book-demo?lang=${lang}`],
+              [c.footer.companyLinks[1], `/landing?lang=${lang}#pricing`],
+              [c.footer.companyLinks[2], "mailto:victor@permitsolutions.us"],
             ]}
           />
           <FooterCol
-            title="Company"
+            title={c.footer.accountTitle}
             links={[
-              ["Book demo", "/book-demo"],
-              ["Pricing", "/landing#pricing"],
-              ["Contact", "mailto:victor@permitsolutions.us"],
-            ]}
-          />
-          <FooterCol
-            title="Account"
-            links={[
-              ["Sign in", "/login"],
-              ["Privacy", "#"],
-              ["Terms", "#"],
+              [c.footer.accountLinks[0], `/login?lang=${lang}`],
+              [c.footer.accountLinks[1], "#"],
+              [c.footer.accountLinks[2], "#"],
             ]}
           />
         </div>
@@ -610,7 +558,7 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-6 py-4 text-xs opacity-60 flex items-center gap-1.5">
             <span>© {new Date().getFullYear()}</span>
             <BrandWordmark />
-            <span>. All rights reserved.</span>
+            <span>. {c.footer.copyright}</span>
           </div>
         </div>
       </footer>
@@ -738,11 +686,13 @@ function ProblemCard({
   title,
   body,
   middle = false,
+  prefix,
 }: {
   number: string;
   title: string;
   body: string;
   middle?: boolean;
+  prefix: string;
 }) {
   return (
     <div
@@ -751,7 +701,7 @@ function ProblemCard({
       }`}
     >
       <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-        Problem · {number}
+        {prefix} · {number}
       </div>
       <h3
         className="mt-4 text-paper"
@@ -771,11 +721,17 @@ function ProblemCard({
   );
 }
 
-function EstimateTile({ label }: { label: string }) {
+function EstimateTile({
+  label,
+  caption,
+}: {
+  label: string;
+  caption: string;
+}) {
   return (
     <div className="p-5 border-b border-r border-paper/15 last:border-r-0 sm:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n)]:border-r lg:[&:nth-child(4n)]:border-r-0 [&:nth-last-child(-n+1)]:border-b-0 sm:[&:nth-last-child(-n+3)]:border-b-0 lg:[&:nth-last-child(-n+4)]:border-b-0">
       <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">
-        Module
+        {caption}
       </div>
       <div
         className="text-paper mt-1.5"
@@ -793,11 +749,17 @@ function EstimateTile({ label }: { label: string }) {
   );
 }
 
-function CredentialTile({ children }: { children: React.ReactNode }) {
+function CredentialTile({
+  children,
+  caption,
+}: {
+  children: React.ReactNode;
+  caption: string;
+}) {
   return (
     <div className="p-6 border-r border-line last:border-r-0 md:[&:nth-child(2n)]:border-r-0 md:[&:nth-child(2n)]:md:border-r md:[&:nth-last-child(-n+2)]:border-b-0 [&:nth-child(-n+2)]:border-b [&:nth-child(-n+2)]:md:border-b-0 md:last:border-r-0">
       <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-        Credential
+        {caption}
       </div>
       <div
         className="mt-2 text-ink"
@@ -829,14 +791,15 @@ function CornerTicks() {
 
 // ─── Hero visual: real property photos + measurement chrome ───────
 
-function HeroVisual() {
+function HeroVisual({ lang }: { lang: Lang }) {
+  const h = COPY[lang].mockup.hero;
   return (
     <div className="relative">
       <CornerTicks />
       <div className="bg-paper border-2 border-paper/10 overflow-hidden">
         <div className="px-4 py-2.5 border-b border-paper/10 flex items-center justify-between bg-ink/40">
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-paper/55">
-            Project · EST-1042
+            {h.projectLabel} · EST-1042
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand">
             64 LF · 6 FT
@@ -846,43 +809,43 @@ function HeroVisual() {
           <div className="relative aspect-[16/10] bg-slate-800">
             <Image
               src="/landing-preview/before.jpg"
-              alt="Property before fence install"
+              alt={h.before}
               fill
               sizes="(max-width: 1024px) 100vw, 700px"
               className="object-cover"
               priority
             />
             <span className="absolute top-3 left-3 px-2.5 py-1 bg-ink/80 text-paper text-[10px] uppercase tracking-[0.18em] font-bold backdrop-blur">
-              Before
+              {h.before}
             </span>
           </div>
           <div className="h-px bg-brand" />
           <div className="relative aspect-[16/10] bg-ink">
             <Image
               src="/landing-preview/after-aluminum.png"
-              alt="Property after fence install — aluminum louvered"
+              alt={h.after}
               fill
               sizes="(max-width: 1024px) 100vw, 700px"
               className="object-cover"
               priority
             />
             <span className="absolute top-3 left-3 px-2.5 py-1 bg-brand text-ink text-[10px] uppercase tracking-[0.18em] font-bold">
-              After
+              {h.after}
             </span>
           </div>
         </div>
         <div className="px-4 py-3 bg-ink/60 border-t border-paper/10 grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/60">
           <div>
-            <div className="text-paper/40">Style</div>
-            <div className="text-paper">Aluminum</div>
+            <div className="text-paper/40">{h.styleLabel}</div>
+            <div className="text-paper">{h.styleValue}</div>
           </div>
           <div>
-            <div className="text-paper/40">Folio</div>
+            <div className="text-paper/40">{h.folioLabel}</div>
             <div className="text-paper">30-5911-321-1234</div>
           </div>
           <div>
-            <div className="text-paper/40">Status</div>
-            <div className="text-brand">Approved</div>
+            <div className="text-paper/40">{h.statusLabel}</div>
+            <div className="text-brand">{h.statusValue}</div>
           </div>
         </div>
       </div>
@@ -892,32 +855,33 @@ function HeroVisual() {
 
 // ─── Estimate mockup: clean, blueprint-feel job sheet ────────────
 
-function EstimateMockup() {
+function EstimateMockup({ lang }: { lang: Lang }) {
+  const e = COPY[lang].mockup.estimate;
   return (
     <div className="relative">
       <CornerTicks />
       <div className="bg-white text-ink border border-line">
         <div className="px-5 py-3 border-b border-line flex items-center justify-between">
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
-            Estimate · EST-1042
+            {e.estimateLabel} · EST-1042
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
-            Sanchez residence
+            {e.residence}
           </div>
         </div>
         <div className="p-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <SpecLine label="Fence type" value="6′ Aluminum louvered" />
-          <SpecLine label="Linear feet" value="64 LF" />
-          <SpecLine label="Posts" value="24 × 2.5″ × 8′" />
-          <SpecLine label="Concrete" value="48 bags / 80 lb" />
-          <SpecLine label="Single gates" value="1 × 4′ swing" />
-          <SpecLine label="Removal" value="62 LF chain-link" />
-          <SpecLine label="Labor" value="32 hr · 2 crew" />
-          <SpecLine label="Margin" value="22%" />
+          <SpecLine label={e.fenceType} value={e.fenceTypeValue} />
+          <SpecLine label={e.linearFeet} value="64 LF" />
+          <SpecLine label={e.posts} value={e.postsValue} />
+          <SpecLine label={e.concrete} value={e.concreteValue} />
+          <SpecLine label={e.singleGates} value={e.gatesValue} />
+          <SpecLine label={e.removal} value={e.removalValue} />
+          <SpecLine label={e.labor} value={e.laborValue} />
+          <SpecLine label={e.margin} value="22%" />
         </div>
         <div className="px-5 py-3 border-t border-line bg-paper flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
-            Total
+            {e.total}
           </span>
           <span
             style={{
@@ -948,7 +912,8 @@ function SpecLine({ label, value }: { label: string; value: string }) {
 
 // ─── Worker's Accountability List mockup ──────────────────────
 
-function WorkOrderMockup() {
+function WorkOrderMockup({ lang }: { lang: Lang }) {
+  const a = COPY[lang].mockup.accountability;
   return (
     <div className="relative">
       <CornerTicks />
@@ -956,16 +921,16 @@ function WorkOrderMockup() {
         <div className="px-5 py-3 bg-ink text-paper border-b border-paper/10 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/70">
             <ClipboardList className="w-3 h-3 text-brand" />
-            Worker&apos;s accountability list
+            {a.header}
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-            Crew · A-1
+            {a.crew}
           </div>
         </div>
         <div className="bg-white p-5 space-y-4">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft">
-              Job
+              {a.job}
             </div>
             <div
               className="text-ink mt-1"
@@ -977,31 +942,31 @@ function WorkOrderMockup() {
                 letterSpacing: "0.005em",
               }}
             >
-              Sanchez · 4502 SW 92nd Ave
+              {a.jobValue}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <WorkRow icon={<Ruler className="w-3 h-3 text-brand" />} label="Linear feet" value="64 LF" />
-            <WorkRow icon={<Hammer className="w-3 h-3 text-brand" />} label="Posts" value="24" />
-            <WorkRow icon={<Calendar className="w-3 h-3 text-brand" />} label="Install date" value="Tue · 06/04" />
-            <WorkRow icon={<MapPin className="w-3 h-3 text-brand" />} label="Gate" value="4′ swing · East" />
+            <WorkRow icon={<Ruler className="w-3 h-3 text-brand" />} label={a.linearFeet} value="64 LF" />
+            <WorkRow icon={<Hammer className="w-3 h-3 text-brand" />} label={a.posts} value="24" />
+            <WorkRow icon={<Calendar className="w-3 h-3 text-brand" />} label={a.installDate} value={a.installDateValue} />
+            <WorkRow icon={<MapPin className="w-3 h-3 text-brand" />} label={a.gate} value={a.gateValue} />
           </div>
           <div className="border-t border-line pt-3">
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-soft mb-2">
-              Site notes
+              {a.siteNotes}
             </div>
             <ul className="space-y-1.5 text-sm text-ink">
               <li className="flex gap-2">
                 <span className="text-brand">·</span>
-                Avoid sprinkler line along south property edge
+                {a.note1}
               </li>
               <li className="flex gap-2">
                 <span className="text-brand">·</span>
-                Customer requests photos sent before pour
+                {a.note2}
               </li>
               <li className="flex gap-2">
                 <span className="text-brand">·</span>
-                Gate opens out toward driveway
+                {a.note3}
               </li>
             </ul>
           </div>
@@ -1040,6 +1005,9 @@ function PricingTier({
   features,
   cta,
   featured = false,
+  monthlyLabel,
+  mostPopLabel,
+  lang,
 }: {
   name: string;
   price: string;
@@ -1047,6 +1015,9 @@ function PricingTier({
   features: string[];
   cta: string;
   featured?: boolean;
+  monthlyLabel: string;
+  mostPopLabel: string;
+  lang: Lang;
 }) {
   return (
     <div
@@ -1071,7 +1042,7 @@ function PricingTier({
         </div>
         {featured && (
           <span className="px-2 py-0.5 bg-brand text-ink font-mono text-[9px] uppercase tracking-[0.22em] font-bold">
-            Most Pop.
+            {mostPopLabel}
           </span>
         )}
       </div>
@@ -1086,9 +1057,9 @@ function PricingTier({
         >
           {price}
         </span>
-        {price !== "Custom" && (
+        {price !== "Custom" && price !== "A medida" && (
           <span className={`text-xs font-mono uppercase tracking-[0.18em] ${featured ? "text-text-soft" : "text-paper/55"}`}>
-            / mo
+            {monthlyLabel}
           </span>
         )}
       </div>
@@ -1104,7 +1075,7 @@ function PricingTier({
         ))}
       </ul>
       <Link
-        href="/book-demo"
+        href={`/book-demo?lang=${lang}`}
         className={`mt-6 inline-flex items-center justify-center gap-2 px-4 py-3 font-bold uppercase tracking-wide text-sm transition-colors ${
           featured
             ? "bg-ink text-paper hover:bg-brand hover:text-ink"
@@ -1116,6 +1087,26 @@ function PricingTier({
         <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
+  );
+}
+
+function LangPill({ lang, current }: { lang: Lang; current: Lang }) {
+  const active = lang === current;
+  return (
+    <Link
+      href={`/landing?lang=${lang}`}
+      aria-label={
+        lang === "en" ? "Switch to English" : "Cambiar a Español"
+      }
+      aria-current={active ? "true" : undefined}
+      className={
+        active
+          ? "px-2 py-1 bg-brand text-ink font-bold"
+          : "px-2 py-1 text-paper/55 hover:text-paper transition-colors"
+      }
+    >
+      {LANG_LABEL[lang]}
+    </Link>
   );
 }
 

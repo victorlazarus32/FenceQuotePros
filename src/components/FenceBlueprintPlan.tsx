@@ -8,9 +8,67 @@
 // the section background controls neutral lines; the brand orange is
 // hardcoded so it pops on dark.
 
+import type { Lang } from "@/lib/landing/lang";
+
 const BRAND = "#ff6b1a";
 
-export default function FenceBlueprintPlan() {
+const T: Record<Lang, {
+  header: string;
+  residence: string;
+  house: string;
+  drive: string;
+  gateCallout: string;
+  takeoff: string;
+  takeoffPosts: string;
+  takeoffBags: string;
+  sheet: string;
+  rev: string;
+  folio: string;
+  style: string;
+  status: string;
+  statusValue: string;
+  styleValue: string;
+}> = {
+  en: {
+    header: "Site plan",
+    residence: "Sanchez residence",
+    house: "HOUSE",
+    drive: "DRIVE",
+    gateCallout: "GATE · 5′",
+    takeoff: "MATERIAL TAKEOFF",
+    takeoffPosts: "22 POSTS",
+    takeoffBags: "48 BAGS",
+    sheet: "SHEET 1 / 1",
+    rev: "REV · 01",
+    folio: "Folio",
+    style: "Style",
+    status: "Status",
+    statusValue: "Estimated",
+    styleValue: "6′ Aluminum",
+  },
+  es: {
+    header: "Plano del sitio",
+    residence: "Residencia Sánchez",
+    house: "CASA",
+    drive: "ENTRADA",
+    gateCallout: "PORTÓN · 5′",
+    takeoff: "LISTA DE MATERIALES",
+    takeoffPosts: "22 POSTES",
+    takeoffBags: "48 SACOS",
+    sheet: "HOJA 1 / 1",
+    rev: "REV · 01",
+    folio: "Folio",
+    style: "Estilo",
+    status: "Estado",
+    statusValue: "Estimado",
+    styleValue: "6′ Aluminio",
+  },
+};
+
+export default function FenceBlueprintPlan({
+  lang = "en",
+}: { lang?: Lang } = {}) {
+  const t = T[lang];
   return (
     <div className="relative">
       <CornerTicks />
@@ -19,10 +77,10 @@ export default function FenceBlueprintPlan() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
             <span className="w-1.5 h-1.5 bg-brand" />
-            Site plan · EST-1042
+            {t.header} · EST-1042
           </div>
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-            Sanchez residence
+            {t.residence}
           </span>
         </div>
 
@@ -67,7 +125,7 @@ export default function FenceBlueprintPlan() {
             fontSize="9"
             letterSpacing="2"
           >
-            HOUSE
+            {t.house}
           </text>
           <text
             x="240"
@@ -103,7 +161,7 @@ export default function FenceBlueprintPlan() {
             fontSize="7"
             letterSpacing="2"
           >
-            DRIVE
+            {t.drive}
           </text>
 
           {/* ── TOP FENCE RUN — 80 LF ───────────────── */}
@@ -211,7 +269,7 @@ export default function FenceBlueprintPlan() {
             fontSize="9"
             letterSpacing="2"
           >
-            GATE · 5′
+            {t.gateCallout}
           </text>
 
           {/* ── BOTTOM-RIGHT FENCE RUN ──────────────── */}
@@ -264,17 +322,17 @@ export default function FenceBlueprintPlan() {
               fontSize="7"
               letterSpacing="1.8"
             >
-              MATERIAL TAKEOFF
+              {t.takeoff}
             </text>
             <line x1="0" y1="16" x2="100" y2="16" stroke={BRAND} strokeOpacity="0.4" strokeWidth="0.4" />
             <text x="6" y="27" fill="#ffffff" fillOpacity="0.85" fontFamily="ui-monospace, monospace" fontSize="9" letterSpacing="1.2">
               164 LF
             </text>
             <text x="6" y="38" fill="#ffffff" fillOpacity="0.85" fontFamily="ui-monospace, monospace" fontSize="9" letterSpacing="1.2">
-              22 POSTS
+              {t.takeoffPosts}
             </text>
             <text x="6" y="49" fill="#ffffff" fillOpacity="0.85" fontFamily="ui-monospace, monospace" fontSize="9" letterSpacing="1.2">
-              48 BAGS
+              {t.takeoffBags}
             </text>
           </g>
 
@@ -310,11 +368,11 @@ export default function FenceBlueprintPlan() {
           <g transform="translate(370, 296)">
             <rect x="0" y="-9" width="78" height="14" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="0.4" />
             <text x="4" y="0" fill="#ffffff" fillOpacity="0.55" fontFamily="ui-monospace, monospace" fontSize="6" letterSpacing="1.2">
-              SHEET 1 / 1
+              {t.sheet}
             </text>
             <line x1="40" y1="-9" x2="40" y2="5" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="0.4" />
             <text x="44" y="0" fill={BRAND} fontFamily="ui-monospace, monospace" fontSize="6" letterSpacing="1.2">
-              REV · 01
+              {t.rev}
             </text>
           </g>
         </svg>
@@ -325,16 +383,16 @@ export default function FenceBlueprintPlan() {
             stays on one row at the narrower site-plan column width. */}
         <div className="mt-3 flex flex-col gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
           <div className="flex items-baseline gap-2">
-            <span className="text-paper/40 w-14 shrink-0">Folio</span>
+            <span className="text-paper/40 w-14 shrink-0">{t.folio}</span>
             <span className="text-paper">30-5911-321-1234</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-paper/40 w-14 shrink-0">Style</span>
-            <span className="text-paper">6′ Aluminum</span>
+            <span className="text-paper/40 w-14 shrink-0">{t.style}</span>
+            <span className="text-paper">{t.styleValue}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-paper/40 w-14 shrink-0">Status</span>
-            <span className="text-brand">Estimated</span>
+            <span className="text-paper/40 w-14 shrink-0">{t.status}</span>
+            <span className="text-brand">{t.statusValue}</span>
           </div>
         </div>
       </div>

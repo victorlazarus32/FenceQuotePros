@@ -2,8 +2,38 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/landing/lang";
 
 type Style = "aluminum" | "wood" | "pvc";
+
+const LABELS: Record<Lang, {
+  header: string;
+  before: string;
+  beforeFoot: string;
+  after: string;
+  afterFoot: string;
+  fenceStyleLabel: string;
+  comingSoon: string;
+}> = {
+  en: {
+    header: "Visualizer · EST-1042",
+    before: "Before",
+    beforeFoot: "Site photo · raw",
+    after: "After",
+    afterFoot: "6′ · 24 posts · 1 gate",
+    fenceStyleLabel: "Fence style",
+    comingSoon: "render coming soon",
+  },
+  es: {
+    header: "Visualizador · EST-1042",
+    before: "Antes",
+    beforeFoot: "Foto del sitio · sin editar",
+    after: "Después",
+    afterFoot: "6′ · 24 postes · 1 portón",
+    fenceStyleLabel: "Estilo de cerca",
+    comingSoon: "render próximamente",
+  },
+};
 
 const styles: { id: Style; label: string; src: string }[] = [
   { id: "aluminum", label: "Aluminum", src: "/landing-preview/after-aluminum.png" },
@@ -14,10 +44,13 @@ const styles: { id: Style; label: string; src: string }[] = [
 const CYCLE_MS = 2000;
 const FADE_MS = 700;
 
-export default function BeforeAfterVisual() {
+export default function BeforeAfterVisual({
+  lang = "en",
+}: { lang?: Lang } = {}) {
   const [active, setActive] = useState<Style>("aluminum");
   const intervalRef = useRef<number | null>(null);
   const current = styles.find((s) => s.id === active)!;
+  const t = LABELS[lang];
 
   const advance = useCallback(() => {
     setActive((cur) => {
@@ -65,7 +98,7 @@ export default function BeforeAfterVisual() {
       <div className="px-4 py-2.5 bg-ink text-paper border-b border-ink/15 flex items-center justify-between">
         <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/70">
           <span className="w-1.5 h-1.5 bg-brand" />
-          Visualizer · EST-1042
+          {t.header}
         </div>
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
           64 LF · 6′
@@ -83,10 +116,10 @@ export default function BeforeAfterVisual() {
             className="object-cover"
           />
           <span className="absolute top-3 left-3 px-2.5 py-1 bg-ink/85 text-paper text-[10px] uppercase tracking-[0.22em] font-bold backdrop-blur">
-            Before
+            {t.before}
           </span>
           <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/70">
-            Site photo · raw
+            {t.beforeFoot}
           </span>
         </div>
 
@@ -118,10 +151,10 @@ export default function BeforeAfterVisual() {
             key={`label-${current.id}`}
             className="fqp-cell-in absolute top-3 left-3 px-2.5 py-1 bg-brand text-ink text-[10px] uppercase tracking-[0.22em] font-bold"
           >
-            After · {current.label}
+            {t.after} · {current.label}
           </span>
           <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/85">
-            6′ · 24 posts · 1 gate
+            {t.afterFoot}
           </span>
         </div>
       </div>
@@ -131,7 +164,7 @@ export default function BeforeAfterVisual() {
           to that style and resets the 2s timer. */}
       <div className="bg-ink text-paper px-4 py-3 flex items-center justify-between border-t border-paper/10">
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-paper/55">
-          Fence style
+          {t.fenceStyleLabel}
         </div>
         <div className="flex">
           {styles.map((s) => {

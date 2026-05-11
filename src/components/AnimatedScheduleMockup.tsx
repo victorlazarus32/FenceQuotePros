@@ -2,6 +2,42 @@
 
 import { Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { Lang } from "@/lib/landing/lang";
+
+const T: Record<Lang, {
+  header: string;
+  crewsSuffix: string;
+  jobsLabel: string;
+  crewCol: string;
+  days: string[];
+  scheduled: string;
+  inProgress: string;
+  unscheduled: string;
+  awaitingSuffix: string;
+}> = {
+  en: {
+    header: "Production board",
+    crewsSuffix: "crews",
+    jobsLabel: "jobs",
+    crewCol: "Crew",
+    days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    scheduled: "Scheduled",
+    inProgress: "In progress",
+    unscheduled: "Unscheduled",
+    awaitingSuffix: "awaiting",
+  },
+  es: {
+    header: "Tablero de producción",
+    crewsSuffix: "cuadrillas",
+    jobsLabel: "trabajos",
+    crewCol: "Cuadrilla",
+    days: ["Lun", "Mar", "Mié", "Jue", "Vie"],
+    scheduled: "Programado",
+    inProgress: "En proceso",
+    unscheduled: "No programado",
+    awaitingSuffix: "esperando",
+  },
+};
 
 // Animated production-board mockup for /landing. Cycles three scenes
 // to show the contractor-experience of running the board: a baseline
@@ -134,8 +170,11 @@ const SCENES: Scene[] = [
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const SCENE_MS = 4500;
 
-export default function AnimatedScheduleMockup() {
+export default function AnimatedScheduleMockup({
+  lang = "en",
+}: { lang?: Lang } = {}) {
   const [sceneIndex, setSceneIndex] = useState(0);
+  const t = T[lang];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -160,7 +199,7 @@ export default function AnimatedScheduleMockup() {
         <div className="px-5 py-3 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-text-soft">
             <Calendar className="w-3 h-3 text-brand" />
-            <span>Production board ·</span>
+            <span>{t.header} ·</span>
             <span
               key={`week-${sceneIndex}`}
               className="fqp-cell-in inline-block"
@@ -172,20 +211,20 @@ export default function AnimatedScheduleMockup() {
             key={`tot-${sceneIndex}`}
             className="fqp-cell-in font-mono text-[10px] uppercase tracking-[0.22em] text-brand"
           >
-            {totalJobs} jobs · 3 crews
+            {totalJobs} {t.jobsLabel} · 3 {t.crewsSuffix}
           </div>
         </div>
 
         {/* Day header row */}
         <div className="grid grid-cols-[88px_repeat(5,_1fr)] border-b border-line bg-paper">
           <div className="px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-text-soft border-r border-line">
-            Crew
+            {t.crewCol}
           </div>
-          {DAYS.map((d, i) => (
+          {t.days.map((d, i) => (
             <div
               key={d}
               className={`px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-text-soft ${
-                i < DAYS.length - 1 ? "border-r border-line" : ""
+                i < t.days.length - 1 ? "border-r border-line" : ""
               }`}
             >
               {d}
@@ -254,7 +293,7 @@ export default function AnimatedScheduleMockup() {
         {/* Totals strip */}
         <div className="px-5 py-3 border-t border-line bg-paper grid grid-cols-3 gap-3 font-mono text-[10px] uppercase tracking-[0.22em]">
           <div>
-            <div className="text-text-soft">Scheduled</div>
+            <div className="text-text-soft">{t.scheduled}</div>
             <div
               key={`sch-${sceneIndex}`}
               className="fqp-cell-in text-ink mt-0.5"
@@ -263,7 +302,7 @@ export default function AnimatedScheduleMockup() {
             </div>
           </div>
           <div>
-            <div className="text-text-soft">In progress</div>
+            <div className="text-text-soft">{t.inProgress}</div>
             <div
               key={`prog-${sceneIndex}`}
               className="fqp-cell-in text-brand mt-0.5"
@@ -272,12 +311,17 @@ export default function AnimatedScheduleMockup() {
             </div>
           </div>
           <div>
-            <div className="text-text-soft">Unscheduled</div>
+            <div className="text-text-soft">{t.unscheduled}</div>
             <div
               key={`uns-${sceneIndex}`}
               className="fqp-cell-in text-ink mt-0.5"
             >
-              {scene.totals.unscheduledLabel}
+              {lang === "es"
+                ? scene.totals.unscheduledLabel.replace(
+                    /(\d+)\s+awaiting/,
+                    `$1 ${t.awaitingSuffix}`,
+                  )
+                : scene.totals.unscheduledLabel}
             </div>
           </div>
         </div>

@@ -2,6 +2,33 @@
 
 import { Play, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/landing/lang";
+
+const T: Record<Lang, {
+  title: string;
+  duration: string;
+  click: string;
+  replay: string;
+  playLabel: string;
+  replayLabel: string;
+}> = {
+  en: {
+    title: "Permit Autofill",
+    duration: "36 s",
+    click: "Click to play",
+    replay: "Replay",
+    playLabel: "Play Permit Autofill demo",
+    replayLabel: "Replay Permit Autofill demo",
+  },
+  es: {
+    title: "Auto-relleno de permisos",
+    duration: "36 s",
+    click: "Haz clic para reproducir",
+    replay: "Repetir",
+    playLabel: "Reproducir demo de auto-relleno",
+    replayLabel: "Repetir demo de auto-relleno",
+  },
+};
 
 // Animated permit-autofill explainer (~36s). Click-to-play: the iframe
 // is not loaded until the user clicks the sonar-pulse Play button, so
@@ -19,10 +46,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const SPOT_PATH = "/spots/permit-autofill.html";
 const SPOT_DURATION_MS = 36_000;
 
-export default function PermitAutofillSpot() {
+export default function PermitAutofillSpot({
+  lang = "en",
+}: { lang?: Lang } = {}) {
   const [src, setSrc] = useState<string | null>(null);
   const [showReplay, setShowReplay] = useState(false);
   const finishTimerRef = useRef<number | null>(null);
+  const t = T[lang];
 
   const armFinishTimer = useCallback(() => {
     if (finishTimerRef.current !== null) {
@@ -67,7 +97,7 @@ export default function PermitAutofillSpot() {
           className="absolute inset-0 w-full h-full block"
         />
       ) : (
-        <PosterOverlay onPlay={handlePlay} />
+        <PosterOverlay onPlay={handlePlay} t={t} />
       )}
 
       {showReplay ? (
@@ -82,24 +112,30 @@ export default function PermitAutofillSpot() {
             textTransform: "uppercase",
             letterSpacing: "0.18em",
           }}
-          aria-label="Replay Permit Autofill demo"
+          aria-label={t.replayLabel}
         >
           <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-          Replay
+          {t.replay}
         </button>
       ) : null}
     </div>
   );
 }
 
-function PosterOverlay({ onPlay }: { onPlay: () => void }) {
+function PosterOverlay({
+  onPlay,
+  t,
+}: {
+  onPlay: () => void;
+  t: (typeof T)[Lang];
+}) {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-ink">
       <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/60">
-        Permit Autofill · 36 s
+        {t.title} · {t.duration}
       </span>
       <span className="absolute top-3 right-3 font-mono text-[10px] uppercase tracking-[0.22em] text-brand">
-        Click to play
+        {t.click}
       </span>
 
       <div className="relative">
@@ -121,7 +157,7 @@ function PosterOverlay({ onPlay }: { onPlay: () => void }) {
           style={{
             boxShadow: "0 0 0 6px rgba(255,90,15,0.25)",
           }}
-          aria-label="Play Permit Autofill demo"
+          aria-label={t.playLabel}
         >
           <Play className="w-9 h-9 sm:w-11 sm:h-11 fill-current ml-1" aria-hidden="true" />
         </button>

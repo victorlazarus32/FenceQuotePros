@@ -696,6 +696,37 @@ const DEFAULT_REMOVAL_PER_LF_CENTS = 400;
 const DEFAULT_PERMIT_CENTS = 25000;
 const DEFAULT_ENGINEERING_CENTS = 45000;
 
+// — Wood-privacy retail SKU prices (Home Depot reference) ————————
+// Captured from Home Depot retail listings as a reference catalog for
+// itemized wood-privacy estimating. The per-foot rollup in
+// MATERIAL_PROPERTIES is still the primary cost path; these constants
+// are here for any UI/quote view that wants SKU-level line items, and
+// to ground the contractor on real material costs.
+export const WOOD_PRIVACY_SKUS = {
+  // 2 in x 4 in x 16 ft #2 Prime Ground Contact Pressure-Treated SYP.
+  // 3 rails per section (top/middle/bottom). Pallet break at 100 ea.
+  rail_2x4x16: {
+    description: '2"x4"x16 ft #2 Prime PT Southern Yellow Pine',
+    unitCents: 1458,
+    bulkCents: 1312,
+    bulkMinQty: 100,
+  },
+  // 5/8 in x 5-1/2 in x 6 ft dog-eared PT pine picket. Pallet = 480 ea.
+  picket_dogear_6ft: {
+    description: '5/8"x5-1/2"x6 ft dog-ear PT pine picket',
+    unitCents: 228,
+    bulkCents: 205,
+    bulkMinQty: 480,
+  },
+  // 4 in x 4 in x 8 ft #1 PT post. Pallet break at 65 ea.
+  post_4x4x8: {
+    description: '4"x4"x8 ft #1 Pressure-Treated post',
+    unitCents: 1368,
+    bulkCents: 1231,
+    bulkMinQty: 65,
+  },
+} as const;
+
 // — Calc input ————————————————————————————————————————————————
 
 export type FenceCalcInput = {
