@@ -4,7 +4,16 @@ import { useActionState } from "react";
 import { Button } from "@/components/Button";
 import { signup, type AuthState } from "@/app/login/actions";
 
-export function SignupForm() {
+type SignupFormLabels = {
+  nameLabel: string;
+  companyLabel: string;
+  emailLabel: string;
+  passwordLabel: string;
+  submit: string;
+  submitPending: string;
+};
+
+export function SignupForm({ labels }: { labels: SignupFormLabels }) {
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     signup,
     {},
@@ -18,7 +27,7 @@ export function SignupForm() {
             htmlFor="name"
             className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide"
           >
-            Your name
+            {labels.nameLabel}
           </label>
           <input
             id="name"
@@ -26,7 +35,6 @@ export function SignupForm() {
             type="text"
             autoComplete="name"
             required
-            placeholder="Your full name"
             className="w-full rounded-md border-2 border-line px-3 py-3 text-base focus:border-brand focus:ring-2 focus:ring-brand outline-none"
           />
           {state.fieldErrors?.name && (
@@ -40,14 +48,13 @@ export function SignupForm() {
             htmlFor="companyName"
             className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide"
           >
-            Company (optional)
+            {labels.companyLabel}
           </label>
           <input
             id="companyName"
             name="companyName"
             type="text"
             autoComplete="organization"
-            placeholder="Your company"
             className="w-full rounded-md border-2 border-line px-3 py-3 text-base focus:border-brand focus:ring-2 focus:ring-brand outline-none"
           />
           {state.fieldErrors?.companyName && (
@@ -63,7 +70,7 @@ export function SignupForm() {
           htmlFor="email"
           className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide"
         >
-          Email
+          {labels.emailLabel}
         </label>
         <input
           id="email"
@@ -84,7 +91,7 @@ export function SignupForm() {
           htmlFor="password"
           className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide"
         >
-          Password
+          {labels.passwordLabel}
         </label>
         <input
           id="password"
@@ -93,7 +100,6 @@ export function SignupForm() {
           autoComplete="new-password"
           required
           minLength={8}
-          placeholder="Minimum 8 characters"
           className="w-full rounded-md border-2 border-line px-3 py-3 text-base focus:border-brand focus:ring-2 focus:ring-brand outline-none"
         />
         {state.fieldErrors?.password && (
@@ -110,7 +116,7 @@ export function SignupForm() {
       )}
 
       <Button type="submit" className="w-full !py-3 text-base" disabled={pending}>
-        {pending ? "Creating account…" : "Create account →"}
+        {pending ? labels.submitPending : `${labels.submit} →`}
       </Button>
     </form>
   );

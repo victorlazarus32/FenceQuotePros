@@ -1,23 +1,35 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
 import { LoginForm } from "./LoginForm";
+import LangToggle from "@/components/LangToggle";
+import { getLangFromCookies } from "@/lib/landing/lang";
+import { AUTH_COPY } from "@/lib/i18n/auth";
+import { NAV_COPY } from "@/lib/i18n/nav";
 
-export const metadata = {
-  title: "Sign in — Fence Quote Pros",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLangFromCookies();
+  return { title: AUTH_COPY[lang].login.title };
+}
 
 export default async function LoginPage() {
   if (await isLoggedIn()) redirect("/");
+  const lang = await getLangFromCookies();
+  const c = AUTH_COPY[lang].login;
+  const n = NAV_COPY[lang];
 
   return (
-    <div className="-mx-4 -my-8 min-h-screen bg-ink text-paper flex items-center justify-center px-4 py-12">
+    <div className="-mx-4 -my-8 min-h-screen bg-ink text-paper flex items-center justify-center px-4 py-12 relative">
+      <div className="absolute top-4 right-4">
+        <LangToggle current={lang} returnTo="/login" tone="light" />
+      </div>
       <div className="w-full max-w-md">
         <Link
           href="/landing"
           className="flex items-center gap-2 mb-10 justify-center"
-          aria-label="Fence Quote Pros home"
+          aria-label={n.homeAriaLabel}
         >
           <Image
             src="/logo-v2.png"
@@ -50,18 +62,23 @@ export default async function LoginPage() {
               letterSpacing: "0.005em",
             }}
           >
-            Sign in
+            {c.heading}
           </h1>
-          <p className="text-sm text-slate-600 mb-6">
-            Welcome back. Enter your credentials.
-          </p>
+          <p className="text-sm text-slate-600 mb-6">{c.lead}</p>
 
-          <LoginForm />
+          <LoginForm
+            labels={{
+              emailLabel: c.emailLabel,
+              passwordLabel: c.passwordLabel,
+              submit: c.submit,
+              submitPending: c.submitPending,
+            }}
+          />
 
           <div className="mt-5 text-xs text-slate-500 text-center">
-            Don't have an account?{" "}
+            {c.noAccountPrefix}{" "}
             <Link href="/signup" className="text-brand font-semibold">
-              Sign up →
+              {c.signupCta}
             </Link>
           </div>
         </div>

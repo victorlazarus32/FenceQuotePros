@@ -6,6 +6,9 @@ import "./globals.css";
 import { isLoggedIn } from "@/lib/session";
 import { logout } from "./login/actions";
 import { MobileNav } from "@/components/MobileNav";
+import LangToggle from "@/components/LangToggle";
+import { getLangFromCookies } from "@/lib/landing/lang";
+import { NAV_COPY } from "@/lib/i18n/nav";
 
 const display = Saira_Condensed({
   subsets: ["latin"],
@@ -55,9 +58,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const loggedIn = await isLoggedIn();
+  const lang = await getLangFromCookies();
+  const n = NAV_COPY[lang];
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${display.variable} ${ui.variable} ${mono.variable} ${script.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink" suppressHydrationWarning>
@@ -66,7 +71,7 @@ export default async function RootLayout({
             <Link
               href="/"
               className="flex items-center group shrink-0"
-              aria-label="Fence Quote Pros home"
+              aria-label={n.homeAriaLabel}
             >
               {/* The source PNG (1536×1024, 3:2) has gradient atmosphere
                   + glow padding baked in — only the middle ~30% is the
@@ -84,40 +89,45 @@ export default async function RootLayout({
                 />
               </div>
             </Link>
-            <MobileNav loggedIn={loggedIn} />
+            <MobileNav loggedIn={loggedIn} labels={n} />
             <div className="hidden md:flex gap-1 text-sm font-medium text-slate-600 grow justify-end items-center">
               {loggedIn && (
                 <>
-                  <NavLink href="/">Dashboard</NavLink>
-                  <NavLink href="/estimates">Estimates</NavLink>
-                  <NavLink href="/scheduling">Schedule</NavLink>
-                  <NavLink href="/invoices">Invoices</NavLink>
-                  <NavLink href="/clients">Clients</NavLink>
-                  <NavLink href="/profile">Profile</NavLink>
+                  <NavLink href="/">{n.dashboard}</NavLink>
+                  <NavLink href="/estimates">{n.estimates}</NavLink>
+                  <NavLink href="/scheduling">{n.schedule}</NavLink>
+                  <NavLink href="/invoices">{n.invoices}</NavLink>
+                  <NavLink href="/clients">{n.clients}</NavLink>
+                  <NavLink href="/profile">{n.profile}</NavLink>
                   <form action={logout} className="ml-2">
                     <button
                       type="submit"
                       className="px-3 py-2 rounded-md text-sm hover:bg-slate-100 hover:text-ink transition-colors"
                     >
-                      Sign out
+                      {n.signOut}
                     </button>
                   </form>
                 </>
               )}
               {!loggedIn && (
                 <>
-                  <NavLink href="/landing#platform">Platform</NavLink>
-                  <NavLink href="/landing#pricing">Pricing</NavLink>
-                  <NavLink href="/login">Sign in</NavLink>
+                  <NavLink href="/landing#platform">{n.platform}</NavLink>
+                  <NavLink href="/landing#pricing">{n.pricing}</NavLink>
+                  <NavLink href="/login">{n.signIn}</NavLink>
                   <Link
                     href="/book-demo"
                     className="ml-2 inline-flex items-center px-4 py-2 rounded-md bg-brand text-white text-sm font-bold uppercase tracking-wide hover:bg-ink transition-colors"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    Book a demo
+                    {n.bookDemo}
                   </Link>
                 </>
               )}
+              {/* Language toggle — always visible so users can switch
+                  language from any page. Persists via fqp-lang cookie. */}
+              <span className="ml-3 pl-3 border-l border-line">
+                <LangToggle current={lang} tone="dark" returnTo="/" />
+              </span>
             </div>
           </nav>
         </header>

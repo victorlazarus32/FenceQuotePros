@@ -4,7 +4,14 @@ import { useActionState } from "react";
 import { Button } from "@/components/Button";
 import { login, type AuthState } from "./actions";
 
-export function LoginForm() {
+type LoginFormLabels = {
+  emailLabel: string;
+  passwordLabel: string;
+  submit: string;
+  submitPending: string;
+};
+
+export function LoginForm({ labels }: { labels: LoginFormLabels }) {
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     login,
     {},
@@ -17,7 +24,7 @@ export function LoginForm() {
           htmlFor="email"
           className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide"
         >
-          Email
+          {labels.emailLabel}
         </label>
         <input
           id="email"
@@ -38,7 +45,7 @@ export function LoginForm() {
           htmlFor="password"
           className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide"
         >
-          Password
+          {labels.passwordLabel}
         </label>
         <input
           id="password"
@@ -62,7 +69,7 @@ export function LoginForm() {
       )}
 
       <Button type="submit" className="w-full !py-3 text-base" disabled={pending}>
-        {pending ? "Signing in…" : "Sign in →"}
+        {pending ? labels.submitPending : `${labels.submit} →`}
       </Button>
     </form>
   );

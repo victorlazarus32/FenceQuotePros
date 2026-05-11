@@ -19,12 +19,9 @@ import {
   GateSwingMark,
   SitePlanCorner,
 } from "@/components/FenceBlueprintMark";
+import LangToggle from "@/components/LangToggle";
 import { COPY } from "@/lib/landing/copy";
-import {
-  LANG_LABEL,
-  parseLang,
-  type Lang,
-} from "@/lib/landing/lang";
+import { resolveLang, type Lang } from "@/lib/landing/lang";
 
 export async function generateMetadata({
   searchParams,
@@ -32,7 +29,7 @@ export async function generateMetadata({
   searchParams: Promise<{ lang?: string | string[] }>;
 }): Promise<Metadata> {
   const sp = await searchParams;
-  const lang = parseLang(sp.lang);
+  const lang = await resolveLang(sp.lang);
   const c = COPY[lang];
   return {
     title: c.metaTitle,
@@ -46,7 +43,7 @@ export default async function LandingPage({
   searchParams: Promise<{ lang?: string | string[] }>;
 }) {
   const sp = await searchParams;
-  const lang = parseLang(sp.lang);
+  const lang = await resolveLang(sp.lang);
   const c = COPY[lang];
   return (
     <div className="-mx-4 -my-8 bg-paper">
@@ -59,12 +56,11 @@ export default async function LandingPage({
           className="absolute top-6 left-6 w-14 h-14 text-brand/40 pointer-events-none hidden sm:block"
         />
 
-        {/* EN / ES language toggle — upper right. Server-rendered links
-            to ?lang=en|es so SEO and browser history work naturally. */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.22em]">
-          <LangPill lang="en" current={lang} />
-          <span className="text-paper/30">·</span>
-          <LangPill lang="es" current={lang} />
+        {/* EN / ES language toggle — upper right. Persists via the
+            fqp-lang cookie so the choice carries across the rest of
+            the site. */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
+          <LangToggle current={lang} returnTo="/landing" tone="light" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-start">
@@ -1087,26 +1083,6 @@ function PricingTier({
         <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
-  );
-}
-
-function LangPill({ lang, current }: { lang: Lang; current: Lang }) {
-  const active = lang === current;
-  return (
-    <Link
-      href={`/landing?lang=${lang}`}
-      aria-label={
-        lang === "en" ? "Switch to English" : "Cambiar a Español"
-      }
-      aria-current={active ? "true" : undefined}
-      className={
-        active
-          ? "px-2 py-1 bg-brand text-ink font-bold"
-          : "px-2 py-1 text-paper/55 hover:text-paper transition-colors"
-      }
-    >
-      {LANG_LABEL[lang]}
-    </Link>
   );
 }
 
