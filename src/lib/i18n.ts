@@ -41,6 +41,10 @@ const DICT = {
     print: "Print / PDF",
     lang_toggle_es: "Español",
     lang_toggle_en: "English",
+    paid: "Paid",
+    balance_due: "Balance due",
+    payment_history: "Payment history",
+    fully_paid: "Paid in full — thank you!",
   },
   es: {
     estimate: "Presupuesto",
@@ -69,6 +73,10 @@ const DICT = {
     print: "Imprimir / PDF",
     lang_toggle_es: "Español",
     lang_toggle_en: "English",
+    paid: "Pagado",
+    balance_due: "Saldo pendiente",
+    payment_history: "Historial de pagos",
+    fully_paid: "Pagado en su totalidad — ¡gracias!",
   },
 } as const;
 

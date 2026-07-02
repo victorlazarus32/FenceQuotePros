@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { proposalEmail } from "@/lib/emailTemplates";
+import { deliverEmailMessage, isMailConfigured } from "@/lib/mail";
 import { dollarsToCents, formatMoney } from "@/lib/format";
 import { nextEstimateNumber, nextInvoiceNumber } from "@/lib/numbering";
 import { generateShareToken } from "@/lib/tokens";
@@ -583,13 +584,14 @@ export async function convertEstimateToInvoice(
   redirect(`/invoices/${invoice.id}`);
 }
 
-// ─── Send proposal (placeholder: queues, doesn't actually email yet) ───
+// ─── Send proposal ───
 //
-// When a real email service (Resend, etc.) lands, this action's only change
-// is the bit that flips status="sent" + persists provider message id. Until
-// then, it: (a) generates a share token if missing, (b) records what would
-// have been sent into EmailMessage with status="queued", (c) creates a
-// contractor Notification, (d) marks the estimate "sent".
+// Real sending via lib/mail (Resend when RESEND_API_KEY is set). The flow:
+// (a) generates a share token if missing, (b) snapshots the composed email
+// into EmailMessage (status "queued"), (c) attempts real delivery — success
+// flips the row to "sent" with providerId, failure records "failed" with the
+// provider error, no key leaves it honestly "queued" — (d) notifies the
+// contractor with the actual outcome, (e) marks the estimate "sent".
 
 const SendProposalSchema = z.object({
   estimateId: z.string().min(1),
@@ -599,6 +601,7 @@ export type SendProposalState = {
   ok?: boolean;
   message?: string;
   shareUrl?: string;
+  delivered?: boolean;
 };
 
 function buildBaseUrl(): string {
@@ -679,7 +682,7 @@ export async function sendEstimateProposal(
     expiresOn: expires,
   });
 
-  await db.emailMessage.create({
+  const emailRow = await db.emailMessage.create({
     data: {
       userId,
       estimateId: estimate.id,
@@ -690,17 +693,37 @@ export async function sendEstimateProposal(
       subject: composed.subject,
       bodyText: composed.body,
       status: "queued",
-      // No real provider has accepted it yet — leave sentAt null and
-      // providerId null. Real sending flips status → "sent" and fills these.
     },
   });
 
+  // Attempt real delivery. Failure is recorded on the row and surfaced to
+  // the contractor — it never blocks marking the estimate sent (the share
+  // link still works and can be delivered manually).
+  const delivery = await deliverEmailMessage(emailRow.id);
+
+  const notif = delivery.delivered
+    ? {
+        kind: "estimate_sent",
+        title: `Proposal emailed to ${estimate.client.name}`,
+        body: `${estimate.number} · ${total} · sent to ${estimate.client.email}.`,
+      }
+    : isMailConfigured()
+      ? {
+          kind: "email_failed",
+          title: `Email to ${estimate.client.name} FAILED`,
+          body: `${estimate.number} · ${estimate.client.email} · ${delivery.error ?? "unknown error"}. Share the link manually or retry.`,
+        }
+      : {
+          kind: "estimate_sent",
+          title: `Proposal queued for ${estimate.client.name}`,
+          body: `${estimate.number} · ${total} · queued for ${estimate.client.email}. (Email sending not configured — set RESEND_API_KEY. Share the link manually meanwhile.)`,
+        };
   await db.notification.create({
     data: {
       userId,
-      kind: "estimate_sent",
-      title: `Proposal queued for ${estimate.client.name}`,
-      body: `${estimate.number} · ${total} · queued for ${estimate.client.email}. (No real email service hooked up yet — recorded in the activity feed.)`,
+      kind: notif.kind,
+      title: notif.title,
+      body: notif.body,
       estimateId: estimate.id,
       channels: "in_app",
     },
@@ -716,7 +739,7 @@ export async function sendEstimateProposal(
   revalidatePath(`/estimates/${estimate.id}`);
   revalidatePath("/estimates");
   revalidatePath("/");
-  return { ok: true, shareUrl };
+  return { ok: true, shareUrl, delivered: delivery.delivered };
 }
 
 // ── E-signature ──────────────────────────────────────────────────────────

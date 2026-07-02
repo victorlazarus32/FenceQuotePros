@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { formatDate, formatMoney } from "@/lib/format";
 import { PrintButton } from "@/components/PrintButton";
 import { DocWatermark } from "@/components/DocWatermark";
+import { SendInvoiceButton } from "@/components/SendInvoiceButton";
 import { setInvoiceStatus } from "../actions";
 import { PaymentForm } from "./PaymentForm";
 
@@ -42,7 +43,12 @@ export default async function InvoiceDetailPage(
         >
           ← All invoices
         </Link>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-start">
+          <SendInvoiceButton
+            invoiceId={inv.id}
+            hasShareToken={Boolean(inv.shareToken)}
+            hasClientEmail={Boolean(inv.client.email)}
+          />
           {inv.status === "draft" && (
             <form action={markSent}>
               <Button variant="secondary" size="sm" type="submit">
@@ -60,6 +66,20 @@ export default async function InvoiceDetailPage(
           <PrintButton />
         </div>
       </div>
+
+      {inv.shareToken && (
+        <p className="no-print text-xs text-slate-500">
+          Customer link (EN/ES):{" "}
+          <a
+            href={`/p/inv/${inv.shareToken}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono break-all hover:text-brand"
+          >
+            /p/inv/{inv.shareToken}
+          </a>
+        </p>
+      )}
 
       <article className="relative bg-white rounded-lg border border-line overflow-hidden print:border-0 print:shadow-none print:rounded-none">
         <DocWatermark status={watermarkStatus} />

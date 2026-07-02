@@ -40,6 +40,47 @@ export function proposalEmail(ctx: ProposalEmailContext): {
   return { subject, body };
 }
 
+// ─── Invoice delivery ───────────────────────────────────────────
+
+export type InvoiceEmailContext = {
+  clientName: string;
+  contractorName: string;
+  contractorCompany: string | null;
+  invoiceNumber: string;
+  shareUrl: string;
+  totalDisplay: string;
+  balanceDisplay: string;
+  dueOn: string | null;
+};
+
+export function invoiceEmail(ctx: InvoiceEmailContext): {
+  subject: string;
+  body: string;
+} {
+  const company = ctx.contractorCompany ?? ctx.contractorName;
+  const subject = `Invoice ${ctx.invoiceNumber} from ${company}`;
+  const body = [
+    `Hi ${ctx.clientName},`,
+    ``,
+    `Your invoice ${ctx.invoiceNumber} is ready. You can view it (English/Español) here:`,
+    ``,
+    `  ${ctx.shareUrl}`,
+    ``,
+    `Total: ${ctx.totalDisplay}`,
+    `Balance due: ${ctx.balanceDisplay}`,
+    ctx.dueOn ? `Due by: ${ctx.dueOn}` : null,
+    ``,
+    `If you have any questions about this invoice, just reply to this email.`,
+    ``,
+    `Thank you for your business!`,
+    ``,
+    `— ${ctx.contractorName}${ctx.contractorCompany ? `, ${ctx.contractorCompany}` : ""}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return { subject, body };
+}
+
 // ─── Auto follow-up letters ─────────────────────────────────────
 // Triggered when the client opens the proposal. Provides product-specific
 // information: lifespan, maintenance, warranty, code-compliance hooks etc.

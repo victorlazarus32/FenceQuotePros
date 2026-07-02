@@ -75,11 +75,18 @@ export default async function LoginPage() {
             }}
           />
 
-          <div className="mt-5 text-xs text-slate-500 text-center">
-            {c.noAccountPrefix}{" "}
-            <Link href="/signup" className="text-brand font-semibold">
-              {c.signupCta}
-            </Link>
+          <div className="mt-5 text-xs text-slate-500 text-center space-y-1">
+            <div>
+              {c.noAccountPrefix}{" "}
+              <Link href="/signup" className="text-brand font-semibold">
+                {c.signupCta}
+              </Link>
+            </div>
+            <div>
+              <Link href="/forgot-password" className="hover:text-brand">
+                {lang === "es" ? "¿Olvidaste tu contraseña?" : "Forgot password?"}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

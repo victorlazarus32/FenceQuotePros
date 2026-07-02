@@ -2,34 +2,31 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/Button";
-import {
-  sendEstimateProposal,
-  type SendProposalState,
-} from "@/app/estimates/actions";
+import { sendInvoice, type SendInvoiceState } from "@/app/invoices/actions";
 
-export function SendProposalButton({
-  estimateId,
+export function SendInvoiceButton({
+  invoiceId,
   hasShareToken,
   hasClientEmail,
 }: {
-  estimateId: string;
+  invoiceId: string;
   hasShareToken: boolean;
   hasClientEmail: boolean;
 }) {
   const [state, formAction, pending] = useActionState<
-    SendProposalState,
+    SendInvoiceState,
     FormData
-  >(sendEstimateProposal, {});
+  >(sendInvoice, {});
 
   const label = pending
     ? "Sending…"
     : hasShareToken
-      ? "Resend proposal"
-      : "Send proposal";
+      ? "Resend invoice"
+      : "Send invoice";
 
   return (
     <form action={formAction} className="inline-flex flex-col items-end gap-1">
-      <input type="hidden" name="estimateId" value={estimateId} />
+      <input type="hidden" name="invoiceId" value={invoiceId} />
       <Button
         type="submit"
         size="sm"
