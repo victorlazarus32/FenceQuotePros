@@ -6,8 +6,16 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { renderTemplate } from "@/lib/contractTemplates";
+import { computeDepositCents, type DepositMode } from "@/lib/deposit";
 import { proposalEmail } from "@/lib/emailTemplates";
+import {
+  workflowAdvanceOnAccept,
+  workflowAdvanceOnDecline,
+  workflowAdvanceOnSend,
+} from "@/lib/jobWorkflow";
 import { deliverEmailMessage, isMailConfigured } from "@/lib/mail";
+import { applyWorkflowTransition } from "@/lib/workflowDb";
 import { dollarsToCents, formatMoney } from "@/lib/format";
 import { nextEstimateNumber, nextInvoiceNumber } from "@/lib/numbering";
 import { generateShareToken } from "@/lib/tokens";
@@ -402,6 +410,38 @@ export async function createEstimate(
 
   const number = await nextEstimateNumber(userId);
 
+  // No terms typed? Fall back to the default-for-estimates template from
+  // the terms library, rendered with this estimate's real figures.
+  let terms = data.terms || null;
+  if (!terms) {
+    const defaultTemplate = await db.contractTemplate.findFirst({
+      where: { userId, isDefaultEstimate: true },
+    });
+    if (defaultTemplate) {
+      const [client, user] = await Promise.all([
+        db.client.findUnique({ where: { id: clientId }, select: { name: true } }),
+        db.user.findUnique({ where: { id: userId }, select: { companyName: true, name: true } }),
+      ]);
+      const depositCents = computeDepositCents(totalCents, {
+        mode: data.depositMode as DepositMode,
+        percent: data.depositPercent,
+        fixedCents: Math.round(data.depositFixedDollars * 100),
+      });
+      terms = renderTemplate(defaultTemplate.body, {
+        client_name: client?.name,
+        company: user?.companyName ?? user?.name,
+        number,
+        total: formatMoney(totalCents),
+        deposit: formatMoney(depositCents),
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      });
+    }
+  }
+
   const created = await db.estimate.create({
     data: {
       userId,
@@ -411,7 +451,7 @@ export async function createEstimate(
       issueDate: new Date(),
       expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
       notes: data.notes || null,
-      terms: data.terms || null,
+      terms,
       subtotalCents,
       taxRate,
       taxCents,
@@ -512,8 +552,23 @@ export async function setEstimateStatus(
   const est = await db.estimate.findUnique({ where: { id } });
   if (!est || est.userId !== userId) return;
   await db.estimate.update({ where: { id }, data: { status } });
+
+  // Document → job auto-advance (forward-only; never yanks a job backward).
+  const advance =
+    status === "sent"
+      ? workflowAdvanceOnSend(est.workflowStatus)
+      : status === "accepted"
+        ? workflowAdvanceOnAccept(est.workflowStatus)
+        : status === "declined"
+          ? workflowAdvanceOnDecline(est.workflowStatus)
+          : null;
+  if (advance) {
+    await applyWorkflowTransition(est, advance, `document ${status}`);
+  }
+
   revalidatePath(`/estimates/${id}`);
   revalidatePath("/estimates");
+  revalidatePath("/jobs");
 }
 
 export async function deleteEstimate(id: string): Promise<void> {
@@ -544,6 +599,45 @@ export async function convertEstimateToInvoice(
   const due = new Date();
   due.setDate(due.getDate() + 30);
 
+  // Estimate carried no terms? Fall back to the default-for-invoices
+  // template, rendered with the invoice's real figures.
+  let invoiceTerms = est.terms;
+  if (!invoiceTerms) {
+    const defaultTemplate = await db.contractTemplate.findFirst({
+      where: { userId, isDefaultInvoice: true },
+    });
+    if (defaultTemplate) {
+      const [client, user] = await Promise.all([
+        db.client.findUnique({
+          where: { id: est.clientId },
+          select: { name: true },
+        }),
+        db.user.findUnique({
+          where: { id: userId },
+          select: { companyName: true, name: true },
+        }),
+      ]);
+      invoiceTerms = renderTemplate(defaultTemplate.body, {
+        client_name: client?.name,
+        company: user?.companyName ?? user?.name,
+        number,
+        total: formatMoney(est.totalCents),
+        deposit: formatMoney(
+          computeDepositCents(est.totalCents, {
+            mode: est.depositMode as DepositMode,
+            percent: est.depositPercent,
+            fixedCents: est.depositFixedCents,
+          }),
+        ),
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      });
+    }
+  }
+
   const invoice = await db.invoice.create({
     data: {
       userId,
@@ -554,7 +648,7 @@ export async function convertEstimateToInvoice(
       issueDate: new Date(),
       dueDate: due,
       notes: est.notes,
-      terms: est.terms,
+      terms: invoiceTerms,
       subtotalCents: est.subtotalCents,
       taxRate: est.taxRate,
       taxCents: est.taxCents,
@@ -577,6 +671,11 @@ export async function convertEstimateToInvoice(
       where: { id: est.id },
       data: { status: "accepted" },
     });
+  }
+  // Converting to an invoice implies the job was won at the document level.
+  const convertAdvance = workflowAdvanceOnAccept(est.workflowStatus);
+  if (convertAdvance) {
+    await applyWorkflowTransition(est, convertAdvance, "converted to invoice");
   }
 
   revalidatePath("/invoices");
@@ -736,6 +835,12 @@ export async function sendEstimateProposal(
     });
   }
 
+  // First proposal send moves a fresh job intake → quote_sent.
+  const sendAdvance = workflowAdvanceOnSend(estimate.workflowStatus);
+  if (sendAdvance) {
+    await applyWorkflowTransition(estimate, sendAdvance, "proposal sent");
+  }
+
   revalidatePath(`/estimates/${estimate.id}`);
   revalidatePath("/estimates");
   revalidatePath("/");
@@ -788,6 +893,7 @@ export async function signEstimate(
       totalCents: true,
       signedAt: true,
       permitDocsAutoTrigger: true,
+      workflowStatus: true,
       client: { select: { name: true } },
     },
   });
@@ -820,6 +926,13 @@ export async function signEstimate(
       signedUserAgent: userAgent,
     },
   });
+
+  // Customer signature = job won at the document level → advance the
+  // workflow (forward-only) and seed the "accepted" stage's auto-tasks.
+  const signAdvance = workflowAdvanceOnAccept(estimate.workflowStatus);
+  if (signAdvance) {
+    await applyWorkflowTransition(estimate, signAdvance, "customer signed");
+  }
 
   await db.notification.create({
     data: {

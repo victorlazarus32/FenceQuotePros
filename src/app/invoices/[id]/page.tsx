@@ -8,8 +8,17 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { PrintButton } from "@/components/PrintButton";
 import { DocWatermark } from "@/components/DocWatermark";
 import { SendInvoiceButton } from "@/components/SendInvoiceButton";
+import { StatusBadge } from "@/components/StatusBadge";
+import { computeDepositCents, type DepositMode } from "@/lib/deposit";
+import {
+  depositShortfallCents,
+  displayInvoiceStatus,
+} from "@/lib/invoiceMoney";
 import { setInvoiceStatus } from "../actions";
 import { PaymentForm } from "./PaymentForm";
+import { VoidInvoiceForm } from "./VoidInvoiceForm";
+import { CorrectPaymentForm } from "./CorrectPaymentForm";
+import { DepositQuickCollect } from "./DepositQuickCollect";
 
 export default async function InvoiceDetailPage(
   props: PageProps<"/invoices/[id]">,
@@ -23,16 +32,39 @@ export default async function InvoiceDetailPage(
       user: true,
       lineItems: { orderBy: { sortOrder: "asc" } },
       payments: { orderBy: { receivedAt: "desc" } },
-      estimate: { select: { id: true, number: true } },
+      estimate: {
+        select: {
+          id: true,
+          number: true,
+          totalCents: true,
+          depositMode: true,
+          depositPercent: true,
+          depositFixedCents: true,
+        },
+      },
     },
   });
   if (!inv || inv.userId !== userId) notFound();
 
+  // Deposit quick-collect: shortfall to reach the linked estimate's deposit.
+  const depositShortfall = inv.estimate
+    ? depositShortfallCents(
+        computeDepositCents(inv.estimate.totalCents, {
+          mode: inv.estimate.depositMode as DepositMode,
+          percent: inv.estimate.depositPercent,
+          fixedCents: inv.estimate.depositFixedCents,
+        }),
+        inv.paidCents,
+      )
+    : 0;
+
   const remaining = Math.max(0, inv.totalCents - inv.paidCents);
+  const isVoid = inv.status === "void";
+  // Status shown everywhere is DERIVED (overdue is computed, never stored).
+  const shownStatus = displayInvoiceStatus(inv);
   const watermarkStatus =
-    remaining === 0 && inv.totalCents > 0 ? "paid" : inv.status;
+    !isVoid && remaining === 0 && inv.totalCents > 0 ? "paid" : shownStatus;
   const markSent = setInvoiceStatus.bind(null, inv.id, "sent");
-  const markOverdue = setInvoiceStatus.bind(null, inv.id, "overdue");
 
   return (
     <div className="space-y-6">
@@ -44,11 +76,14 @@ export default async function InvoiceDetailPage(
           ← All invoices
         </Link>
         <div className="flex gap-2 flex-wrap items-start">
-          <SendInvoiceButton
-            invoiceId={inv.id}
-            hasShareToken={Boolean(inv.shareToken)}
-            hasClientEmail={Boolean(inv.client.email)}
-          />
+          <StatusBadge status={shownStatus} />
+          {!isVoid && (
+            <SendInvoiceButton
+              invoiceId={inv.id}
+              hasShareToken={Boolean(inv.shareToken)}
+              hasClientEmail={Boolean(inv.client.email)}
+            />
+          )}
           {inv.status === "draft" && (
             <form action={markSent}>
               <Button variant="secondary" size="sm" type="submit">
@@ -56,16 +91,19 @@ export default async function InvoiceDetailPage(
               </Button>
             </form>
           )}
-          {inv.status === "sent" && (
-            <form action={markOverdue}>
-              <Button variant="secondary" size="sm" type="submit">
-                Mark overdue
-              </Button>
-            </form>
-          )}
+          {!isVoid && <VoidInvoiceForm invoiceId={inv.id} />}
           <PrintButton />
         </div>
       </div>
+
+      {isVoid && (
+        <div className="no-print rounded-md border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-600">
+          <span className="font-semibold">Void</span>
+          {inv.voidedAt && <> · {formatDate(inv.voidedAt)}</>}
+          {inv.voidReason && <> · {inv.voidReason}</>} — this invoice is
+          terminal: no edits, payments, or sends.
+        </div>
+      )}
 
       {inv.shareToken && (
         <p className="no-print text-xs text-slate-500">
@@ -286,10 +324,32 @@ export default async function InvoiceDetailPage(
 
       <section className="no-print bg-white rounded-lg border border-line p-6">
         <h2 className="h-card mb-4">Record a payment</h2>
-        {remaining === 0 ? (
+        {!isVoid && depositShortfall > 0 && (
+          <div className="mb-4">
+            <DepositQuickCollect
+              invoiceId={inv.id}
+              shortfallDisplay={formatMoney(depositShortfall)}
+            />
+          </div>
+        )}
+        {isVoid ? (
+          <p className="text-sm text-slate-500">
+            Void invoice — payments can&apos;t be recorded.
+          </p>
+        ) : inv.status === "draft" ? (
+          <p className="text-sm text-slate-500">
+            Send the invoice (or mark it sent) before recording payments.
+          </p>
+        ) : remaining === 0 ? (
           <p className="text-sm text-green-700">Invoice fully paid. ✓</p>
         ) : (
           <PaymentForm invoiceId={inv.id} remainingCents={remaining} />
+        )}
+        {!isVoid && inv.status !== "draft" && inv.paidCents > 0 && (
+          <CorrectPaymentForm
+            invoiceId={inv.id}
+            currentPaidDollars={(inv.paidCents / 100).toFixed(2)}
+          />
         )}
 
         {inv.payments.length > 0 && (

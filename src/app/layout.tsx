@@ -95,8 +95,10 @@ export default async function RootLayout({
                 <>
                   <NavLink href="/">{n.dashboard}</NavLink>
                   <NavLink href="/estimates">{n.estimates}</NavLink>
+                  <NavLink href="/jobs">{n.jobs}</NavLink>
                   <NavLink href="/scheduling">{n.schedule}</NavLink>
                   <NavLink href="/invoices">{n.invoices}</NavLink>
+                  <NavLink href="/reports">{n.reports}</NavLink>
                   <NavLink href="/clients">{n.clients}</NavLink>
                   <NavLink href="/profile">{n.profile}</NavLink>
                   <form action={logout} className="ml-2">

@@ -16,6 +16,7 @@ import { DocWatermark } from "@/components/DocWatermark";
 import { AcceptDeclineBlock } from "@/components/AcceptDeclineBlock";
 import { JobBreakdownPanel } from "@/components/JobBreakdownPanel";
 import { SendProposalButton } from "@/components/SendProposalButton";
+import { JobWorkflowPanel } from "@/components/JobWorkflowPanel";
 import { PermitDocsContractorPanel } from "@/components/PermitDocsContractorPanel";
 import { ScheduleInstallPanel } from "@/components/ScheduleInstallPanel";
 import { getTemplate } from "@/lib/permitDocs";
@@ -47,6 +48,8 @@ export default async function EstimateDetailPage(
       views: { orderBy: { viewedAt: "desc" }, take: 5 },
       emailMessages: { orderBy: { queuedAt: "desc" }, take: 10 },
       documents: { orderBy: { createdAt: "asc" } },
+      workflowEvents: { orderBy: { createdAt: "desc" }, take: 25 },
+      tasks: { orderBy: [{ completedAt: "asc" }, { dueAt: "asc" }] },
     },
   });
   if (!est || est.userId !== userId) notFound();
@@ -520,6 +523,27 @@ export default async function EstimateDetailPage(
               lang={lang}
             />
           )}
+
+          <div className="mt-8">
+            <JobWorkflowPanel
+              estimateId={est.id}
+              workflowStatus={est.workflowStatus}
+              events={est.workflowEvents.map((e) => ({
+                id: e.id,
+                fromStatus: e.fromStatus,
+                toStatus: e.toStatus,
+                note: e.note,
+                createdAt: e.createdAt.toISOString(),
+              }))}
+              tasks={est.tasks.map((t) => ({
+                id: t.id,
+                title: t.title,
+                dueAt: t.dueAt ? t.dueAt.toISOString() : null,
+                auto: t.auto,
+                completedAt: t.completedAt ? t.completedAt.toISOString() : null,
+              }))}
+            />
+          </div>
 
           <div className="mt-8">
             <PermitDocsContractorPanel

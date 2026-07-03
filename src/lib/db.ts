@@ -15,6 +15,16 @@ const globalForPrisma = globalThis as unknown as {
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
+  // Recycle idle sockets BEFORE the server side (pgbouncer on Supabase,
+  // `prisma dev` locally) kills them — stale pooled connections surface as
+  // P1017 "Server has closed the connection" 500s on random page loads.
+  idleTimeoutMillis: 15_000,
+  keepAlive: true,
+  // Cap concurrent connections. Pages that fan out queries via Promise.all
+  // (dashboard) otherwise burst-open sockets, which local `prisma dev` (and
+  // pgbouncer under pressure) answers by closing connections → P1017.
+  // pg queues excess queries; a small pool serializes bursts harmlessly.
+  max: Number(process.env.DB_POOL_MAX ?? 4),
 });
 
 export const db: PrismaClient =

@@ -16,8 +16,10 @@ import { logout } from "@/app/login/actions";
 type NavLabels = {
   dashboard: string;
   estimates: string;
+  jobs: string;
   schedule: string;
   invoices: string;
+  reports: string;
   clients: string;
   profile: string;
   signOut: string;
@@ -65,8 +67,10 @@ export function MobileNav({
               <>
                 <MobileItem href="/" label={labels.dashboard} onNavigate={close} />
                 <MobileItem href="/estimates" label={labels.estimates} onNavigate={close} />
+                <MobileItem href="/jobs" label={labels.jobs} onNavigate={close} />
                 <MobileItem href="/scheduling" label={labels.schedule} onNavigate={close} />
                 <MobileItem href="/invoices" label={labels.invoices} onNavigate={close} />
+                <MobileItem href="/reports" label={labels.reports} onNavigate={close} />
                 <MobileItem href="/clients" label={labels.clients} onNavigate={close} />
                 <MobileItem href="/profile" label={labels.profile} onNavigate={close} />
                 <li className="pt-2 mt-2 border-t border-line">

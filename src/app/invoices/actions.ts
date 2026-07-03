@@ -7,6 +7,15 @@ import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { dollarsToCents, formatMoney } from "@/lib/format";
 import { invoiceEmail } from "@/lib/emailTemplates";
+import { computeDepositCents, type DepositMode } from "@/lib/deposit";
+import {
+  applyPayment,
+  canSendInvoice,
+  correctionDeltaCents,
+  depositShortfallCents,
+  setExactPaid,
+  voidInvoice,
+} from "@/lib/invoiceMoney";
 import { deliverEmailMessage, isMailConfigured } from "@/lib/mail";
 import { generateShareToken } from "@/lib/tokens";
 
@@ -47,10 +56,10 @@ export async function recordPayment(
   const data = parsed.data;
   const amountCents = dollarsToCents(data.amount);
 
-  const newPaid = invoice.paidCents + amountCents;
-  let newStatus = invoice.status;
-  if (newPaid >= invoice.totalCents) newStatus = "paid";
-  else if (newPaid > 0) newStatus = "partial";
+  // All transition rules live in lib/invoiceMoney (pure + unit-tested):
+  // additive payments, paid/partial derivation, draft/void guards.
+  const result = applyPayment(invoice, amountCents);
+  if (!result.ok) return { message: result.reason };
 
   await db.$transaction([
     db.payment.create({
@@ -64,7 +73,7 @@ export async function recordPayment(
     }),
     db.invoice.update({
       where: { id: invoiceId },
-      data: { paidCents: newPaid, status: newStatus },
+      data: { paidCents: result.paidCents, status: result.status },
     }),
   ]);
 
@@ -74,16 +83,173 @@ export async function recordPayment(
   return { message: "Payment recorded." };
 }
 
+// `overdue` is DERIVED at read time (lib/invoiceMoney.isInvoiceOverdue) and
+// no longer a settable status — the only manual transition left is
+// draft → sent for invoices delivered outside the app.
 export async function setInvoiceStatus(
   id: string,
-  status: "draft" | "sent" | "overdue",
+  status: "sent",
 ): Promise<void> {
   const userId = await getCurrentUserId();
   const inv = await db.invoice.findUnique({ where: { id } });
   if (!inv || inv.userId !== userId) return;
+  if (inv.status !== "draft" || status !== "sent") return;
   await db.invoice.update({ where: { id }, data: { status } });
   revalidatePath(`/invoices/${id}`);
   revalidatePath("/invoices");
+}
+
+// ─── Void (terminal, idempotent, reason-logged) ──────────────────
+
+export type VoidInvoiceState = { message?: string };
+
+export async function voidInvoiceAction(
+  _prev: VoidInvoiceState,
+  formData: FormData,
+): Promise<VoidInvoiceState> {
+  const userId = await getCurrentUserId();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  const reason = String(formData.get("reason") ?? "");
+  const inv = await db.invoice.findUnique({ where: { id: invoiceId } });
+  if (!inv || inv.userId !== userId) return { message: "Not found" };
+
+  const result = voidInvoice(inv, reason);
+  if (!result.changed) return { message: "Already void." };
+
+  await db.invoice.update({
+    where: { id: inv.id },
+    data: {
+      status: result.status,
+      voidedAt: result.voidedAt,
+      voidReason: result.voidReason,
+    },
+  });
+  revalidatePath(`/invoices/${inv.id}`);
+  revalidatePath("/invoices");
+  revalidatePath("/");
+  return { message: "Invoice voided." };
+}
+
+// ─── Exact-set payment correction ────────────────────────────────
+// Fixes double/mistaken recordings. Writes an ADJUSTMENT Payment row for
+// the delta so sum(payments) always reconciles with paidCents, then sets
+// the exact figure — walking status backward to "sent" when zeroed.
+
+export type CorrectPaymentState = { message?: string };
+
+export async function correctPaidAmount(
+  _prev: CorrectPaymentState,
+  formData: FormData,
+): Promise<CorrectPaymentState> {
+  const userId = await getCurrentUserId();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  const raw = String(formData.get("exactAmount") ?? "");
+  const inv = await db.invoice.findUnique({ where: { id: invoiceId } });
+  if (!inv || inv.userId !== userId) return { message: "Not found" };
+
+  const exactCents = dollarsToCents(raw);
+  const result = setExactPaid(inv, exactCents);
+  if (!result.ok) return { message: result.reason };
+
+  const delta = correctionDeltaCents(inv.paidCents, result.paidCents);
+  const ops = [];
+  if (delta !== 0) {
+    ops.push(
+      db.payment.create({
+        data: {
+          invoiceId: inv.id,
+          amountCents: delta,
+          method: "adjustment",
+          notes: `Correction: total received set to ${formatMoney(result.paidCents)}`,
+        },
+      }),
+    );
+  }
+  ops.push(
+    db.invoice.update({
+      where: { id: inv.id },
+      data: { paidCents: result.paidCents, status: result.status },
+    }),
+  );
+  await db.$transaction(ops);
+
+  revalidatePath(`/invoices/${inv.id}`);
+  revalidatePath("/invoices");
+  revalidatePath("/");
+  return {
+    message: `Recorded total corrected to ${formatMoney(result.paidCents)}.`,
+  };
+}
+
+// ─── One-click deposit collection ────────────────────────────────
+// PS rule: "record deposit" pays the SHORTFALL to reach the deposit figure
+// (deposit − already-paid), never a fixed amount. On a draft it marks the
+// invoice sent first — collecting a deposit implies the bill went out.
+
+export type DepositActionState = { message?: string };
+
+export async function recordDepositShortfall(
+  _prev: DepositActionState,
+  formData: FormData,
+): Promise<DepositActionState> {
+  const userId = await getCurrentUserId();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  const method = String(formData.get("method") ?? "other");
+  const inv = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      estimate: {
+        select: {
+          totalCents: true,
+          depositMode: true,
+          depositPercent: true,
+          depositFixedCents: true,
+        },
+      },
+    },
+  });
+  if (!inv || inv.userId !== userId) return { message: "Not found" };
+  if (!inv.estimate) {
+    return { message: "No linked estimate — record a normal payment instead." };
+  }
+
+  const depositCents = computeDepositCents(inv.estimate.totalCents, {
+    mode: inv.estimate.depositMode as DepositMode,
+    percent: inv.estimate.depositPercent,
+    fixedCents: inv.estimate.depositFixedCents,
+  });
+  const shortfall = depositShortfallCents(depositCents, inv.paidCents);
+  if (shortfall === 0) {
+    return { message: "Deposit is already covered." };
+  }
+
+  // Draft → sent first (PS behavior), then apply the shortfall payment.
+  const statusForPayment = inv.status === "draft" ? "sent" : inv.status;
+  const result = applyPayment(
+    { status: statusForPayment, totalCents: inv.totalCents, paidCents: inv.paidCents },
+    shortfall,
+  );
+  if (!result.ok) return { message: result.reason };
+
+  await db.$transaction([
+    db.payment.create({
+      data: {
+        invoiceId: inv.id,
+        amountCents: shortfall,
+        method,
+        notes: `Deposit (${formatMoney(depositCents)} due)`,
+      },
+    }),
+    db.invoice.update({
+      where: { id: inv.id },
+      data: { paidCents: result.paidCents, status: result.status },
+    }),
+  ]);
+
+  revalidatePath(`/invoices/${inv.id}`);
+  revalidatePath("/invoices");
+  revalidatePath("/");
+  return { message: `Deposit recorded: ${formatMoney(shortfall)}.` };
 }
 
 // ─── Send invoice to the customer ────────────────────────────────
@@ -112,6 +278,9 @@ export async function sendInvoice(
   });
   if (!invoice || invoice.userId !== userId) {
     return { message: "Invoice not found." };
+  }
+  if (!canSendInvoice(invoice.status)) {
+    return { message: "This invoice is void and can't be sent." };
   }
   if (!invoice.client.email) {
     return {

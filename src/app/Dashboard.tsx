@@ -2,7 +2,16 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { formatMoney, formatDate } from "@/lib/format";
+import { displayInvoiceStatus, isInvoiceOverdue } from "@/lib/invoiceMoney";
+import {
+  STAGE_LABELS,
+  TERMINAL_STAGES,
+  daysInStage,
+  isStuck,
+  type WorkflowStage,
+} from "@/lib/jobWorkflow";
 import { LinkButton } from "@/components/Button";
+import { KPI, Panel } from "@/components/StatBlocks";
 import { StatusBadge } from "@/components/StatusBadge";
 
 export default async function Dashboard() {
@@ -18,12 +27,15 @@ export default async function Dashboard() {
   const [
     estimates,
     invoices,
+    openInvoices,
     openInvoiceAgg,
     paidInvoiceAgg,
     bookedWeekAgg,
     estCount30,
     wonCount30,
     notifications,
+    openTasks,
+    activeJobs,
   ] = await Promise.all([
     db.estimate.findMany({
       where: { userId },
@@ -37,10 +49,17 @@ export default async function Dashboard() {
       take: 5,
       include: { client: { select: { name: true } } },
     }),
+    // ALL money-open invoices — overdue $ and the overdue list are derived
+    // from this full set, not the 5 most-recent (which silently undercounted
+    // overdue whenever an old invoice aged out of the recency window).
+    db.invoice.findMany({
+      where: { userId, status: { in: ["sent", "partial"] } },
+      include: { client: { select: { name: true } } },
+    }),
     db.invoice.aggregate({
       where: {
         userId,
-        status: { in: ["sent", "partial", "overdue"] },
+        status: { in: ["sent", "partial"] },
       },
       _sum: { totalCents: true, paidCents: true },
     }),
@@ -76,18 +95,40 @@ export default async function Dashboard() {
       orderBy: { createdAt: "desc" },
       take: 12,
     }),
+    // Open job tasks, soonest due first (nulls last by Prisma default asc)
+    db.jobTask.findMany({
+      where: { userId, completedAt: null },
+      orderBy: [{ dueAt: "asc" }, { createdAt: "asc" }],
+      take: 8,
+      include: { estimate: { select: { id: true, number: true } } },
+    }),
+    // Non-terminal jobs + their latest transition — powers stuck detection
+    // (days-in-stage from the last event INTO the current stage, per PS).
+    db.estimate.findMany({
+      where: { userId, workflowStatus: { notIn: [...TERMINAL_STAGES] } },
+      include: {
+        client: { select: { name: true } },
+        workflowEvents: { orderBy: { createdAt: "desc" }, take: 1 },
+      },
+    }),
   ]);
+
+  const stuckJobs = activeJobs
+    .map((e) => {
+      const enteredAt = e.workflowEvents[0]?.createdAt ?? e.createdAt;
+      return { est: e, enteredAt, days: daysInStage(enteredAt, now) };
+    })
+    .filter((j) => isStuck(j.est.workflowStatus, j.enteredAt, now))
+    .sort((a, b) => b.days - a.days)
+    .slice(0, 8);
 
   const outstandingCents =
     (openInvoiceAgg._sum.totalCents ?? 0) -
     (openInvoiceAgg._sum.paidCents ?? 0);
-  const overdueCents = invoices
-    .filter(
-      (i) =>
-        (i.status === "sent" || i.status === "partial") &&
-        i.dueDate != null &&
-        new Date(i.dueDate) < now,
-    )
+  // Shared derived-overdue predicate (lib/invoiceMoney) over the FULL open
+  // set — void and paid can never appear here.
+  const overdueCents = openInvoices
+    .filter((i) => isInvoiceOverdue(i, now))
     .reduce((sum, i) => sum + (i.totalCents - i.paidCents), 0);
 
   const openEstimateCount = estimates.filter(
@@ -98,11 +139,8 @@ export default async function Dashboard() {
   const bookedWeekCount = bookedWeekAgg._count;
   const paidLifetimeCents = paidInvoiceAgg._sum.totalCents ?? 0;
 
-  const overdueInvoices = invoices.filter(
-    (i) =>
-      (i.status === "sent" || i.status === "partial") &&
-      i.dueDate != null &&
-      new Date(i.dueDate) < now,
+  const overdueInvoices = openInvoices.filter((i) =>
+    isInvoiceOverdue(i, now),
   );
   const agingEstimates = estimates.filter((e) => {
     if (e.status !== "sent") return false;
@@ -122,7 +160,7 @@ export default async function Dashboard() {
             {greeting}
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Here's what's moving today.
+            Here&apos;s what&apos;s moving today.
           </p>
         </div>
         <div className="flex gap-2">
@@ -241,6 +279,66 @@ export default async function Dashboard() {
             <div className="text-xs text-slate-500 mt-1 uppercase tracking-wide font-semibold">
               All-time collected
             </div>
+          </Panel>
+
+          <Panel title="Open tasks">
+            {openTasks.length === 0 ? (
+              <p className="text-sm text-slate-500">Nothing open. ✓</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {openTasks.map((t) => {
+                  const overdueTask = t.dueAt != null && new Date(t.dueAt) < now;
+                  return (
+                    <li key={t.id} className="flex items-start gap-2">
+                      <span
+                        className={`shrink-0 ${overdueTask ? "text-red-600" : "text-slate-400"}`}
+                      >
+                        ☐
+                      </span>
+                      <Link
+                        href={`/estimates/${t.estimate.id}`}
+                        className="hover:text-brand"
+                      >
+                        {t.title}
+                        <span className="text-xs text-slate-400">
+                          {" "}
+                          · {t.estimate.number}
+                          {t.dueAt && ` · due ${formatDate(t.dueAt)}`}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel title="Stuck jobs">
+            {stuckJobs.length === 0 ? (
+              <p className="text-sm text-slate-500">
+                Nothing sitting too long. ✓
+              </p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {stuckJobs.map((j) => (
+                  <li key={j.est.id} className="flex items-start gap-2">
+                    <span className="text-amber-600 shrink-0">⏳</span>
+                    <Link
+                      href={`/estimates/${j.est.id}`}
+                      className="hover:text-brand"
+                    >
+                      <span className="font-mono">{j.est.number}</span> ·{" "}
+                      {j.est.client.name} —{" "}
+                      <span className="font-medium">
+                        {j.days}d in{" "}
+                        {STAGE_LABELS[j.est.workflowStatus as WorkflowStage] ??
+                          j.est.workflowStatus}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Panel>
 
           <Panel title="Needs follow-up">
@@ -368,7 +466,7 @@ export default async function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <StatusBadge status={inv.status} />
+                    <StatusBadge status={displayInvoiceStatus(inv, now)} />
                     <span className="font-mono tabular-nums font-semibold">
                       {formatMoney(inv.totalCents)}
                     </span>
@@ -383,76 +481,7 @@ export default async function Dashboard() {
   );
 }
 
-function KPI({
-  label,
-  value,
-  delta,
-}: {
-  label: string;
-  value: string;
-  delta: { kind: "up" | "down" | "neutral"; text: string } | null;
-}) {
-  const deltaColor =
-    delta?.kind === "up"
-      ? "#16a34a"
-      : delta?.kind === "down"
-        ? "#dc2626"
-        : "#64748b";
-  return (
-    <div className="bg-white rounded-md border border-line p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500 font-semibold">
-        {label}
-      </div>
-      <div
-        className="mt-1 tabular-nums"
-        style={{
-          fontFamily: "var(--font-display)",
-          fontWeight: 800,
-          fontSize: "var(--text-2xl)",
-          lineHeight: 1,
-          color: "var(--ink)",
-        }}
-      >
-        {value}
-      </div>
-      {delta && (
-        <div className="text-xs mt-1.5" style={{ color: deltaColor }}>
-          {delta.kind === "up" ? "▲" : delta.kind === "down" ? "▼" : ""}{" "}
-          {delta.text}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Panel({
-  title,
-  linkHref,
-  linkLabel,
-  children,
-}: {
-  title: string;
-  linkHref?: string;
-  linkLabel?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="bg-white rounded-md border border-line">
-      <header className="flex items-center justify-between px-4 py-3 border-b border-line">
-        <h2 className="h-card">{title}</h2>
-        {linkHref && (
-          <Link
-            href={linkHref}
-            className="text-sm font-medium text-brand hover:text-ink"
-          >
-            {linkLabel ?? "View all →"}
-          </Link>
-        )}
-      </header>
-      <div className="p-4">{children}</div>
-    </section>
-  );
-}
+// KPI + Panel now live in components/StatBlocks (shared with /reports).
 
 function Empty({
   message,
