@@ -19,6 +19,9 @@ export default async function SignupPage() {
   const lang = await getLangFromCookies();
   const c = AUTH_COPY[lang].signup;
   const n = NAV_COPY[lang];
+  // Private-beta gate — mirrors the server-action guard in login/actions.ts
+  // (the action is the enforcement; this just shows a friendly wall).
+  const signupsOpen = process.env.SIGNUPS_OPEN === "1";
 
   return (
     <div className="-mx-4 -my-8 min-h-screen bg-ink text-paper flex items-center justify-center px-4 py-12 relative">
@@ -62,20 +65,33 @@ export default async function SignupPage() {
               letterSpacing: "0.005em",
             }}
           >
-            {c.heading}
+            {signupsOpen
+              ? c.heading
+              : lang === "es"
+                ? "Beta privada"
+                : "Private beta"}
           </h1>
-          <p className="text-sm text-slate-600 mb-6">{c.lead}</p>
-
-          <SignupForm
-            labels={{
-              nameLabel: c.nameLabel,
-              companyLabel: c.companyLabel,
-              emailLabel: c.emailLabel,
-              passwordLabel: c.passwordLabel,
-              submit: c.submit,
-              submitPending: c.submitPending,
-            }}
-          />
+          {signupsOpen ? (
+            <>
+              <p className="text-sm text-slate-600 mb-6">{c.lead}</p>
+              <SignupForm
+                labels={{
+                  nameLabel: c.nameLabel,
+                  companyLabel: c.companyLabel,
+                  emailLabel: c.emailLabel,
+                  passwordLabel: c.passwordLabel,
+                  submit: c.submit,
+                  submitPending: c.submitPending,
+                }}
+              />
+            </>
+          ) : (
+            <p className="text-sm text-slate-600 mb-6">
+              {lang === "es"
+                ? "Fence Quote Pros está en beta privada — los registros están cerrados por ahora. ¿Ya tienes cuenta? Inicia sesión abajo."
+                : "Fence Quote Pros is in private beta — signups are closed for now. Already have an account? Sign in below."}
+            </p>
+          )}
 
           <div className="mt-5 text-xs text-slate-500 text-center">
             {c.haveAccountPrefix}{" "}

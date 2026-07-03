@@ -104,6 +104,14 @@ export async function signup(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
+  // Private-beta gate: signups are CLOSED unless explicitly opened.
+  // Existing accounts are unaffected. Flip SIGNUPS_OPEN=1 to launch.
+  if (process.env.SIGNUPS_OPEN !== "1") {
+    return {
+      message:
+        "Fence Quote Pros is in private beta — signups are closed. Reach out for an invite.",
+    };
+  }
   const parsed = SignupSchema.safeParse({
     email: formData.get("email") ?? "",
     password: formData.get("password") ?? "",
