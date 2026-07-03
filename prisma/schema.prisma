@@ -44,6 +44,7 @@ model User {
   crews         Crew[]
   hoaTemplates  HoaApplicationTemplate[]
   resetTokens   PasswordResetToken[]
+  tasks         JobTask[]
 }
 
 model Client {
@@ -166,6 +167,14 @@ model Estimate {
   // sometimes file a different amount than the customer-facing total
   // (materials-only, roadway impact fee threshold, etc.).
   permitValueOfWorkCents Int?
+  // ── Job workflow (second, independent status track — PS pattern) ──
+  // `status` above is the DOCUMENT lifecycle (draft/sent/accepted/…).
+  // `workflowStatus` is the JOB's engagement pipeline (intake → … →
+  // closed_won/lost). They never write each other directly; hooks may
+  // auto-advance the workflow when document events happen (send, sign).
+  // Stages, auto-tasks, and stuck thresholds live in lib/jobWorkflow.ts.
+  workflowStatus   String    @default("intake")
+  workflowClosedAt DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   lineItems     LineItem[]
@@ -175,8 +184,45 @@ model Estimate {
   views         EstimateView[]
   photos        PropertyPhoto[]
   documents     EstimateDocument[]
+  workflowEvents WorkflowEvent[]
+  tasks         JobTask[]
 
   @@index([userId, status])
+  @@index([userId, workflowStatus])
+}
+
+// One row per workflow transition — the audit trail that also powers
+// stuck-job detection (days-in-status = now − latest event into the
+// current status; NEVER derive from updatedAt, which any edit bumps).
+model WorkflowEvent {
+  id         String   @id @default(cuid())
+  estimateId String
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  fromStatus String?
+  toStatus   String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([estimateId, createdAt])
+}
+
+// Per-job tasks. Auto-seeded on stage entry (auto=true, titles prefixed in
+// lib/jobWorkflow.ts) or added manually. Completed tasks keep their row —
+// the checklist doubles as a job log.
+model JobTask {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  estimateId  String
+  estimate    Estimate  @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  title       String
+  dueAt       DateTime?
+  auto        Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, completedAt])
+  @@index([estimateId])
 }
 
 model Invoice {

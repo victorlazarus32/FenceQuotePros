@@ -7,7 +7,13 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { proposalEmail } from "@/lib/emailTemplates";
+import {
+  workflowAdvanceOnAccept,
+  workflowAdvanceOnDecline,
+  workflowAdvanceOnSend,
+} from "@/lib/jobWorkflow";
 import { deliverEmailMessage, isMailConfigured } from "@/lib/mail";
+import { applyWorkflowTransition } from "@/lib/workflowDb";
 import { dollarsToCents, formatMoney } from "@/lib/format";
 import { nextEstimateNumber, nextInvoiceNumber } from "@/lib/numbering";
 import { generateShareToken } from "@/lib/tokens";
@@ -512,8 +518,23 @@ export async function setEstimateStatus(
   const est = await db.estimate.findUnique({ where: { id } });
   if (!est || est.userId !== userId) return;
   await db.estimate.update({ where: { id }, data: { status } });
+
+  // Document → job auto-advance (forward-only; never yanks a job backward).
+  const advance =
+    status === "sent"
+      ? workflowAdvanceOnSend(est.workflowStatus)
+      : status === "accepted"
+        ? workflowAdvanceOnAccept(est.workflowStatus)
+        : status === "declined"
+          ? workflowAdvanceOnDecline(est.workflowStatus)
+          : null;
+  if (advance) {
+    await applyWorkflowTransition(est, advance, `document ${status}`);
+  }
+
   revalidatePath(`/estimates/${id}`);
   revalidatePath("/estimates");
+  revalidatePath("/jobs");
 }
 
 export async function deleteEstimate(id: string): Promise<void> {
@@ -577,6 +598,11 @@ export async function convertEstimateToInvoice(
       where: { id: est.id },
       data: { status: "accepted" },
     });
+  }
+  // Converting to an invoice implies the job was won at the document level.
+  const convertAdvance = workflowAdvanceOnAccept(est.workflowStatus);
+  if (convertAdvance) {
+    await applyWorkflowTransition(est, convertAdvance, "converted to invoice");
   }
 
   revalidatePath("/invoices");
@@ -736,6 +762,12 @@ export async function sendEstimateProposal(
     });
   }
 
+  // First proposal send moves a fresh job intake → quote_sent.
+  const sendAdvance = workflowAdvanceOnSend(estimate.workflowStatus);
+  if (sendAdvance) {
+    await applyWorkflowTransition(estimate, sendAdvance, "proposal sent");
+  }
+
   revalidatePath(`/estimates/${estimate.id}`);
   revalidatePath("/estimates");
   revalidatePath("/");
@@ -788,6 +820,7 @@ export async function signEstimate(
       totalCents: true,
       signedAt: true,
       permitDocsAutoTrigger: true,
+      workflowStatus: true,
       client: { select: { name: true } },
     },
   });
@@ -820,6 +853,13 @@ export async function signEstimate(
       signedUserAgent: userAgent,
     },
   });
+
+  // Customer signature = job won at the document level → advance the
+  // workflow (forward-only) and seed the "accepted" stage's auto-tasks.
+  const signAdvance = workflowAdvanceOnAccept(estimate.workflowStatus);
+  if (signAdvance) {
+    await applyWorkflowTransition(estimate, signAdvance, "customer signed");
+  }
 
   await db.notification.create({
     data: {

@@ -3,6 +3,13 @@ import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { formatMoney, formatDate } from "@/lib/format";
 import { displayInvoiceStatus, isInvoiceOverdue } from "@/lib/invoiceMoney";
+import {
+  STAGE_LABELS,
+  TERMINAL_STAGES,
+  daysInStage,
+  isStuck,
+  type WorkflowStage,
+} from "@/lib/jobWorkflow";
 import { LinkButton } from "@/components/Button";
 import { StatusBadge } from "@/components/StatusBadge";
 
@@ -26,6 +33,8 @@ export default async function Dashboard() {
     estCount30,
     wonCount30,
     notifications,
+    openTasks,
+    activeJobs,
   ] = await Promise.all([
     db.estimate.findMany({
       where: { userId },
@@ -85,7 +94,32 @@ export default async function Dashboard() {
       orderBy: { createdAt: "desc" },
       take: 12,
     }),
+    // Open job tasks, soonest due first (nulls last by Prisma default asc)
+    db.jobTask.findMany({
+      where: { userId, completedAt: null },
+      orderBy: [{ dueAt: "asc" }, { createdAt: "asc" }],
+      take: 8,
+      include: { estimate: { select: { id: true, number: true } } },
+    }),
+    // Non-terminal jobs + their latest transition — powers stuck detection
+    // (days-in-stage from the last event INTO the current stage, per PS).
+    db.estimate.findMany({
+      where: { userId, workflowStatus: { notIn: [...TERMINAL_STAGES] } },
+      include: {
+        client: { select: { name: true } },
+        workflowEvents: { orderBy: { createdAt: "desc" }, take: 1 },
+      },
+    }),
   ]);
+
+  const stuckJobs = activeJobs
+    .map((e) => {
+      const enteredAt = e.workflowEvents[0]?.createdAt ?? e.createdAt;
+      return { est: e, enteredAt, days: daysInStage(enteredAt, now) };
+    })
+    .filter((j) => isStuck(j.est.workflowStatus, j.enteredAt, now))
+    .sort((a, b) => b.days - a.days)
+    .slice(0, 8);
 
   const outstandingCents =
     (openInvoiceAgg._sum.totalCents ?? 0) -
@@ -244,6 +278,66 @@ export default async function Dashboard() {
             <div className="text-xs text-slate-500 mt-1 uppercase tracking-wide font-semibold">
               All-time collected
             </div>
+          </Panel>
+
+          <Panel title="Open tasks">
+            {openTasks.length === 0 ? (
+              <p className="text-sm text-slate-500">Nothing open. ✓</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {openTasks.map((t) => {
+                  const overdueTask = t.dueAt != null && new Date(t.dueAt) < now;
+                  return (
+                    <li key={t.id} className="flex items-start gap-2">
+                      <span
+                        className={`shrink-0 ${overdueTask ? "text-red-600" : "text-slate-400"}`}
+                      >
+                        ☐
+                      </span>
+                      <Link
+                        href={`/estimates/${t.estimate.id}`}
+                        className="hover:text-brand"
+                      >
+                        {t.title}
+                        <span className="text-xs text-slate-400">
+                          {" "}
+                          · {t.estimate.number}
+                          {t.dueAt && ` · due ${formatDate(t.dueAt)}`}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel title="Stuck jobs">
+            {stuckJobs.length === 0 ? (
+              <p className="text-sm text-slate-500">
+                Nothing sitting too long. ✓
+              </p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {stuckJobs.map((j) => (
+                  <li key={j.est.id} className="flex items-start gap-2">
+                    <span className="text-amber-600 shrink-0">⏳</span>
+                    <Link
+                      href={`/estimates/${j.est.id}`}
+                      className="hover:text-brand"
+                    >
+                      <span className="font-mono">{j.est.number}</span> ·{" "}
+                      {j.est.client.name} —{" "}
+                      <span className="font-medium">
+                        {j.days}d in{" "}
+                        {STAGE_LABELS[j.est.workflowStatus as WorkflowStage] ??
+                          j.est.workflowStatus}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Panel>
 
           <Panel title="Needs follow-up">

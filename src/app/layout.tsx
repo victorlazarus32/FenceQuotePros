@@ -95,6 +95,7 @@ export default async function RootLayout({
                 <>
                   <NavLink href="/">{n.dashboard}</NavLink>
                   <NavLink href="/estimates">{n.estimates}</NavLink>
+                  <NavLink href="/jobs">{n.jobs}</NavLink>
                   <NavLink href="/scheduling">{n.schedule}</NavLink>
                   <NavLink href="/invoices">{n.invoices}</NavLink>
                   <NavLink href="/clients">{n.clients}</NavLink>

@@ -8,6 +8,7 @@ export const NAV_COPY: Record<
   {
     dashboard: string;
     estimates: string;
+    jobs: string;
     schedule: string;
     invoices: string;
     clients: string;
@@ -23,6 +24,7 @@ export const NAV_COPY: Record<
   en: {
     dashboard: "Dashboard",
     estimates: "Estimates",
+    jobs: "Jobs",
     schedule: "Schedule",
     invoices: "Invoices",
     clients: "Clients",
@@ -37,6 +39,7 @@ export const NAV_COPY: Record<
   es: {
     dashboard: "Tablero",
     estimates: "Cotizaciones",
+    jobs: "Trabajos",
     schedule: "Agenda",
     invoices: "Facturas",
     clients: "Clientes",
