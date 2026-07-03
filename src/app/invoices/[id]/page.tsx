@@ -9,11 +9,16 @@ import { PrintButton } from "@/components/PrintButton";
 import { DocWatermark } from "@/components/DocWatermark";
 import { SendInvoiceButton } from "@/components/SendInvoiceButton";
 import { StatusBadge } from "@/components/StatusBadge";
-import { displayInvoiceStatus } from "@/lib/invoiceMoney";
+import { computeDepositCents, type DepositMode } from "@/lib/deposit";
+import {
+  depositShortfallCents,
+  displayInvoiceStatus,
+} from "@/lib/invoiceMoney";
 import { setInvoiceStatus } from "../actions";
 import { PaymentForm } from "./PaymentForm";
 import { VoidInvoiceForm } from "./VoidInvoiceForm";
 import { CorrectPaymentForm } from "./CorrectPaymentForm";
+import { DepositQuickCollect } from "./DepositQuickCollect";
 
 export default async function InvoiceDetailPage(
   props: PageProps<"/invoices/[id]">,
@@ -27,10 +32,31 @@ export default async function InvoiceDetailPage(
       user: true,
       lineItems: { orderBy: { sortOrder: "asc" } },
       payments: { orderBy: { receivedAt: "desc" } },
-      estimate: { select: { id: true, number: true } },
+      estimate: {
+        select: {
+          id: true,
+          number: true,
+          totalCents: true,
+          depositMode: true,
+          depositPercent: true,
+          depositFixedCents: true,
+        },
+      },
     },
   });
   if (!inv || inv.userId !== userId) notFound();
+
+  // Deposit quick-collect: shortfall to reach the linked estimate's deposit.
+  const depositShortfall = inv.estimate
+    ? depositShortfallCents(
+        computeDepositCents(inv.estimate.totalCents, {
+          mode: inv.estimate.depositMode as DepositMode,
+          percent: inv.estimate.depositPercent,
+          fixedCents: inv.estimate.depositFixedCents,
+        }),
+        inv.paidCents,
+      )
+    : 0;
 
   const remaining = Math.max(0, inv.totalCents - inv.paidCents);
   const isVoid = inv.status === "void";
@@ -298,6 +324,14 @@ export default async function InvoiceDetailPage(
 
       <section className="no-print bg-white rounded-lg border border-line p-6">
         <h2 className="h-card mb-4">Record a payment</h2>
+        {!isVoid && depositShortfall > 0 && (
+          <div className="mb-4">
+            <DepositQuickCollect
+              invoiceId={inv.id}
+              shortfallDisplay={formatMoney(depositShortfall)}
+            />
+          </div>
+        )}
         {isVoid ? (
           <p className="text-sm text-slate-500">
             Void invoice — payments can&apos;t be recorded.

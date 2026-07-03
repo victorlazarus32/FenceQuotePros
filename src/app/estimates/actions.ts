@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { renderTemplate } from "@/lib/contractTemplates";
+import { computeDepositCents, type DepositMode } from "@/lib/deposit";
 import { proposalEmail } from "@/lib/emailTemplates";
 import {
   workflowAdvanceOnAccept,
@@ -408,6 +410,38 @@ export async function createEstimate(
 
   const number = await nextEstimateNumber(userId);
 
+  // No terms typed? Fall back to the default-for-estimates template from
+  // the terms library, rendered with this estimate's real figures.
+  let terms = data.terms || null;
+  if (!terms) {
+    const defaultTemplate = await db.contractTemplate.findFirst({
+      where: { userId, isDefaultEstimate: true },
+    });
+    if (defaultTemplate) {
+      const [client, user] = await Promise.all([
+        db.client.findUnique({ where: { id: clientId }, select: { name: true } }),
+        db.user.findUnique({ where: { id: userId }, select: { companyName: true, name: true } }),
+      ]);
+      const depositCents = computeDepositCents(totalCents, {
+        mode: data.depositMode as DepositMode,
+        percent: data.depositPercent,
+        fixedCents: Math.round(data.depositFixedDollars * 100),
+      });
+      terms = renderTemplate(defaultTemplate.body, {
+        client_name: client?.name,
+        company: user?.companyName ?? user?.name,
+        number,
+        total: formatMoney(totalCents),
+        deposit: formatMoney(depositCents),
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      });
+    }
+  }
+
   const created = await db.estimate.create({
     data: {
       userId,
@@ -417,7 +451,7 @@ export async function createEstimate(
       issueDate: new Date(),
       expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
       notes: data.notes || null,
-      terms: data.terms || null,
+      terms,
       subtotalCents,
       taxRate,
       taxCents,
@@ -565,6 +599,45 @@ export async function convertEstimateToInvoice(
   const due = new Date();
   due.setDate(due.getDate() + 30);
 
+  // Estimate carried no terms? Fall back to the default-for-invoices
+  // template, rendered with the invoice's real figures.
+  let invoiceTerms = est.terms;
+  if (!invoiceTerms) {
+    const defaultTemplate = await db.contractTemplate.findFirst({
+      where: { userId, isDefaultInvoice: true },
+    });
+    if (defaultTemplate) {
+      const [client, user] = await Promise.all([
+        db.client.findUnique({
+          where: { id: est.clientId },
+          select: { name: true },
+        }),
+        db.user.findUnique({
+          where: { id: userId },
+          select: { companyName: true, name: true },
+        }),
+      ]);
+      invoiceTerms = renderTemplate(defaultTemplate.body, {
+        client_name: client?.name,
+        company: user?.companyName ?? user?.name,
+        number,
+        total: formatMoney(est.totalCents),
+        deposit: formatMoney(
+          computeDepositCents(est.totalCents, {
+            mode: est.depositMode as DepositMode,
+            percent: est.depositPercent,
+            fixedCents: est.depositFixedCents,
+          }),
+        ),
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      });
+    }
+  }
+
   const invoice = await db.invoice.create({
     data: {
       userId,
@@ -575,7 +648,7 @@ export async function convertEstimateToInvoice(
       issueDate: new Date(),
       dueDate: due,
       notes: est.notes,
-      terms: est.terms,
+      terms: invoiceTerms,
       subtotalCents: est.subtotalCents,
       taxRate: est.taxRate,
       taxCents: est.taxCents,

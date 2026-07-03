@@ -7,10 +7,12 @@ import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { dollarsToCents, formatMoney } from "@/lib/format";
 import { invoiceEmail } from "@/lib/emailTemplates";
+import { computeDepositCents, type DepositMode } from "@/lib/deposit";
 import {
   applyPayment,
   canSendInvoice,
   correctionDeltaCents,
+  depositShortfallCents,
   setExactPaid,
   voidInvoice,
 } from "@/lib/invoiceMoney";
@@ -177,6 +179,77 @@ export async function correctPaidAmount(
   return {
     message: `Recorded total corrected to ${formatMoney(result.paidCents)}.`,
   };
+}
+
+// ─── One-click deposit collection ────────────────────────────────
+// PS rule: "record deposit" pays the SHORTFALL to reach the deposit figure
+// (deposit − already-paid), never a fixed amount. On a draft it marks the
+// invoice sent first — collecting a deposit implies the bill went out.
+
+export type DepositActionState = { message?: string };
+
+export async function recordDepositShortfall(
+  _prev: DepositActionState,
+  formData: FormData,
+): Promise<DepositActionState> {
+  const userId = await getCurrentUserId();
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  const method = String(formData.get("method") ?? "other");
+  const inv = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      estimate: {
+        select: {
+          totalCents: true,
+          depositMode: true,
+          depositPercent: true,
+          depositFixedCents: true,
+        },
+      },
+    },
+  });
+  if (!inv || inv.userId !== userId) return { message: "Not found" };
+  if (!inv.estimate) {
+    return { message: "No linked estimate — record a normal payment instead." };
+  }
+
+  const depositCents = computeDepositCents(inv.estimate.totalCents, {
+    mode: inv.estimate.depositMode as DepositMode,
+    percent: inv.estimate.depositPercent,
+    fixedCents: inv.estimate.depositFixedCents,
+  });
+  const shortfall = depositShortfallCents(depositCents, inv.paidCents);
+  if (shortfall === 0) {
+    return { message: "Deposit is already covered." };
+  }
+
+  // Draft → sent first (PS behavior), then apply the shortfall payment.
+  const statusForPayment = inv.status === "draft" ? "sent" : inv.status;
+  const result = applyPayment(
+    { status: statusForPayment, totalCents: inv.totalCents, paidCents: inv.paidCents },
+    shortfall,
+  );
+  if (!result.ok) return { message: result.reason };
+
+  await db.$transaction([
+    db.payment.create({
+      data: {
+        invoiceId: inv.id,
+        amountCents: shortfall,
+        method,
+        notes: `Deposit (${formatMoney(depositCents)} due)`,
+      },
+    }),
+    db.invoice.update({
+      where: { id: inv.id },
+      data: { paidCents: result.paidCents, status: result.status },
+    }),
+  ]);
+
+  revalidatePath(`/invoices/${inv.id}`);
+  revalidatePath("/invoices");
+  revalidatePath("/");
+  return { message: `Deposit recorded: ${formatMoney(shortfall)}.` };
 }
 
 // ─── Send invoice to the customer ────────────────────────────────

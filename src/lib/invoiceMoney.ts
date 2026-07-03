@@ -127,6 +127,17 @@ export function correctionDeltaCents(
   return exactCents - currentPaidCents;
 }
 
+// ── Deposit shortfall ──
+// PS rule: "record deposit" pays the SHORTFALL to reach the deposit figure,
+// not a fixed amount — if the customer already paid part of it, only the
+// remainder is collected; if the deposit is already covered, nothing is due.
+export function depositShortfallCents(
+  depositCents: number,
+  paidCents: number,
+): number {
+  return Math.max(0, depositCents - paidCents);
+}
+
 // ── Void ──
 export type VoidResult =
   | { changed: false }

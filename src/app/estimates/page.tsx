@@ -15,9 +15,17 @@ export default async function EstimatesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-2xl font-semibold tracking-tight">Estimates</h1>
-        <LinkButton href="/estimates/new">+ New project</LinkButton>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/contracts"
+            className="text-sm text-slate-600 hover:text-brand font-medium"
+          >
+            Terms library
+          </Link>
+          <LinkButton href="/estimates/new">+ New project</LinkButton>
+        </div>
       </div>
 
       {estimates.length === 0 ? (

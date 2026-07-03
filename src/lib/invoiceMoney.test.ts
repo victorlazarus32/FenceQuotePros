@@ -5,6 +5,7 @@ import {
   canRecordPayment,
   canSendInvoice,
   correctionDeltaCents,
+  depositShortfallCents,
   displayInvoiceStatus,
   isInvoiceOverdue,
   setExactPaid,
@@ -177,6 +178,19 @@ describe("setExactPaid (correction path)", () => {
     expect(correctionDeltaCents(9_000, 4_500)).toBe(-4_500); // negative adjustment row
     expect(correctionDeltaCents(0, 2_000)).toBe(2_000);
     expect(correctionDeltaCents(5_000, 5_000)).toBe(0);
+  });
+});
+
+describe("depositShortfallCents (deposit = shortfall, not fixed amount)", () => {
+  it("nothing paid → full deposit due", () => {
+    expect(depositShortfallCents(5_000, 0)).toBe(5_000);
+  });
+  it("partially covered → only the remainder", () => {
+    expect(depositShortfallCents(5_000, 2_000)).toBe(3_000);
+  });
+  it("already covered (or overpaid) → zero due", () => {
+    expect(depositShortfallCents(5_000, 5_000)).toBe(0);
+    expect(depositShortfallCents(5_000, 9_000)).toBe(0);
   });
 });
 

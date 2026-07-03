@@ -45,6 +45,27 @@ model User {
   hoaTemplates  HoaApplicationTemplate[]
   resetTokens   PasswordResetToken[]
   tasks         JobTask[]
+  contractTemplates ContractTemplate[]
+}
+
+// Reusable terms / scope-of-work blocks (PS contracts pattern). Bodies
+// support {{variables}} rendered at apply time; unknown variables stay
+// visible in the output so gaps are obvious, never silent. Radio-default
+// semantics: at most ONE default for estimates and ONE for invoices per
+// user — enforced in the action (clear-then-set transaction).
+model ContractTemplate {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  body              String
+  isDefaultEstimate Boolean  @default(false)
+  isDefaultInvoice  Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId, sortOrder])
 }
 
 model Client {
