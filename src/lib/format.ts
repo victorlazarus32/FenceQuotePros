@@ -36,6 +36,8 @@ export function statusColor(status: string): string {
     case "declined":
     case "overdue":
       return "bg-red-100 text-red-700";
+    case "void":
+      return "bg-slate-200 text-slate-500 line-through";
     case "partial":
       return "bg-yellow-100 text-yellow-700";
     case "expired":

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { formatMoney, formatDate } from "@/lib/format";
+import { displayInvoiceStatus, isInvoiceOverdue } from "@/lib/invoiceMoney";
 import { LinkButton } from "@/components/Button";
 import { StatusBadge } from "@/components/StatusBadge";
 
@@ -18,6 +19,7 @@ export default async function Dashboard() {
   const [
     estimates,
     invoices,
+    openInvoices,
     openInvoiceAgg,
     paidInvoiceAgg,
     bookedWeekAgg,
@@ -37,10 +39,17 @@ export default async function Dashboard() {
       take: 5,
       include: { client: { select: { name: true } } },
     }),
+    // ALL money-open invoices — overdue $ and the overdue list are derived
+    // from this full set, not the 5 most-recent (which silently undercounted
+    // overdue whenever an old invoice aged out of the recency window).
+    db.invoice.findMany({
+      where: { userId, status: { in: ["sent", "partial"] } },
+      include: { client: { select: { name: true } } },
+    }),
     db.invoice.aggregate({
       where: {
         userId,
-        status: { in: ["sent", "partial", "overdue"] },
+        status: { in: ["sent", "partial"] },
       },
       _sum: { totalCents: true, paidCents: true },
     }),
@@ -81,13 +90,10 @@ export default async function Dashboard() {
   const outstandingCents =
     (openInvoiceAgg._sum.totalCents ?? 0) -
     (openInvoiceAgg._sum.paidCents ?? 0);
-  const overdueCents = invoices
-    .filter(
-      (i) =>
-        (i.status === "sent" || i.status === "partial") &&
-        i.dueDate != null &&
-        new Date(i.dueDate) < now,
-    )
+  // Shared derived-overdue predicate (lib/invoiceMoney) over the FULL open
+  // set — void and paid can never appear here.
+  const overdueCents = openInvoices
+    .filter((i) => isInvoiceOverdue(i, now))
     .reduce((sum, i) => sum + (i.totalCents - i.paidCents), 0);
 
   const openEstimateCount = estimates.filter(
@@ -98,11 +104,8 @@ export default async function Dashboard() {
   const bookedWeekCount = bookedWeekAgg._count;
   const paidLifetimeCents = paidInvoiceAgg._sum.totalCents ?? 0;
 
-  const overdueInvoices = invoices.filter(
-    (i) =>
-      (i.status === "sent" || i.status === "partial") &&
-      i.dueDate != null &&
-      new Date(i.dueDate) < now,
+  const overdueInvoices = openInvoices.filter((i) =>
+    isInvoiceOverdue(i, now),
   );
   const agingEstimates = estimates.filter((e) => {
     if (e.status !== "sent") return false;
@@ -122,7 +125,7 @@ export default async function Dashboard() {
             {greeting}
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Here's what's moving today.
+            Here&apos;s what&apos;s moving today.
           </p>
         </div>
         <div className="flex gap-2">
@@ -368,7 +371,7 @@ export default async function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <StatusBadge status={inv.status} />
+                    <StatusBadge status={displayInvoiceStatus(inv, now)} />
                     <span className="font-mono tabular-nums font-semibold">
                       {formatMoney(inv.totalCents)}
                     </span>

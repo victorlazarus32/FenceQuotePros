@@ -198,6 +198,10 @@ model Invoice {
   taxCents      Int        @default(0)
   totalCents    Int        @default(0)
   paidCents     Int        @default(0)
+  // Void is terminal and idempotent. Reason + timestamp are first-class
+  // columns (not note-munging) so voids are auditable and filterable.
+  voidedAt      DateTime?
+  voidReason    String?
   // Public share link (/p/inv/<token>) — set on first send, like Estimate.
   shareToken    String?    @unique
   createdAt     DateTime   @default(now())
