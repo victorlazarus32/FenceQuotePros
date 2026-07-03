@@ -208,6 +208,7 @@ model Estimate {
   workflowEvents WorkflowEvent[]
   tasks         JobTask[]
 
+  @@unique([userId, number])
   @@index([userId, status])
   @@index([userId, workflowStatus])
 }
@@ -277,6 +278,7 @@ model Invoice {
   payments      Payment[]
   emails        EmailMessage[]
 
+  @@unique([userId, number])
   @@index([userId, status])
 }
 
