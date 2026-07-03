@@ -94,8 +94,24 @@ export interface PermitDocTemplate {
   signatures: SignatureSlot[];
   requiresOwnerSignature: boolean;
   requiresContractorSignature: boolean;
+  /**
+   * True for documents Miami-Dade requires to be NOTARIZED (the two
+   * affidavits). The in-app drawn signature does NOT satisfy notarization —
+   * the UI must show NOTARIZATION_DISCLAIMER wherever these are signed.
+   */
+  requiresNotarization?: boolean;
   appliesTo(ctx: PermitDocAppliesContext): boolean;
 }
+
+// Shown wherever a notarization-required affidavit is signed or downloaded.
+// DRAFT language — flagged for attorney review before public launch; keep
+// the substance (drawn signature ≠ notarized instrument) intact.
+export const NOTARIZATION_DISCLAIMER =
+  "Important: Miami-Dade County requires this affidavit to be NOTARIZED. " +
+  "The electronic signature captured here prepares the form but does not " +
+  "replace notarization — sign the printed document before a notary public " +
+  "(or use a Florida-approved online notary) before submitting it with your " +
+  "permit application.";
 
 export interface PermitDocAppliesContext {
   fenceType: string;
@@ -356,6 +372,7 @@ const MDC_FINISHED_SIDE_AFFIDAVIT: PermitDocTemplate = {
   sourcePdfFilename: "fence-waiver-finished-side.pdf",
   requiresOwnerSignature: true,
   requiresContractorSignature: false,
+  requiresNotarization: true,
   fields: [
     // Top of form — neighbor's name + property address
     { formFieldName: "undefined", label: "Neighbor's name (line 1)", promptHuman: true, placeholder: "Neighbor's full name" },
@@ -395,6 +412,7 @@ const MDC_HEIGHT_EXTENSION_AFFIDAVIT: PermitDocTemplate = {
   sourcePdfFilename: "affidavit-extend-height.pdf",
   requiresOwnerSignature: true,
   requiresContractorSignature: false,
+  requiresNotarization: true,
   fields: [
     { formFieldName: "Text17", label: "Property address", defaultFrom: "jobAddressFull" },
     { formFieldName: "Text18", label: "Owner's name", defaultFrom: "ownerName" },

@@ -36,6 +36,12 @@ export async function renderExecutedPdf(
   const form = pdfDoc.getForm();
 
   // ── Fill text/checkbox/dropdown fields by name ──
+  // STRICT by default: a field that HAS a value but whose name doesn't match
+  // the source PDF is a mapping bug that would otherwise ship a silently
+  // blank county filing. Collect every miss and fail the render (the caller
+  // marks the document "render_failed"). Set PERMIT_FILL_LENIENT=1 to fall
+  // back to warn-and-continue while debugging a new form revision.
+  const fillFailures: string[] = [];
   for (const f of template.fields) {
     const value = f.staticValue ?? fieldValues[fieldKey(f)];
     if (value === undefined || value === null || value === "") continue;
@@ -57,11 +63,17 @@ export async function renderExecutedPdf(
         }
       }
     } catch (err) {
-      // Field name doesn't match the source PDF — skip rather than crash.
+      fillFailures.push(`"${f.formFieldName}" (${kind}, ${f.label})`);
       console.warn(
         `[permit-doc:${template.slug}] Could not set field "${f.formFieldName}" (${kind}): ${(err as Error).message}`,
       );
     }
+  }
+  if (fillFailures.length > 0 && process.env.PERMIT_FILL_LENIENT !== "1") {
+    throw new Error(
+      `[permit-doc:${template.slug}] ${fillFailures.length} field(s) failed to fill — refusing to render a partially blank county form: ${fillFailures.join(", ")}. ` +
+        `Fix the field mapping against the current source PDF (or set PERMIT_FILL_LENIENT=1 to bypass while debugging).`,
+    );
   }
 
   // ── Embed signatures into named signature widgets ──

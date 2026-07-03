@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Free fence quote — Allday Fence Co.</title>
+  <title>Free fence quote</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Saira+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
@@ -268,17 +268,25 @@
 
     <div id="success" class="ok">
       <strong data-i18n="ok_title">Thanks — got it.</strong>
-      <div data-i18n="ok_body" style="margin-top:6px">A team member will call within one business day. Urgent? <a href="tel:+13059106601" style="color:#065f46;font-weight:600">305.910.6601</a>.</div>
+      <div style="margin-top:6px"><span data-i18n="ok_body">A team member will call within one business day.</span> <a id="urgentPhone" style="color:#065f46;font-weight:600;display:none"></a></div>
     </div>
   </div>
 
 <script>
 (function () {
   // ====== CONFIG ======
-  // Lead-intake endpoint that accepts multipart/form-data POST. If blank,
-  // falls back to mailto: with a pre-filled body.
-  var ENDPOINT = "";
-  var FALLBACK_EMAIL = "info@alldayfence.com";
+  // Tenant config arrives via query params so ONE widget file serves any
+  // contractor (this is a multi-tenant product — no company is hardcoded):
+  //   ?company=Your+Fence+Co&phone=305.555.0100&email=leads@yourfence.co&site=yourfence.co
+  // ENDPOINT: lead-intake URL accepting multipart/form-data POST. If blank,
+  // falls back to mailto: using ?email= (no email either → error message).
+  var qs = new URLSearchParams(location.search);
+  var ENDPOINT = qs.get("endpoint") || "";
+  var COMPANY = qs.get("company") || "";
+  var PHONE = qs.get("phone") || "";
+  var FALLBACK_EMAIL = qs.get("email") || "";
+  var SITE = qs.get("site") || location.hostname || "embed";
+  if (COMPANY) document.title = "Free fence quote — " + COMPANY;
   // ====================
 
   var I18N = {
@@ -302,9 +310,13 @@
       btn: "Get my free quote →",
       footer: "No spam. We reply within 1 business day.",
       ok_title: "Thanks — got it.",
-      ok_body: "A team member will call within one business day. Urgent? ",
+      ok_body: PHONE
+        ? "A team member will call within one business day. Urgent?"
+        : "A team member will reach out within one business day.",
       err_required: "Please fill in the required fields.",
-      err_send: "Couldn't send. Please call 305.910.6601.",
+      err_send: PHONE
+        ? "Couldn't send. Please call " + PHONE + "."
+        : "Couldn't send. Please try again.",
       lang_to: "Español",
     },
     es: {
@@ -327,9 +339,13 @@
       btn: "Solicitar presupuesto →",
       footer: "Sin spam. Respondemos en 1 día hábil.",
       ok_title: "Gracias — recibido.",
-      ok_body: "Un miembro del equipo te llamará en un día hábil. ¿Urgente? ",
+      ok_body: PHONE
+        ? "Un miembro del equipo te llamará en un día hábil. ¿Urgente?"
+        : "Un miembro del equipo te contactará en un día hábil.",
       err_required: "Por favor completa los campos requeridos.",
-      err_send: "No se pudo enviar. Llama al 305.910.6601.",
+      err_send: PHONE
+        ? "No se pudo enviar. Llama al " + PHONE + "."
+        : "No se pudo enviar. Inténtalo de nuevo.",
       lang_to: "English",
     },
   };
@@ -358,6 +374,14 @@
   });
   applyLang();
 
+  // Tenant phone in the success box (hidden when no ?phone= was supplied).
+  var urgentPhone = document.getElementById("urgentPhone");
+  if (PHONE && urgentPhone) {
+    urgentPhone.href = "tel:+1" + PHONE.replace(/\D/g, "");
+    urgentPhone.textContent = PHONE;
+    urgentPhone.style.display = "";
+  }
+
   var poolBox = document.querySelector('input[name="poolAdjacent"]');
   var poolNote = document.getElementById("poolNote");
   poolBox.addEventListener("change", function () {
@@ -380,7 +404,8 @@
     }
 
     var fd = new FormData(form);
-    fd.append("source", "alldayfence.com embed");
+    fd.append("source", SITE + " embed");
+    if (COMPANY) fd.append("company", COMPANY);
     fd.append("submitted_at", new Date().toISOString());
     fd.append("lang", lang);
 
@@ -399,7 +424,7 @@
           errBox.style.display = "";
           btn.disabled = false;
         });
-    } else {
+    } else if (FALLBACK_EMAIL) {
       var lines = [];
       fd.forEach(function (v, k) {
         lines.push(k + ": " + v);
@@ -411,6 +436,11 @@
         "&body=" + encodeURIComponent(lines.join("\n"));
       form.style.display = "none";
       successBox.style.display = "";
+    } else {
+      // No endpoint and no tenant email configured — nowhere to send.
+      errBox.textContent = I18N[lang].err_send;
+      errBox.style.display = "";
+      btn.disabled = false;
     }
   });
 })();

@@ -43,6 +43,7 @@ model User {
   notifications Notification[]
   crews         Crew[]
   hoaTemplates  HoaApplicationTemplate[]
+  resetTokens   PasswordResetToken[]
 }
 
 model Client {
@@ -197,10 +198,13 @@ model Invoice {
   taxCents      Int        @default(0)
   totalCents    Int        @default(0)
   paidCents     Int        @default(0)
+  // Public share link (/p/inv/<token>) — set on first send, like Estimate.
+  shareToken    String?    @unique
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   lineItems     LineItem[]
   payments      Payment[]
+  emails        EmailMessage[]
 
   @@index([userId, status])
 }
@@ -329,6 +333,8 @@ model EmailMessage {
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   estimateId String?
   estimate   Estimate? @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  invoiceId  String?
+  invoice    Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   // What kind of email — "proposal" (initial send), "follow_up_*"
   // (auto-triggered product info letter), "invoice", "reminder", etc.
   kind       String
@@ -350,6 +356,32 @@ model EmailMessage {
 
   @@index([userId, queuedAt])
   @@index([estimateId])
+  @@index([invoiceId])
+}
+
+// Password-reset flow. We store only the SHA-256 hash of the emailed token —
+// a DB leak can't be replayed into account takeovers. Single-use + 1h expiry.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Failed-login tracking for rate limiting. DB-backed (not in-memory) because
+// Vercel serverless gives no shared process. Rows are pruned on successful
+// login; the window query is cheap via the (key, createdAt) index.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  key       String // normalized email
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
 }
 
 // Public-link view of an estimate via /p/<shareToken>. Each render of the

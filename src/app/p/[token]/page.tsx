@@ -11,6 +11,7 @@ import { db } from "@/lib/db";
 import { computeDepositCents } from "@/lib/deposit";
 import type { DepositMode } from "@/lib/deposit";
 import { followUpEmail } from "@/lib/emailTemplates";
+import { deliverEmailMessage, isMailConfigured } from "@/lib/mail";
 import type { FenceType } from "@/lib/fence";
 import { formatDate, formatMoney } from "@/lib/format";
 import { SignatureBlock } from "@/components/SignatureBlock";
@@ -123,7 +124,7 @@ export default async function PublicEstimatePage(
           fenceType: fenceJob.fenceType as FenceType,
           shareUrl: `${baseUrl}/p/${token}`,
         });
-        await db.emailMessage.create({
+        const followUpRow = await db.emailMessage.create({
           data: {
             userId: est.userId,
             estimateId: est.id,
@@ -136,12 +137,21 @@ export default async function PublicEstimatePage(
             status: "queued",
           },
         });
+        const followUpDelivery = await deliverEmailMessage(followUpRow.id);
         await db.notification.create({
           data: {
             userId: est.userId,
-            kind: "follow_up_queued",
-            title: `Follow-up letter queued for ${est.client.name}`,
-            body: `Auto-generated product info for ${fenceJob.fenceType.replace("_", " ")} — sits in the email queue until a real sender is configured.`,
+            kind: followUpDelivery.delivered
+              ? "follow_up_sent"
+              : "follow_up_queued",
+            title: followUpDelivery.delivered
+              ? `Follow-up letter sent to ${est.client.name}`
+              : `Follow-up letter queued for ${est.client.name}`,
+            body: followUpDelivery.delivered
+              ? `Auto product info for ${fenceJob.fenceType.replace("_", " ")} emailed after their first view.`
+              : isMailConfigured()
+                ? `Auto follow-up for ${fenceJob.fenceType.replace("_", " ")} FAILED to send: ${followUpDelivery.error ?? "unknown"}.`
+                : `Auto-generated product info for ${fenceJob.fenceType.replace("_", " ")} — sits in the email queue until RESEND_API_KEY is configured.`,
             estimateId: est.id,
             channels: "in_app",
           },

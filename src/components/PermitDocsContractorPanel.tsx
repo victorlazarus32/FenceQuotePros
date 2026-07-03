@@ -260,6 +260,13 @@ function DocRowView({
           <div className="font-semibold text-sm text-ink">
             {row.templateName}
           </div>
+          {row.templateSlug.includes("affidavit") && (
+            <div className="mt-1 text-[11px] leading-snug text-amber-800 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+              Requires notarization — the e-signature prepares the form but the
+              printed affidavit must be signed before a notary (or FL-approved
+              online notary) before county submission.
+            </div>
+          )}
           <div className="text-xs text-slate-600 mt-1 space-y-0.5">
             <div className="flex items-center gap-2">
               <Pill ok={ownerDone}>

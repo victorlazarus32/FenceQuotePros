@@ -44,6 +44,7 @@ export default async function PermitDocSignPage(
   let displayDescription: string;
   let blankFormHref: string | null;
   let promptedFields: PermitDocField[];
+  let requiresNotarization = false;
 
   if (slug === "hoa_application") {
     if (!document.hoaTemplateId) notFound();
@@ -75,6 +76,7 @@ export default async function PermitDocSignPage(
     displayDescription = template.description;
     blankFormHref = `/forms/${template.sourcePdfFilename}`;
     promptedFields = template.fields.filter((f) => f.promptHuman);
+    requiresNotarization = Boolean(template.requiresNotarization);
   }
 
   const initialFieldValues: Record<string, string> = document.fieldValues
@@ -117,6 +119,17 @@ export default async function PermitDocSignPage(
             <p className="text-sm text-slate-700 leading-relaxed">
               {displayDescription}
             </p>
+
+            {requiresNotarization && (
+              <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <span className="font-semibold">
+                  {lang === "es" ? "Importante: " : "Important: "}
+                </span>
+                {lang === "es"
+                  ? "El Condado de Miami-Dade exige que esta declaración jurada sea NOTARIADA. La firma electrónica capturada aquí prepara el formulario pero no reemplaza la notarización — firme el documento impreso ante un notario público (o use un notario en línea aprobado por Florida) antes de presentarlo con su solicitud de permiso."
+                  : "Miami-Dade County requires this affidavit to be NOTARIZED. The electronic signature captured here prepares the form but does not replace notarization — sign the printed document before a notary public (or use a Florida-approved online notary) before submitting it with your permit application."}
+              </div>
+            )}
 
             {blankFormHref && (
               <div className="rounded border border-line bg-slate-50 p-4 text-sm">
