@@ -11,6 +11,7 @@ export const NAV_COPY: Record<
     jobs: string;
     schedule: string;
     invoices: string;
+    reports: string;
     clients: string;
     profile: string;
     signOut: string;
@@ -27,6 +28,7 @@ export const NAV_COPY: Record<
     jobs: "Jobs",
     schedule: "Schedule",
     invoices: "Invoices",
+    reports: "Reports",
     clients: "Clients",
     profile: "Profile",
     signOut: "Sign out",
@@ -42,6 +44,7 @@ export const NAV_COPY: Record<
     jobs: "Trabajos",
     schedule: "Agenda",
     invoices: "Facturas",
+    reports: "Reportes",
     clients: "Clientes",
     profile: "Perfil",
     signOut: "Cerrar sesión",
