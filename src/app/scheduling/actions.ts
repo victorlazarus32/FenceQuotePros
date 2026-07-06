@@ -156,13 +156,11 @@ export async function unscheduleInstall(estimateId: string): Promise<void> {
 
 // ── Status transitions ───────────────────────────────────────────
 
-const STATUSES = [
-  "unscheduled",
-  "scheduled",
-  "in_progress",
-  "completed",
-] as const;
-type InstallStatus = (typeof STATUSES)[number];
+type InstallStatus =
+  | "unscheduled"
+  | "scheduled"
+  | "in_progress"
+  | "completed";
 
 export async function setJobStatus(
   fenceJobId: string,

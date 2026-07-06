@@ -21,10 +21,12 @@ import { nextEstimateNumber, nextInvoiceNumber } from "@/lib/numbering";
 import { generateShareToken } from "@/lib/tokens";
 import {
   calculateFenceJob,
+  gateCountSummary,
   type AccessType,
   type FenceCalcInput,
   type FenceType,
   type GateMotor,
+  type GateSpec,
   type GateStyle,
   type LaborConfig,
   type MarginConfig,
@@ -64,6 +66,18 @@ const GATE_MOTORS = [
   "solar",
   "hydraulic",
 ] as const satisfies readonly GateMotor[];
+
+// Per-gate specs — posted by the builder as a JSON-encoded hidden input
+// ("gatesJson"), one entry per gate group. "none" is not a per-gate style;
+// no gates = empty array.
+const GateSpecSchema = z.object({
+  style: z.enum(["swing_walk", "swing_drive", "sliding", "cantilever", "bi_parting"]),
+  widthFeet: z.number().min(2).max(60),
+  motor: z.enum(GATE_MOTORS),
+  qty: z.number().int().min(1).max(20),
+}) satisfies z.ZodType<GateSpec>;
+
+const GatesArraySchema = z.array(GateSpecSchema).max(25);
 
 const SOIL_TYPES = ["sand", "clay", "rock"] as const satisfies readonly SoilType[];
 const ACCESS_TYPES = [
@@ -224,14 +238,31 @@ function parseFenceJob(formData: FormData) {
     purpose: formData.get("purpose") || undefined,
   });
   if (!parsed.success) return null;
-  return parsed.data;
+
+  // Per-gate specs ride along as a JSON hidden input. When present they are
+  // the source of truth — the legacy count/style/motor fields are derived
+  // from them, not trusted from the form. A malformed payload degrades to
+  // the posted legacy fields rather than dropping the whole fence job.
+  let gates: GateSpec[] | undefined;
+  const rawGates = formData.get("gatesJson");
+  if (typeof rawGates === "string" && rawGates.trim() !== "") {
+    try {
+      gates = GatesArraySchema.parse(JSON.parse(rawGates));
+    } catch {
+      gates = undefined;
+    }
+  }
+  if (gates) {
+    return { ...parsed.data, ...gateCountSummary(gates), gates };
+  }
+  return { ...parsed.data, gates };
 }
+
+type ParsedFenceJob = z.infer<typeof FenceJobSchema> & { gates?: GateSpec[] };
 
 // Builds a FenceCalcInput from the parsed form data — assembles labor /
 // pricing config objects from the flat form fields.
-function buildCalcInput(
-  data: z.infer<typeof FenceJobSchema>,
-): FenceCalcInput {
+function buildCalcInput(data: ParsedFenceJob): FenceCalcInput {
   const labor: LaborConfig =
     data.laborMode === "per_hour"
       ? {
@@ -274,6 +305,7 @@ function buildCalcInput(
     access: data.access,
     poolAdjacent: data.poolAdjacent,
     hvhz: data.hvhz,
+    gates: data.gates,
     gateStyle: data.gateStyle,
     gateMotor: data.gateMotor,
     style: data.style || undefined,
@@ -490,7 +522,8 @@ export async function createEstimate(
                 style: fenceJob.style || null,
                 color: fenceJob.color || null,
                 purpose: fenceJob.purpose ?? null,
-                // Gates
+                // Gates — per-gate specs plus derived legacy summaries
+                gates: fenceJob.gates ?? undefined,
                 gateStyle: fenceJob.gateStyle,
                 gateMotor: fenceJob.gateMotor,
                 // Permits & engineering

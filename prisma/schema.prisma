@@ -331,6 +331,10 @@ model FenceJob {
   // side, "both" = two-sided construction (shadowbox / board-on-board).
   finishedSide           String?
   // Gates (§3.4)
+  // Per-gate specs: [{style, widthFeet, motor, qty}, ...] — source of truth
+  // when present. gateStyle/gateMotor and numGatesSingle/numGatesDouble are
+  // derived summaries kept for legacy rows and coarse consumers.
+  gates                  Json?
   gateStyle              String   @default("swing_walk")
   gateMotor              String   @default("none")
   // Permits & engineering (§3.9)

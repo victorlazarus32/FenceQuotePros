@@ -31,20 +31,24 @@ import {
   COLOR_OPTIONS_BY_TYPE,
   FENCE_TYPE_LABELS,
   GATE_MOTOR_LABELS,
+  GATE_STANDARD_WIDTH_FEET,
   GATE_STYLE_LABELS,
   QUICK_ADD_PRESETS,
   SOIL_LABELS,
   STYLE_OPTIONS_BY_TYPE,
   analyzeCompliance,
   calculateFenceJob,
+  defaultGateSpec,
   defaultLaborConfig,
   finishedSideApplies,
+  gateCountSummary,
   reconcileStyleColor,
   type AccessType,
+  type ChoosableGateStyle,
   type FenceCalcInput,
   type FenceType,
   type GateMotor,
-  type GateStyle,
+  type GateSpec,
   type MarginConfig,
   type SoilType,
 } from "@/lib/fence";
@@ -292,6 +296,9 @@ export function NewEstimateForm({
       access: "easy",
       poolAdjacent: false,
       hvhz: true,
+      // One default walk gate — most jobs have at least one. The legacy
+      // count/style/motor fields are kept in sync by setGates().
+      gates: [defaultGateSpec()],
       gateStyle: "swing_walk",
       gateMotor: "none",
       style: undefined,
@@ -347,6 +354,32 @@ export function NewEstimateForm({
       color: sc.color,
       labor: defaultLaborConfig(newType),
     });
+  };
+
+  // Gate list — the array is the source of truth; the legacy summary
+  // fields (numGates*/gateStyle/gateMotor) are derived so the compliance
+  // analyzer and anything else reading them stays consistent.
+  const setGates = (gates: GateSpec[]) => {
+    setFence({ ...fence, gates, ...gateCountSummary(gates) });
+  };
+
+  const updateGate = (index: number, patch: Partial<GateSpec>) => {
+    setGates(
+      (fence.gates ?? []).map((g, i) => (i === index ? { ...g, ...patch } : g)),
+    );
+  };
+
+  // Style change follows the new style's standard width — but only when the
+  // width still matches the old style's standard (i.e. the user never
+  // touched it). A hand-entered width survives style switches.
+  const updateGateStyle = (index: number, style: ChoosableGateStyle) => {
+    const g = (fence.gates ?? [])[index];
+    if (!g) return;
+    const widthFeet =
+      g.widthFeet === GATE_STANDARD_WIDTH_FEET[g.style]
+        ? GATE_STANDARD_WIDTH_FEET[style]
+        : g.widthFeet;
+    updateGate(index, { style, widthFeet });
   };
 
   const setLaborMode = (mode: "per_foot" | "per_hour") => {
@@ -1359,74 +1392,128 @@ export function NewEstimateForm({
       </StepPanel>
 
       {/* ── Step 5 — Gates & motors ──────────────────────────── */}
-      <StepPanel show={step === 4} title="Gates & motors">
+      <StepPanel
+        show={step === 4}
+        title="Gates & motors"
+        right={
+          <button
+            type="button"
+            onClick={() =>
+              setGates([...(fence.gates ?? []), defaultGateSpec()])
+            }
+            className="text-sm font-semibold text-brand hover:text-ink"
+          >
+            + Add gate
+          </button>
+        }
+      >
         <div
           className={
             fenceEnabled ? "" : "opacity-40 pointer-events-none select-none"
           }
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
-            <SelectField
-              label="Gate style"
-              name="gateStyle"
-              value={fence.gateStyle ?? "swing_walk"}
-              onChange={(v) =>
-                setFence({ ...fence, gateStyle: v as GateStyle })
-              }
-              options={(
-                [
-                  "swing_walk",
-                  "swing_drive",
-                  "sliding",
-                  "cantilever",
-                  "bi_parting",
-                  "none",
-                ] as GateStyle[]
-              ).map((s) => ({
-                value: s,
-                label: GATE_STYLE_LABELS[s],
-              }))}
-            />
-            <SelectField
-              label="Gate motor / opener"
-              name="gateMotor"
-              value={fence.gateMotor ?? "none"}
-              onChange={(v) =>
-                setFence({ ...fence, gateMotor: v as GateMotor })
-              }
-              options={(
-                [
-                  "none",
-                  "swing_single",
-                  "swing_double",
-                  "slide",
-                  "solar",
-                  "hydraulic",
-                ] as GateMotor[]
-              ).map((m) => ({
-                value: m,
-                label: GATE_MOTOR_LABELS[m],
-              }))}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <NumField
-              label="Walk gates (count)"
-              name="numGatesSingle"
-              value={fence.numGatesSingle}
-              step={1}
-              min={0}
-              onChange={(v) => setFence({ ...fence, numGatesSingle: v })}
-            />
-            <NumField
-              label="Drive gates (count)"
-              name="numGatesDouble"
-              value={fence.numGatesDouble}
-              step={1}
-              min={0}
-              onChange={(v) => setFence({ ...fence, numGatesDouble: v })}
-            />
-          </div>
+          {/* Per-gate specs travel to the server as one JSON payload; the
+              per-row inputs below are UI state only. */}
+          <input
+            type="hidden"
+            name="gatesJson"
+            value={JSON.stringify(fence.gates ?? [])}
+          />
+          {(fence.gates ?? []).length === 0 ? (
+            <p className="text-sm text-slate-500">
+              No gates on this job. Use{" "}
+              <span className="font-semibold">+ Add gate</span> to add one —
+              each gate gets its own style, width, and motor (e.g. a 4 ft
+              walk gate plus a 12 ft roll gate).
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {(fence.gates ?? []).map((g, i) => (
+                <div
+                  key={i}
+                  className="rounded-lg border border-line bg-slate-50/50 p-4"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Gate {i + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGates(
+                          (fence.gates ?? []).filter((_, idx) => idx !== i),
+                        )
+                      }
+                      className="text-sm text-slate-400 hover:text-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <SelectField
+                      label="Gate style"
+                      name={`gate_${i}_style`}
+                      value={g.style}
+                      onChange={(v) =>
+                        updateGateStyle(i, v as ChoosableGateStyle)
+                      }
+                      options={(
+                        [
+                          "swing_walk",
+                          "swing_drive",
+                          "sliding",
+                          "cantilever",
+                          "bi_parting",
+                        ] as ChoosableGateStyle[]
+                      ).map((s) => ({
+                        value: s,
+                        label: GATE_STYLE_LABELS[s],
+                      }))}
+                    />
+                    <NumField
+                      label="Width (ft)"
+                      name={`gate_${i}_widthFeet`}
+                      value={g.widthFeet}
+                      step={1}
+                      min={2}
+                      max={60}
+                      onChange={(v) => updateGate(i, { widthFeet: v })}
+                    />
+                    <SelectField
+                      label="Motor / opener"
+                      name={`gate_${i}_motor`}
+                      value={g.motor}
+                      onChange={(v) => updateGate(i, { motor: v as GateMotor })}
+                      options={(
+                        [
+                          "none",
+                          "swing_single",
+                          "swing_double",
+                          "slide",
+                          "solar",
+                          "hydraulic",
+                        ] as GateMotor[]
+                      ).map((m) => ({
+                        value: m,
+                        label: GATE_MOTOR_LABELS[m],
+                      }))}
+                    />
+                    <NumField
+                      label="Quantity"
+                      name={`gate_${i}_qty`}
+                      value={g.qty}
+                      step={1}
+                      min={1}
+                      max={20}
+                      onChange={(v) =>
+                        updateGate(i, { qty: Math.max(1, Math.round(v)) })
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </StepPanel>
 
@@ -1698,7 +1785,7 @@ export function NewEstimateForm({
             <div className="px-4 py-3 bg-ink text-paper text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="text-paper/80">
                 Save the estimate, then upload property photos. Renders
-                drop into the customer's quote automatically.
+                drop into the customer&apos;s quote automatically.
               </div>
               <Sparkles className="w-4 h-4 text-brand shrink-0 hidden sm:block" />
             </div>

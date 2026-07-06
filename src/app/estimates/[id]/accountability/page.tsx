@@ -35,6 +35,7 @@ import {
   analyzeCompliance,
   calculateFenceJob,
   fenceJobRowToCalcInput,
+  totalGateCount,
   type FenceType,
 } from "@/lib/fence";
 import { getStorage } from "@/lib/storage";
@@ -99,7 +100,7 @@ export default async function AccountabilityListPage(
     zip: est.client.zip,
   });
 
-  const totalGates = fenceJob.numGatesSingle + fenceJob.numGatesDouble;
+  const totalGates = totalGateCount(calcInput);
   const fenceTypeLabel =
     FENCE_TYPE_LABELS[fenceJob.fenceType as FenceType] ?? fenceJob.fenceType;
 
@@ -320,36 +321,55 @@ export default async function AccountabilityListPage(
                 icon={<Wrench className="w-4 h-4" />}
                 title={`Gates (${totalGates})`}
               />
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
-                {fenceJob.numGatesSingle > 0 && (
+              {calcInput.gates ? (
+                // Per-gate specs — one cell per gate group so the crew sees
+                // each gate's style, width, and operator.
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
+                  {calcInput.gates.map((g, i) => (
+                    <FactCell
+                      key={i}
+                      label={`Gate ${i + 1}${g.qty > 1 ? ` (×${g.qty})` : ""}`}
+                      value={`${GATE_STYLE_LABELS[g.style]} · ${g.widthFeet} ft wide${
+                        g.motor !== "none"
+                          ? ` · ${GATE_MOTOR_LABELS[g.motor]}`
+                          : ""
+                      }`}
+                    />
+                  ))}
+                </div>
+              ) : (
+                // Legacy rows — summary counts + single style/motor.
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
+                  {fenceJob.numGatesSingle > 0 && (
+                    <FactCell
+                      label="Single gates"
+                      value={String(fenceJob.numGatesSingle)}
+                    />
+                  )}
+                  {fenceJob.numGatesDouble > 0 && (
+                    <FactCell
+                      label="Double gates"
+                      value={String(fenceJob.numGatesDouble)}
+                    />
+                  )}
                   <FactCell
-                    label="Single gates"
-                    value={String(fenceJob.numGatesSingle)}
+                    label="Style"
+                    value={
+                      GATE_STYLE_LABELS[
+                        fenceJob.gateStyle as keyof typeof GATE_STYLE_LABELS
+                      ] ?? fenceJob.gateStyle
+                    }
                   />
-                )}
-                {fenceJob.numGatesDouble > 0 && (
                   <FactCell
-                    label="Double gates"
-                    value={String(fenceJob.numGatesDouble)}
+                    label="Motor"
+                    value={
+                      GATE_MOTOR_LABELS[
+                        fenceJob.gateMotor as keyof typeof GATE_MOTOR_LABELS
+                      ] ?? fenceJob.gateMotor
+                    }
                   />
-                )}
-                <FactCell
-                  label="Style"
-                  value={
-                    GATE_STYLE_LABELS[
-                      fenceJob.gateStyle as keyof typeof GATE_STYLE_LABELS
-                    ] ?? fenceJob.gateStyle
-                  }
-                />
-                <FactCell
-                  label="Motor"
-                  value={
-                    GATE_MOTOR_LABELS[
-                      fenceJob.gateMotor as keyof typeof GATE_MOTOR_LABELS
-                    ] ?? fenceJob.gateMotor
-                  }
-                />
-              </div>
+                </div>
+              )}
               {fenceJob.poolAdjacent && (
                 <div className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-md bg-amber-50 border border-amber-300 text-sm text-amber-900">
                   <Shield className="w-4 h-4 shrink-0" />

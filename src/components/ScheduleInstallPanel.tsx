@@ -21,7 +21,6 @@ interface Props {
 
 export function ScheduleInstallPanel({
   estimateId,
-  fenceJobId: _fenceJobId,
   initialDate,
   initialCrewId,
   installStatus,

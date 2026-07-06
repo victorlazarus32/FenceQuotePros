@@ -30,7 +30,6 @@ import {
   getTemplate,
   pickApplicableTemplates,
   type EstimateRenderContext,
-  type PermitDocTemplate,
 } from "@/lib/permitDocs";
 import {
   buildHoaInitialFieldValues,

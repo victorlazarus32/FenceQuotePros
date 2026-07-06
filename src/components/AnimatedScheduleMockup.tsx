@@ -167,7 +167,6 @@ const SCENES: Scene[] = [
   },
 ];
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const SCENE_MS = 4500;
 
 export default function AnimatedScheduleMockup({

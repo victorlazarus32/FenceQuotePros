@@ -73,7 +73,7 @@ export default async function ProfilePage() {
           <p className="text-sm text-slate-600 mt-1 max-w-md">
             Used to auto-sign permit documents like the Miami-Dade Sec.
             33-11 fence addendum and the Permit Application qualifier line.
-            Sign once here — it's applied to every contractor signature line
+            Sign once here — it&apos;s applied to every contractor signature line
             on documents you generate.
           </p>
         </div>

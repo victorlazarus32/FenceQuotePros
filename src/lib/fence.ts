@@ -30,20 +30,6 @@ export const FENCE_TYPE_LABELS: Record<FenceType, string> = {
   concrete_column: "Concrete Column",
 };
 
-// Base price per linear foot at the most common (6 ft) height, in cents.
-const BASE_PRICE_PER_LF_CENTS: Record<FenceType, number> = {
-  chain_link: 1800,
-  wood_privacy: 3500,
-  wood_picket: 2800,
-  vinyl: 4500,
-  aluminum: 4800,
-  wrought_iron: 6500,
-  composite: 5500,
-  dura_fence: 5000,
-  concrete_wall: 8000,
-  concrete_column: 3000,
-};
-
 // Per-foot of height above 4 ft (extra material + labor).
 const HEIGHT_UPCHARGE_PER_FOOT_CENTS: Record<FenceType, number> = {
   chain_link: 350,
@@ -339,13 +325,124 @@ const GATE_MOTOR_PRICE_CENTS: Record<GateMotor, number> = {
   hydraulic: 350000,
 };
 
+// — Per-gate specs ————————————————————————————————————————————————
+// One entry per gate (or per group of identical gates via qty), each with
+// its own style, width, and motor — a job can mix a 4' walk gate with a
+// 12' roll gate. Preferred over the legacy numGatesSingle/numGatesDouble +
+// single gateStyle/gateMotor fields, which remain as derived summaries.
+
+export type ChoosableGateStyle = Exclude<GateStyle, "none">;
+
+export type GateSpec = {
+  style: ChoosableGateStyle;
+  widthFeet: number;
+  motor: GateMotor;
+  qty: number;
+};
+
+// Base price covers a gate up to this width; wider gates scale the price
+// linearly above it. Narrower gates don't discount — posts, hinges/track,
+// and fabrication are fixed costs regardless of leaf width.
+export const GATE_STANDARD_WIDTH_FEET: Record<ChoosableGateStyle, number> = {
+  swing_walk: 4,
+  swing_drive: 10,
+  sliding: 12,
+  cantilever: 12,
+  bi_parting: 12,
+};
+
+// Customer-doc line labels — speak the contractor's language ("roll gate")
+// rather than the internal enum names.
+export const GATE_LINE_LABELS: Record<ChoosableGateStyle, string> = {
+  swing_walk: "Walk gate — swing",
+  swing_drive: "Drive gate — double swing",
+  sliding: "Roll gate — sliding on track",
+  cantilever: "Roll gate — cantilever (track-free)",
+  bi_parting: "Drive gate — bi-parting swing",
+};
+
+export function defaultGateSpec(
+  style: ChoosableGateStyle = "swing_walk",
+): GateSpec {
+  return {
+    style,
+    widthFeet: GATE_STANDARD_WIDTH_FEET[style],
+    motor: "none",
+    qty: 1,
+  };
+}
+
+// Derived legacy summary — keeps the numGates*/gateStyle/gateMotor columns
+// (and everything that reads them: visualize gate flag, accountability
+// counts, compliance checks) populated when the source of truth is the
+// per-gate array. Walk-style gates count as "single", everything else as
+// "double".
+export function gateCountSummary(gates: GateSpec[]): {
+  numGatesSingle: number;
+  numGatesDouble: number;
+  gateStyle: GateStyle;
+  gateMotor: GateMotor;
+} {
+  let single = 0;
+  let double = 0;
+  for (const g of gates) {
+    if (g.qty <= 0) continue;
+    if (g.style === "swing_walk") single += g.qty;
+    else double += g.qty;
+  }
+  const first = gates.find((g) => g.qty > 0);
+  const firstMotor = gates.find((g) => g.qty > 0 && g.motor !== "none");
+  return {
+    numGatesSingle: single,
+    numGatesDouble: double,
+    gateStyle: first?.style ?? "none",
+    gateMotor: firstMotor?.motor ?? "none",
+  };
+}
+
+// Persisted as JSON — validate loosely on the way back out. Anything
+// malformed falls back to the legacy count columns (returns undefined,
+// never a best-guess partial array).
+export function parseGateSpecs(raw: unknown): GateSpec[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const out: GateSpec[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const o = item as Record<string, unknown>;
+    if (typeof o.style !== "string" || !(o.style in GATE_STANDARD_WIDTH_FEET))
+      continue;
+    const style = o.style as ChoosableGateStyle;
+    const widthFeet =
+      typeof o.widthFeet === "number" &&
+      Number.isFinite(o.widthFeet) &&
+      o.widthFeet > 0
+        ? o.widthFeet
+        : GATE_STANDARD_WIDTH_FEET[style];
+    const motor =
+      typeof o.motor === "string" && o.motor in GATE_MOTOR_PRICE_CENTS
+        ? (o.motor as GateMotor)
+        : "none";
+    const qty =
+      typeof o.qty === "number" && Number.isFinite(o.qty)
+        ? Math.max(1, Math.round(o.qty))
+        : 1;
+    out.push({ style, widthFeet, motor, qty });
+  }
+  return out.length > 0 ? out : undefined;
+}
+
+export function totalGateCount(
+  input: Pick<FenceCalcInput, "gates" | "numGatesSingle" | "numGatesDouble">,
+): number {
+  if (input.gates) return input.gates.reduce((s, g) => s + Math.max(0, g.qty), 0);
+  return input.numGatesSingle + input.numGatesDouble;
+}
+
 const TERRAIN_MULTIPLIER: Record<string, number> = {
   flat: 1.0,
   sloped: 1.15,
   rocky: 1.3,
 };
-
-const REMOVAL_PER_LF_CENTS = 400;
 
 // One-tap add-on presets — used by the form's quick-add chips.
 // Tapping a chip drops a prefilled custom line into the estimate; the contractor
@@ -754,6 +851,10 @@ export type FenceCalcInput = {
   color?: string;
 
   // Gates §3.4
+  // Per-gate specs — preferred. When present the engine prices each gate
+  // from its own style/width/motor and ignores the three legacy fields
+  // below (kept for rows saved before per-gate specs existed).
+  gates?: GateSpec[];
   gateStyle?: GateStyle;
   gateMotor?: GateMotor;
 
@@ -824,7 +925,7 @@ export function analyzeCompliance(input: FenceCalcInput): ComplianceWarning[] {
           'Chain-link as a pool barrier per Miami-Dade Sec. 33-12(i): 2" chain link or diamond weave (nonclimbable), top rail required, heavy galvanized. (FBC residential allows ≤ 1¾" with slats — local MDC ordinance is stricter.)',
       });
     }
-    if (input.numGatesSingle + input.numGatesDouble > 0) {
+    if (totalGateCount(input) > 0) {
       w.push({
         severity: "warning",
         code: "POOL_GATE_HARDWARE",
@@ -993,6 +1094,8 @@ type SavedFenceJobRow = {
   hvhz: boolean;
   style: string | null;
   color: string | null;
+  // Prisma Json column — per-gate specs array, null on legacy rows.
+  gates?: unknown;
   gateStyle: string;
   gateMotor: string;
   permitRequired: boolean;
@@ -1067,6 +1170,7 @@ export function fenceJobRowToCalcInput(
     hvhz: row.hvhz,
     style: row.style ?? undefined,
     color: row.color ?? undefined,
+    gates: parseGateSpecs(row.gates),
     gateStyle: row.gateStyle as GateStyle,
     gateMotor: row.gateMotor as GateMotor,
     permitRequired: row.permitRequired,
@@ -1174,30 +1278,67 @@ export function calculateFenceJob(input: FenceCalcInput): FenceCalcResult {
   const laborCents = laborRateCents * laborQuantity;
 
   // ── 5. Gates + motors ────────────────────────────────────────────
-  const gateStyle = input.gateStyle ?? "swing_walk";
-  const styleMult = GATE_STYLE_MULTIPLIER[gateStyle] ?? 1.0;
-  const totalGates = input.numGatesSingle + input.numGatesDouble;
-  const gateMotor = input.gateMotor ?? "none";
-  let gatesCents = 0;
-  let singleGateUnitCents = 0;
-  let doubleGateUnitCents = 0;
-  if (input.numGatesSingle > 0) {
-    singleGateUnitCents = Math.round(
-      GATE_SINGLE_CENTS[input.fenceType] * styleMult,
-    );
-    gatesCents += input.numGatesSingle * singleGateUnitCents;
+  // Per-gate specs (preferred) or the legacy single/double count fields.
+  // Each group prices independently: base by walk vs drive class, × style
+  // multiplier, × width factor when wider than the style's standard width.
+  type GateGroup = { description: string; qty: number; unitCents: number; motor: GateMotor };
+  const gateGroups: GateGroup[] = [];
+  if (input.gates) {
+    for (const g of input.gates) {
+      if (g.qty <= 0) continue;
+      const baseCents =
+        g.style === "swing_walk"
+          ? GATE_SINGLE_CENTS[input.fenceType]
+          : GATE_DOUBLE_CENTS[input.fenceType];
+      const stdWidth = GATE_STANDARD_WIDTH_FEET[g.style];
+      const widthMult = Math.max(1, g.widthFeet / stdWidth);
+      gateGroups.push({
+        description: `${GATE_LINE_LABELS[g.style]}, ${g.widthFeet} ft wide (with hardware)`,
+        qty: g.qty,
+        unitCents: Math.round(
+          baseCents * (GATE_STYLE_MULTIPLIER[g.style] ?? 1.0) * widthMult,
+        ),
+        motor: g.motor,
+      });
+    }
+  } else {
+    // Legacy fields — reproduce the original pricing exactly so estimates
+    // saved before per-gate specs recompute to the same totals.
+    const gateStyle = input.gateStyle ?? "swing_walk";
+    const styleMult = GATE_STYLE_MULTIPLIER[gateStyle] ?? 1.0;
+    const gateMotor = input.gateMotor ?? "none";
+    const isSwing = gateStyle === "swing_walk" || gateStyle === "swing_drive";
+    const gateStyleLabelSuffix = isSwing
+      ? ""
+      : ` — ${GATE_STYLE_LABELS[gateStyle].toLowerCase()}`;
+    if (input.numGatesSingle > 0) {
+      gateGroups.push({
+        description: `Single walk gate (with hardware)${gateStyleLabelSuffix}`,
+        qty: input.numGatesSingle,
+        unitCents: Math.round(GATE_SINGLE_CENTS[input.fenceType] * styleMult),
+        motor: gateMotor,
+      });
+    }
+    if (input.numGatesDouble > 0) {
+      gateGroups.push({
+        description: `Double drive gate (with hardware)${gateStyleLabelSuffix}`,
+        qty: input.numGatesDouble,
+        unitCents: Math.round(GATE_DOUBLE_CENTS[input.fenceType] * styleMult),
+        motor: gateMotor,
+      });
+    }
   }
-  if (input.numGatesDouble > 0) {
-    doubleGateUnitCents = Math.round(
-      GATE_DOUBLE_CENTS[input.fenceType] * styleMult,
-    );
-    gatesCents += input.numGatesDouble * doubleGateUnitCents;
+  const gatesCents = gateGroups.reduce((s, g) => s + g.qty * g.unitCents, 0);
+  // Motors — merged by operator type so identical operators emit one line.
+  const motorTotals = new Map<GateMotor, number>();
+  for (const g of gateGroups) {
+    if (g.motor === "none") continue;
+    motorTotals.set(g.motor, (motorTotals.get(g.motor) ?? 0) + g.qty);
   }
-  const motorUnitCents =
-    gateMotor !== "none" && totalGates > 0
-      ? GATE_MOTOR_PRICE_CENTS[gateMotor]
-      : 0;
-  const motorsCents = motorUnitCents * (motorUnitCents > 0 ? totalGates : 0);
+  let motorsCents = 0;
+  for (const [motor, qty] of motorTotals) {
+    motorsCents += GATE_MOTOR_PRICE_CENTS[motor] * qty;
+  }
 
   // ── 6. Removal & haul-away ───────────────────────────────────────
   const removalRate =
@@ -1329,41 +1470,27 @@ export function calculateFenceJob(input: FenceCalcInput): FenceCalcResult {
     });
   }
 
-  // Gates
-  const isSwing = gateStyle === "swing_walk" || gateStyle === "swing_drive";
-  const gateStyleLabelSuffix = isSwing
-    ? ""
-    : ` — ${GATE_STYLE_LABELS[gateStyle].toLowerCase()}`;
-  if (input.numGatesSingle > 0) {
-    const adj = Math.round(singleGateUnitCents * markup);
+  // Gates — one line per gate group (each style/width combo is its own line)
+  for (const g of gateGroups) {
+    const adj = Math.round(g.unitCents * markup);
     lines.push({
-      description: `Single walk gate (with hardware)${gateStyleLabelSuffix}`,
-      quantity: input.numGatesSingle,
+      description: g.description,
+      quantity: g.qty,
       unit: "ea",
       unitPriceCents: adj,
-      totalCents: input.numGatesSingle * adj,
-    });
-  }
-  if (input.numGatesDouble > 0) {
-    const adj = Math.round(doubleGateUnitCents * markup);
-    lines.push({
-      description: `Double drive gate (with hardware)${gateStyleLabelSuffix}`,
-      quantity: input.numGatesDouble,
-      unit: "ea",
-      unitPriceCents: adj,
-      totalCents: input.numGatesDouble * adj,
+      totalCents: g.qty * adj,
     });
   }
 
-  // Motors
-  if (motorUnitCents > 0 && totalGates > 0) {
-    const adj = Math.round(motorUnitCents * markup);
+  // Motors — one line per operator type
+  for (const [motor, qty] of motorTotals) {
+    const adj = Math.round(GATE_MOTOR_PRICE_CENTS[motor] * markup);
     lines.push({
-      description: `${GATE_MOTOR_LABELS[gateMotor]} (with install & hardware)`,
-      quantity: totalGates,
+      description: `${GATE_MOTOR_LABELS[motor]} (with install & hardware)`,
+      quantity: qty,
       unit: "ea",
       unitPriceCents: adj,
-      totalCents: totalGates * adj,
+      totalCents: qty * adj,
     });
   }
 

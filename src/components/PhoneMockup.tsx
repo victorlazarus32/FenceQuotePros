@@ -240,7 +240,7 @@ export function PhoneMockup() {
                 color: "#4a3a00",
               }}
             >
-              <strong>Heads up:</strong> Latch height ≥ 54" required (FBC R4501)
+              <strong>Heads up:</strong> Latch height ≥ 54&quot; required (FBC R4501)
             </div>
 
             {/* Calculated lines */}
@@ -257,7 +257,7 @@ export function PhoneMockup() {
               <div className="space-y-1 text-[10px]">
                 <div className="flex items-center justify-between">
                   <span style={{ color: "var(--text-strong)" }}>
-                    Aluminum 5' × 140
+                    Aluminum 5&apos; × 140
                   </span>
                   <span className="font-mono tabular-nums">$7,280</span>
                 </div>
